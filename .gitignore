@@ -1,0 +1,26 @@
+# Logs
+logs
+*.log
+yarn-debug.log*
+yarn-error.log*
+
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Environment variables — never commit secrets
+.env
+.env.*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
