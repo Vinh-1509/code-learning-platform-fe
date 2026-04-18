@@ -1,0 +1,140 @@
+---
+description: CodeStep FE — coding conventions and design rules
+globs: ["src/**/*.tsx", "src/**/*.ts"]
+alwaysApply: true
+---
+
+# CodeStep Frontend Rules
+
+## Package Manager
+- **Always use `yarn`**, never `npm` or `npx`.
+  - Install deps: `yarn add <package>`
+  - Run scripts: `yarn dev`, `yarn build`, `yarn lint`
+  - Do NOT generate or reference `package-lock.json`
+
+---
+
+## JSX — No Inline Logic
+
+Never write conditional logic or complex expressions directly inside JSX.  
+Extract them into named variables **before** the return statement.
+
+```tsx
+// ❌ Bad
+return (
+  <div>
+    {user.role === 'admin' && isLoggedIn ? <AdminPanel /> : <GuestView />}
+  </div>
+)
+
+// ✅ Good
+const showAdminPanel = user.role === 'admin' && isLoggedIn
+const content = showAdminPanel ? <AdminPanel /> : <GuestView />
+
+return <div>{content}</div>
+```
+
+This applies to:
+- Ternary expressions with JSX on either branch
+- `&&` short-circuit renders that are more than one token
+- `.map()` calls longer than a single simple expression
+- Any condition derived from more than one variable
+
+---
+
+## Component Extraction
+
+Any JSX block that is **repeated 2 or more times**, or that is **self-contained and longer than ~10 lines**, must be extracted into its own component file.
+
+```tsx
+// ❌ Bad — duplicated inline
+<span className="bg-white/5 border border-white/10 text-sm px-3 py-1 rounded-full">
+  React 19
+</span>
+<span className="bg-white/5 border border-white/10 text-sm px-3 py-1 rounded-full">
+  TypeScript
+</span>
+
+// ✅ Good — single reusable component
+// src/components/ui/Badge.tsx
+export function Badge({ label }: { label: string }) {
+  return (
+    <span className="bg-white/5 border border-white/10 text-sm px-3 py-1 rounded-full">
+      {label}
+    </span>
+  )
+}
+```
+
+---
+
+## File & Folder Structure
+
+```
+src/
+├── components/
+│   ├── ui/          # Primitive, reusable atoms (Button, Badge, Card, Input…)
+│   └── layout/      # Page-level shells (Header, Sidebar, PageWrapper…)
+├── features/        # Domain slices — each folder owns its components + hooks
+│   └── roadmap/
+│       ├── RoadmapPage.tsx
+│       ├── RoadmapNode.tsx
+│       └── useRoadmap.ts
+├── hooks/           # Shared custom hooks
+├── lib/             # Pure utility functions, API client setup
+├── types/           # Shared TypeScript types & interfaces
+└── pages/           # Route-level entry points (thin, delegates to features/)
+```
+
+- One component per file. File name matches the exported component name (PascalCase).
+- Hooks live in files prefixed with `use` (e.g. `useAuth.ts`).
+- Utility functions live in `src/lib/`, not inside components.
+
+---
+
+## TypeScript
+
+- **No `any`**. Use `unknown` and narrow, or define a proper type.
+- Define prop types with an `interface` immediately above the component.
+- Prefer explicit return types on hooks and utility functions.
+- Use `type` for unions/aliases, `interface` for object shapes.
+
+```tsx
+// ✅
+interface BadgeProps {
+  label: string
+  variant?: 'default' | 'primary'
+}
+
+export function Badge({ label, variant = 'default' }: BadgeProps) { … }
+```
+
+---
+
+## Styling (Tailwind CSS v4)
+
+- Use Tailwind utility classes directly; avoid inline `style={{}}` except for truly dynamic values (e.g. calculated widths).
+- Group classes logically: layout → spacing → typography → color → effects.
+- If a class list exceeds ~6 classes, consider extracting a semantic CSS class with `@apply` in `index.css`.
+- Never use `!important` overrides.
+
+---
+
+## Naming Conventions
+
+| Thing | Convention | Example |
+|---|---|---|
+| Component | PascalCase | `RoadmapNode.tsx` |
+| Hook | camelCase prefixed `use` | `useRoadmapProgress.ts` |
+| Utility fn | camelCase | `formatXP.ts` |
+| Type/Interface | PascalCase | `UserProgress` |
+| Constants | SCREAMING_SNAKE | `MAX_STREAK_DAYS` |
+| CSS class (custom) | kebab-case | `.card-glow` |
+
+---
+
+## API Calls
+
+- All backend requests go through the `/api` proxy (never hardcode `localhost:3000` in component code).
+- Centralise fetch logic in `src/lib/api.ts`; components call typed helper functions, not raw `fetch`.
+- Use `VITE_API_URL` from `.env` only inside `vite.config.ts` — never import it in component code.
