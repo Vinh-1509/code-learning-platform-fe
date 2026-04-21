@@ -1,0 +1,15 @@
+# Các thư mục chứa thư viện và build
+node_modules
+dist
+build
+out
+
+# File cấu hình hệ thống và lock
+package-lock.json
+yarn.lock
+.husky
+
+# Các file tĩnh
+public
+*.min.css
+*.min.js
