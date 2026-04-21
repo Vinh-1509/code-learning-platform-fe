@@ -52,11 +52,13 @@ This project uses **Husky**, **Lint-staged**, **ESLint**, and **Prettier** to ma
 - **Static Analysis**: ESLint checks for potential bugs and style issues. If ESLint finds errors that cannot be auto-fixed, the commit will be blocked until you fix them.
 
 To manually format the codebase:
+
 ```bash
 yarn format
 ```
 
 To manually check for linting errors:
+
 ```bash
 yarn lint
 ```
