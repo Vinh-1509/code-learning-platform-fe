@@ -29,6 +29,7 @@ An AI-driven educational platform designed to help absolute beginners master **C
 ### Development
 
 Start the development server:
+
 ```bash
 yarn dev
 ```
@@ -39,11 +40,31 @@ The app will be available at `http://localhost:5173`.
 
 - `yarn build`: Build for production
 - `yarn lint`: Run ESLint
+- `yarn format`: Format all files with Prettier
 - `yarn preview`: Preview production build locally
+
+## 🛡️ Code Quality & Workflow
+
+This project uses **Husky**, **Lint-staged**, **ESLint**, and **Prettier** to maintain high code standards automatically.
+
+- **Pre-commit Hook**: Every time you commit code, Husky runs `lint-staged`.
+- **Automatic Formatting**: Files are automatically formatted with Prettier before being committed.
+- **Static Analysis**: ESLint checks for potential bugs and style issues. If ESLint finds errors that cannot be auto-fixed, the commit will be blocked until you fix them.
+
+To manually format the codebase:
+```bash
+yarn format
+```
+
+To manually check for linting errors:
+```bash
+yarn lint
+```
 
 ## 📏 Design Rules
 
 Refer to `.cursor/rules/frontend.mdc` for coding conventions, including:
+
 - No inline JSX logic
 - Component extraction rules
 - File structure conventions
