@@ -9,7 +9,6 @@ package.json
 .prettierrc
 *.config.js
 tsconfig.*
-vite.config.ts
 yarn.lock
 .husky
 
