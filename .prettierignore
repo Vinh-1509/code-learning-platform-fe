@@ -5,7 +5,11 @@ build
 out
 
 # File cấu hình hệ thống và lock
-package-lock.json
+package.json
+.prettierrc
+*.config.js
+tsconfig.*
+vite.config.ts
 yarn.lock
 .husky
 
