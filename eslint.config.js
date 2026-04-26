@@ -33,8 +33,11 @@ export default defineConfig([
       'no-multiple-empty-lines': ['error', { max: 1, maxEOF: 0 }],
 
       '@typescript-eslint/no-unused-vars': [
-        'warn',
-        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+        'error',
+        { 
+          argsIgnorePattern: '^_', 
+          varsIgnorePattern: '^_' 
+        },
       ],
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-floating-promises': 'error',
