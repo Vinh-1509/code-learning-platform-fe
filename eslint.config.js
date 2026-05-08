@@ -44,4 +44,11 @@ export default defineConfig([
       '@typescript-eslint/require-await': 'error',
     },
   },
+
+  {
+    files: ['src/routes/**/*.tsx'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
 ]);
