@@ -1,7 +1,8 @@
 import { StrictMode } from 'react';
+import { AuthProvider } from '@/features/auth/useAuth';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-
+import './index.css';
 const rootElement = document.getElementById('root')!;
 
 if (!rootElement.innerHTML) {
@@ -9,7 +10,9 @@ if (!rootElement.innerHTML) {
 
   root.render(
     <StrictMode>
-      <App />
+      <AuthProvider>
+        <App />
+      </AuthProvider>
     </StrictMode>
   );
 }

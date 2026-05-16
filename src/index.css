@@ -2,7 +2,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
-@import '@fontsource-variable/geist';
+@import '@fontsource-variable/inter';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -164,7 +164,7 @@ body,
   --yellow-patel: oklch(0.761 0.171 61.964);
   --green-patel: oklch(0.729 0.194 147.514);
   --trueaccent: oklch(0.953 0.022 272.058)
-  --dark-gray: oklch(0.846 0.022 271.157);
+    --dark-gray: oklch(0.846 0.022 271.157);
   --hint-yellow: oklch(0.974 0.02 74.665);
   --codeblock-header: oklch(0.208 0.031 269.49);
   --brown: oklch(0.486 0.112 59.823);
@@ -242,7 +242,7 @@ body,
   --yellow-patel: oklch(0.761 0.171 61.964);
   --green-patel: oklch(0.729 0.194 147.514);
   --trueaccent: oklch(0.953 0.022 272.058)
-  --dark-gray: oklch(0.846 0.022 271.157);
+    --dark-gray: oklch(0.846 0.022 271.157);
   --hint-yellow: oklch(0.974 0.02 74.665);
   --codeblock-header: oklch(0.208 0.031 269.49);
   --brown: oklch(0.486 0.112 59.823);
