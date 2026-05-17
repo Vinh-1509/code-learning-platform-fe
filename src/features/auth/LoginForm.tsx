@@ -7,7 +7,7 @@ import {
   FieldLabel,
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { Mail, Lock, Eye, Check } from 'lucide-react';
+import { Mail, Lock, Check } from 'lucide-react';
 
 interface LoginFormProps {
   onSubmit: (data: { email: string; password: string }) => Promise<void>;
@@ -84,7 +84,6 @@ export function LoginForm({ onSubmit, loading }: LoginFormProps) {
               required
               className="bg-background pl-10 pr-10 h-12 border-slate-200 focus-visible:ring-blue-600 rounded-lg"
             />
-            <Eye className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 cursor-pointer hover:text-slate-600" />
           </div>
         </Field>
 

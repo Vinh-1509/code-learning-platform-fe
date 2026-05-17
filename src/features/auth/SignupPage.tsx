@@ -49,7 +49,6 @@ export default function SignUpPage() {
         </div>
       </div>
 
-      {/* RIGHT SIDE: Nơi chứa Form Đăng Nhập */}
       <div className="flex flex-col justify-center p-6 sm:p-10  bg-white">
         <div className=" w-full flex items-center justify-center">
           <SignUpForm onSubmit={register} loading={loading} error={error} />

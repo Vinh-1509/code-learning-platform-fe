@@ -1,8 +1,7 @@
-import type { AuthResponse, AuthPayload } from '@/types/auth';
+import type { AuthPayload } from '@/types/auth';
 import { createContext } from 'react';
 
 interface AuthContextValue {
-  user: AuthResponse['user'] | null;
   token: string | null;
   loading: boolean;
   error: string | null;

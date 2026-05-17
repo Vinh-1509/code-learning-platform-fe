@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-// --- INSTANCE SETUP ---
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   headers: { 'Content-Type': 'application/json' },
@@ -27,8 +26,6 @@ api.interceptors.response.use(
 
 import type { AuthPayload, AuthResponse } from '@/types/auth';
 
-// src/features/auth/useAuth.ts
-
 export async function loginUser(payload: AuthPayload): Promise<AuthResponse> {
   const { data } = await api.post<AuthResponse>('/auth/login', payload);
   return data;
@@ -43,19 +40,19 @@ export async function registerUser(
 
 import type { LanguageOption, Language } from '@/types/language_selection';
 
-// TODO: thay bằng api.get('/languages') khi BE xong
+// thay bằng api.get('/languages') khi BE xong
 export async function fetchLanguages(): Promise<LanguageOption[]> {
   await new Promise((r) => setTimeout(r, 800));
   return LANGUAGE_DATA;
 }
 
-// TODO: thay bằng api.post('/user/language', { language }) khi BE xong
+// thay bằng api.post('/user/language', { language }) khi BE xong
 export async function saveLanguage(language: Language): Promise<void> {
   await new Promise((r) => setTimeout(r, 600));
   console.log(language);
 }
 
-// Mock data — xóa khi có API
+// Mock data
 const LANGUAGE_DATA: LanguageOption[] = [
   {
     id: 'cpp',
