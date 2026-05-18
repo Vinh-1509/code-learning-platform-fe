@@ -22,10 +22,9 @@
     "noFallthroughCasesInSwitch": true,
 
     /*Shadcn Setup*/
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "routeTree.gen.ts", "main.tsx"]
 }
