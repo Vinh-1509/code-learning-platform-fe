@@ -17,6 +17,7 @@ import { Route as IndexRouteImport } from './routes/index';
 
 const SignupLazyRouteImport = createFileRoute('/signup')();
 const LoginLazyRouteImport = createFileRoute('/login')();
+const LessonLazyRouteImport = createFileRoute('/lesson')();
 const LanguageselectionLazyRouteImport =
   createFileRoute('/languageselection')();
 
@@ -30,6 +31,11 @@ const LoginLazyRoute = LoginLazyRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/login.lazy').then((d) => d.Route));
+const LessonLazyRoute = LessonLazyRouteImport.update({
+  id: '/lesson',
+  path: '/lesson',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() => import('./routes/lesson.lazy').then((d) => d.Route));
 const LanguageselectionLazyRoute = LanguageselectionLazyRouteImport.update({
   id: '/languageselection',
   path: '/languageselection',
@@ -46,7 +52,7 @@ const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any).lazy(() => import('./routes/dashboard.lazy').then((d) => d.Route));
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -58,6 +64,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute;
   '/practice': typeof PracticeRoute;
   '/languageselection': typeof LanguageselectionLazyRoute;
+  '/lesson': typeof LessonLazyRoute;
   '/login': typeof LoginLazyRoute;
   '/signup': typeof SignupLazyRoute;
 }
@@ -66,6 +73,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute;
   '/practice': typeof PracticeRoute;
   '/languageselection': typeof LanguageselectionLazyRoute;
+  '/lesson': typeof LessonLazyRoute;
   '/login': typeof LoginLazyRoute;
   '/signup': typeof SignupLazyRoute;
 }
@@ -75,6 +83,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute;
   '/practice': typeof PracticeRoute;
   '/languageselection': typeof LanguageselectionLazyRoute;
+  '/lesson': typeof LessonLazyRoute;
   '/login': typeof LoginLazyRoute;
   '/signup': typeof SignupLazyRoute;
 }
@@ -85,6 +94,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/practice'
     | '/languageselection'
+    | '/lesson'
     | '/login'
     | '/signup';
   fileRoutesByTo: FileRoutesByTo;
@@ -93,6 +103,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/practice'
     | '/languageselection'
+    | '/lesson'
     | '/login'
     | '/signup';
   id:
@@ -101,6 +112,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/practice'
     | '/languageselection'
+    | '/lesson'
     | '/login'
     | '/signup';
   fileRoutesById: FileRoutesById;
@@ -110,6 +122,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute;
   PracticeRoute: typeof PracticeRoute;
   LanguageselectionLazyRoute: typeof LanguageselectionLazyRoute;
+  LessonLazyRoute: typeof LessonLazyRoute;
   LoginLazyRoute: typeof LoginLazyRoute;
   SignupLazyRoute: typeof SignupLazyRoute;
 }
@@ -128,6 +141,13 @@ declare module '@tanstack/react-router' {
       path: '/login';
       fullPath: '/login';
       preLoaderRoute: typeof LoginLazyRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    '/lesson': {
+      id: '/lesson';
+      path: '/lesson';
+      fullPath: '/lesson';
+      preLoaderRoute: typeof LessonLazyRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     '/languageselection': {
@@ -166,6 +186,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   PracticeRoute: PracticeRoute,
   LanguageselectionLazyRoute: LanguageselectionLazyRoute,
+  LessonLazyRoute: LessonLazyRoute,
   LoginLazyRoute: LoginLazyRoute,
   SignupLazyRoute: SignupLazyRoute,
 };
