@@ -1,0 +1,64 @@
+import { useState, type ReactNode } from 'react';
+import { useNavigate } from '@tanstack/react-router';
+import { loginUser, registerUser } from '@/lib/axios';
+import type { AuthResponse, AuthPayload } from '@/types/auth';
+import { AuthContext } from './authContext';
+
+function getInitialToken() {
+  return localStorage.getItem('token');
+}
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const navigate = useNavigate();
+  const [token, setToken] = useState<string | null>(getInitialToken);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const setAuth = (res: AuthResponse) => {
+    localStorage.setItem('token', res.token);
+    setToken(res.token);
+  };
+
+  const login = async (data: AuthPayload) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await loginUser(data);
+      setAuth(res);
+      void navigate({ to: '/dashboard' });
+    } catch {
+      setError('Email hoặc mật khẩu không đúng');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const register = async (data: AuthPayload) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await registerUser(data);
+      setAuth(res);
+      void navigate({ to: '/languageselection' });
+    } catch {
+      setError('Đăng ký thất bại, thử lại nhé');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const logout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setToken(null);
+    void navigate({ to: '/login' });
+  };
+
+  return (
+    <AuthContext.Provider
+      value={{ token, loading, error, login, register, logout }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+}
