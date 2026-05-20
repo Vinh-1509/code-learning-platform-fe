@@ -1,43 +1,9 @@
 import type { LessonBlock, LessonStatus } from '../types';
 import { cn } from '@/lib/utils';
 
-const LESSON_BLOCKS: LessonBlock[] = [
-  {
-    id: 1,
-    title: 'What is a Loop?',
-    subtitle: 'for, while basics',
-    tag: 'Block 1',
-    status: 'completed',
-  },
-  {
-    id: 2,
-    title: 'While Loop',
-    subtitle: 'Syntax & condition',
-    tag: 'Block 2',
-    status: 'completed',
-  },
-  {
-    id: 3,
-    title: 'For Loop',
-    subtitle: 'Range & iteration',
-    tag: 'Block 3',
-    status: 'active',
-  },
-  {
-    id: 4,
-    title: 'Nested Loops',
-    subtitle: 'Loops inside loops',
-    tag: 'Block 4',
-    status: 'locked',
-  },
-  {
-    id: 5,
-    title: 'Loop Control',
-    subtitle: 'break, continue',
-    tag: 'Block 5',
-    status: 'locked',
-  },
-];
+interface LessonSidebarProps {
+  blocks: LessonBlock[];
+}
 
 function BlockIcon({ status }: { status: LessonStatus }) {
   if (status === 'completed') {
@@ -105,7 +71,7 @@ function SidebarRow({ block }: { block: LessonBlock }) {
   );
 }
 
-export function LessonSidebar() {
+export function LessonSidebar({ blocks }: LessonSidebarProps) {
   return (
     <aside className="w-[220px] flex-shrink-0 flex flex-col bg-slate-50 border-r border-slate-200 shadow-[2px_0_8px_rgba(0,0,0,0.02)] overflow-y-auto">
       <div className="px-4 pt-5 pb-2">
@@ -115,7 +81,7 @@ export function LessonSidebar() {
         <div className="h-px bg-slate-200" />
       </div>
       <div className="flex flex-col">
-        {LESSON_BLOCKS.map((block) => (
+        {blocks.map((block) => (
           <SidebarRow key={block.id} block={block} />
         ))}
       </div>

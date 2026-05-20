@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '../../../components/ui/button';
 import type { DraggableBlock } from '../types';
 import { cn } from '../../../lib/utils';
+
 interface PracticePaneProps {
   availableBlocks: DraggableBlock[];
   droppedBlocks: (string | null)[];
@@ -10,6 +11,7 @@ interface PracticePaneProps {
   overSlot: number | null;
   showResult: 'correct' | 'wrong' | null;
   submitted: boolean;
+  isSubmitting: boolean; // Thêm prop này nhận diện trạng thái Axios gửi đi
   onDragStart: (id: string, fromSlot?: number) => void;
   onDragOver: (e: React.DragEvent, slotIndex: number) => void;
   onDragLeave: () => void;
@@ -26,6 +28,7 @@ export function PracticePane({
   overSlot,
   showResult,
   submitted,
+  isSubmitting,
   onDragStart,
   onDragOver,
   onDragLeave,
@@ -225,15 +228,15 @@ export function PracticePane({
         </p>
         <Button
           onClick={onSubmit}
-          disabled={!allFilled || submitted}
+          disabled={!allFilled || submitted || isSubmitting}
           className={cn(
             'h-8 px-5 text-[13px] font-bold text-white rounded-md transition-all min-w-[140px]',
-            allFilled && !submitted
+            allFilled && !submitted && !isSubmitting
               ? 'bg-blue-600 hover:bg-blue-700'
               : 'bg-slate-300 cursor-not-allowed'
           )}
         >
-          Submit Answer →
+          {isSubmitting ? 'Verifying...' : 'Submit Answer →'}
         </Button>
       </div>
     </aside>

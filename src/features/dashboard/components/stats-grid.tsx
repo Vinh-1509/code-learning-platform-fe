@@ -1,34 +1,31 @@
-"use client"
-
-import { Card, CardContent } from "@/components/ui/card"
-import { CheckCircle2, Target } from "lucide-react"
+import { Card, CardContent } from '@/components/ui/card';
+import { CheckCircle2, Target } from 'lucide-react';
 
 interface StatCardProps {
-  icon: React.ReactNode
-  value: number
-  label: string
+  icon: React.ReactNode;
+  value: number;
+  label: string;
 }
 
 function StatCard({ icon, value, label }: StatCardProps) {
   return (
-    <Card className="bg-white border border-slate-200 shadow-sm p-6 rounded-xl
+    <Card
+      className="bg-white border border-slate-200 shadow-sm p-6 rounded-xl
   transition-all duration-300 ease-in-out
-  hover:shadow-md hover:border-slate-300" 
->
+  hover:shadow-md hover:border-slate-300"
+    >
       <CardContent className="p-6 flex flex-col items-center justify-center text-center">
-        <div className="text-primary mb-2">
-          {icon}
-        </div>
+        <div className="text-primary mb-2">{icon}</div>
         <span className="text-4xl font-semibold text-foreground">{value}</span>
         <span className="text-sm text-muted-foreground mt-1">{label}</span>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 interface StatsGridProps {
-  lessonsLearned: number
-  problemsSolved: number
+  lessonsLearned: number;
+  problemsSolved: number;
 }
 
 export function StatsGrid({ lessonsLearned, problemsSolved }: StatsGridProps) {
@@ -45,5 +42,5 @@ export function StatsGrid({ lessonsLearned, problemsSolved }: StatsGridProps) {
         label="Problems Solved"
       />
     </div>
-  )
+  );
 }

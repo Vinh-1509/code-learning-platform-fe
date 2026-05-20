@@ -1,89 +1,38 @@
-import { useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { ChevronLeft } from 'lucide-react';
-import type { DraggableBlock } from './types';
+import { usePractice } from './usePractice';
+
 import { LessonSidebar } from './components/lesson_sidebar';
 import { TheoryPane } from './components/theory_panel';
-import { PracticePane } from './components/practice_pane';
-
-const AVAILABLE_BLOCKS: DraggableBlock[] = [
-  { id: 'blk-a', code: 'for i in range(3):', indent: 0 },
-  { id: 'blk-b', code: 'print(i)', indent: 1 },
-  { id: 'blk-c', code: 'i = i + 1', indent: 0 },
-];
+import { PracticePane } from './components/practice_panel'; // Đã đồng bộ chính xác tên file của bạn
 
 export function LessonPage() {
-  const [droppedBlocks, setDroppedBlocks] = useState<(string | null)[]>([
-    null,
-    null,
-    null,
-  ]);
-  const [draggingId, setDraggingId] = useState<string | null>(null);
-  const [draggingFromSlot, setDraggingFromSlot] = useState<number | null>(null);
-  const [overSlot, setOverSlot] = useState<number | null>(null);
-  const [submitted, setSubmitted] = useState(false);
-  const [showResult, setShowResult] = useState<'correct' | 'wrong' | null>(
-    null
-  );
+  const {
+    sidebarLessons,
+    availableBlocks,
+    isLoading,
+    isSubmitting,
+    droppedBlocks,
+    draggingId,
+    draggingFromSlot,
+    overSlot,
+    submitted,
+    showResult,
+    handleDragStart,
+    handleDragOver,
+    handleDrop,
+    handleRemove,
+    handleSubmitAnswer,
+    handleReset,
+    setOverSlot,
+  } = usePractice();
 
-  function handleDragStart(id: string, fromSlot?: number) {
-    setDraggingId(id);
-    if (fromSlot !== undefined) {
-      setDraggingFromSlot(fromSlot);
-    }
-  }
-
-  function handleDragOver(e: React.DragEvent, slotIndex: number) {
-    e.preventDefault();
-    setOverSlot(slotIndex);
-  }
-
-  function handleDrop(slotIndex: number) {
-    if (!draggingId) return;
-    setDroppedBlocks((prev) => {
-      const next = [...prev];
-      if (draggingFromSlot === null) {
-        const existingSlot = next.indexOf(draggingId);
-        if (existingSlot !== -1) next[existingSlot] = null;
-      } else {
-        const blockAtTarget = next[slotIndex];
-        if (blockAtTarget) {
-          next[slotIndex] = next[draggingFromSlot];
-          next[draggingFromSlot] = blockAtTarget;
-        } else {
-          next[slotIndex] = next[draggingFromSlot];
-          next[draggingFromSlot] = null;
-        }
-      }
-      next[slotIndex] = draggingId;
-      return next;
-    });
-    setDraggingId(null);
-    setDraggingFromSlot(null);
-    setOverSlot(null);
-    setShowResult(null);
-  }
-
-  function handleRemove(slotIndex: number) {
-    setDroppedBlocks((prev) => {
-      const next = [...prev];
-      next[slotIndex] = null;
-      return next;
-    });
-    setShowResult(null);
-  }
-
-  function handleSubmit() {
-    const answer = droppedBlocks.slice(0, 2);
-    const correct = answer[0] === 'blk-a' && answer[1] === 'blk-b';
-    setShowResult(correct ? 'correct' : 'wrong');
-    setSubmitted(true);
-  }
-
-  function handleReset() {
-    setDroppedBlocks([null, null, null]);
-    setSubmitted(false);
-    setShowResult(null);
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-slate-50 font-medium text-slate-400 text-xs tracking-widest">
+        LOADING LESSON...
+      </div>
+    );
   }
 
   return (
@@ -100,23 +49,29 @@ export function LessonPage() {
         </Link>
       </header>
 
+      {/* ── Body Layout 3 Cột truyền data dynamic từ Hook ── */}
       <div className="flex flex-1 min-h-0 overflow-hidden layout-body">
-        <LessonSidebar />
+        <LessonSidebar blocks={sidebarLessons} />
+
         <TheoryPane />
+
         <PracticePane
-          availableBlocks={AVAILABLE_BLOCKS}
+          availableBlocks={availableBlocks}
           droppedBlocks={droppedBlocks}
           draggingId={draggingId}
           draggingFromSlot={draggingFromSlot}
           overSlot={overSlot}
           showResult={showResult}
           submitted={submitted}
+          isSubmitting={isSubmitting}
           onDragStart={handleDragStart}
           onDragOver={handleDragOver}
           onDragLeave={() => setOverSlot(null)}
           onDrop={handleDrop}
           onRemove={handleRemove}
-          onSubmit={handleSubmit}
+          onSubmit={() => {
+            void handleSubmitAnswer();
+          }}
           onReset={handleReset}
         />
       </div>

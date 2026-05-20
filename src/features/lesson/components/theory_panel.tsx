@@ -1,7 +1,6 @@
 function CodeBlock() {
   return (
     <div className="rounded-[10px] overflow-hidden w-full bg-[#1b2130]">
-      {/* Header bar */}
       <div className="flex items-center px-3 h-[26px] justify-between bg-[#121726]">
         <div className="flex items-center gap-1.5">
           <span className="w-2.5 h-2.5 rounded-full bg-red-500" />
@@ -10,7 +9,6 @@ function CodeBlock() {
         </div>
         <span className="text-[10px] text-slate-500 font-mono">python</span>
       </div>
-      {/* Code content */}
       <div className="px-4 py-3 font-mono text-[12px] leading-[20px] text-slate-100">
         <div>
           <span className="text-pink-400">for</span>

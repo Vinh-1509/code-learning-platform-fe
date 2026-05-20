@@ -1,22 +1,25 @@
-"use client"
-
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface CurrentLessonBannerProps {
-  lessonName: string
-  moduleName: string
-  progress: number
+  lessonName: string;
+  moduleName: string;
+  progress: number;
 }
 
-export function CurrentLessonBanner({ lessonName, moduleName, progress }: CurrentLessonBannerProps) {
+export function CurrentLessonBanner({
+  lessonName,
+  moduleName,
+  progress,
+}: CurrentLessonBannerProps) {
   return (
-    <Card className="bg-white border border-slate-200 shadow-sm py-0 gap-0 
+    <Card
+      className="bg-white border border-slate-200 shadow-sm py-0 gap-0 
   transition-all duration-300 ease-in-out
   hover:bg-slate-50 hover:shadow-lg hover:scale-[1.01] hover:border-slate-300 
   cursor-pointer"
->
+    >
       <CardContent className="p-6">
         <div className="flex items-start justify-between">
           <div className="flex-1">
@@ -27,25 +30,35 @@ export function CurrentLessonBanner({ lessonName, moduleName, progress }: Curren
             <p className="text-sm text-muted-foreground mt-1">{moduleName}</p>
           </div>
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" className="size-8 text-muted-foreground hover:text-foreground">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-8 text-muted-foreground hover:text-foreground"
+            >
               <ChevronLeft className="size-5" />
             </Button>
-            <Button variant="ghost" size="icon" className="size-8 text-muted-foreground hover:text-foreground">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-8 text-muted-foreground hover:text-foreground"
+            >
               <ChevronRight className="size-5" />
             </Button>
           </div>
         </div>
-        
+
         {/* Progress bar */}
         <div className="mt-6">
           <div className="h-2.5 bg-muted rounded-full overflow-hidden">
-            <div 
+            <div
               className="h-full bg-primary rounded-full transition-all duration-500"
               style={{ width: `${progress}%` }}
             />
           </div>
           <div className="flex items-center justify-between mt-4">
-            <span className="text-sm text-muted-foreground">{progress}% Completed</span>
+            <span className="text-sm text-muted-foreground">
+              {progress}% Completed
+            </span>
             <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
               Continue lesson
             </Button>
@@ -53,5 +66,5 @@ export function CurrentLessonBanner({ lessonName, moduleName, progress }: Curren
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

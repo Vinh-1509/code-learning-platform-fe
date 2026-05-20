@@ -1,11 +1,9 @@
-"use client"
-
-import { LayoutDashboard, Grid3x3, SquareTerminal } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { LayoutDashboard, Grid3x3, SquareTerminal } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface SidebarProps {
-  activeTab: "dashboard" | "practice"
-  onTabChange: (tab: "dashboard" | "practice") => void
+  activeTab: 'dashboard' | 'practice';
+  onTabChange: (tab: 'dashboard' | 'practice') => void;
 }
 
 export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
@@ -24,12 +22,19 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
               <SquareTerminal className="size-5 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-sm text-foreground">C++ Mastery</h3>
-              <p className="text-xs text-muted-foreground">12/45 Lessons Learned</p>
+              <h3 className="font-semibold text-sm text-foreground">
+                C++ Mastery
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                12/45 Lessons Learned
+              </p>
             </div>
           </div>
           <div className="mt-3 h-1.5 bg-muted rounded-full overflow-hidden">
-            <div className="h-full bg-primary rounded-full" style={{ width: "27%" }} />
+            <div
+              className="h-full bg-primary rounded-full"
+              style={{ width: '27%' }}
+            />
           </div>
         </div>
       </div>
@@ -37,24 +42,24 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
       {/* Navigation */}
       <nav className="flex-1 px-4">
         <button
-          onClick={() => onTabChange("dashboard")}
+          onClick={() => onTabChange('dashboard')}
           className={cn(
-            "w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors",
-            activeTab === "dashboard"
-              ? "bg-accent text-primary"
-              : "text-muted-foreground hover:bg-muted hover:text-foreground"
+            'w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors',
+            activeTab === 'dashboard'
+              ? 'bg-accent text-primary'
+              : 'text-muted-foreground hover:bg-muted hover:text-foreground'
           )}
         >
           <LayoutDashboard className="size-5" />
           Dashboard
         </button>
         <button
-          onClick={() => onTabChange("practice")}
+          onClick={() => onTabChange('practice')}
           className={cn(
-            "w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors mt-1",
-            activeTab === "practice"
-              ? "bg-accent text-primary"
-              : "text-muted-foreground hover:bg-muted hover:text-foreground"
+            'w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors mt-1',
+            activeTab === 'practice'
+              ? 'bg-accent text-primary'
+              : 'text-muted-foreground hover:bg-muted hover:text-foreground'
           )}
         >
           <Grid3x3 className="size-5" />
@@ -62,5 +67,5 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
         </button>
       </nav>
     </aside>
-  )
+  );
 }
