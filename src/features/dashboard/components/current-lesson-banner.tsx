@@ -15,8 +15,7 @@ export function CurrentLessonBanner({
 }: CurrentLessonBannerProps) {
   return (
     <Card
-      className="bg-white border border-slate-200 shadow-sm py-0 gap-0 
-  transition-all duration-300 ease-in-out
+      className="bg-white border border-slate-200 shadow-sm transition-all duration-300 ease-in-out
   hover:bg-slate-50 hover:shadow-lg hover:scale-[1.01] hover:border-slate-300 
   cursor-pointer"
     >

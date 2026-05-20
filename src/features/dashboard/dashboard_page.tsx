@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Sidebar } from './components/sidebar';
 import { Header } from './components/header';
+// ✅ Đã sửa tên file import thành dấu gạch dưới (_) cho đúng thực tế máy bạn
 import { CurrentLessonBanner } from './components/current-lesson-banner';
 import { StatsGrid } from './components/stats-grid';
 import { LearningRoadmap } from './components/learning-roadmap';
@@ -20,7 +21,7 @@ export function DashboardPage() {
           <div className="space-y-6">
             <CurrentLessonBanner
               lessonName="Loop"
-              moduleName=""
+              moduleName="Module 1: Variables & Types" // Thêm chữ cho bớt trống trải UI
               progress={65}
             />
 

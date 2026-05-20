@@ -10,7 +10,7 @@ interface StatCardProps {
 function StatCard({ icon, value, label }: StatCardProps) {
   return (
     <Card
-      className="bg-white border border-slate-200 shadow-sm p-6 rounded-xl
+      className="bg-white border border-slate-200 shadow-sm rounded-xl
   transition-all duration-300 ease-in-out
   hover:shadow-md hover:border-slate-300"
     >

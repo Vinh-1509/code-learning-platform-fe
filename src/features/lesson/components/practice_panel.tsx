@@ -7,7 +7,7 @@ interface PracticePaneProps {
   availableBlocks: DraggableBlock[];
   droppedBlocks: (string | null)[];
   draggingId: string | null;
-  draggingFromSlot: number | null;
+  draggingFromSlot: number | undefined;
   overSlot: number | null;
   showResult: 'correct' | 'wrong' | null;
   submitted: boolean;

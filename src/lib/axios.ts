@@ -1,65 +1,28 @@
 import axios from 'axios';
 
-// ─── 1. KHỞI TẠO AXIOS INSTANCE ───────────────────────────────────────────
+// ─── 1. KHỞI TẠO AXIOS INSTANCE TRUNG TÂM ───────────────────────────────────
 const api = axios.create({
-  //  Đã sửa: Ép kiểu tường minh tránh lỗi unsafe-assignment dòng 5
   baseURL: import.meta.env.VITE_API_URL as string,
   headers: { 'Content-Type': 'application/json' },
 });
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
-
+// Interceptor response (Tạm thời bỏ qua check 401 để không bị đá văng khi chưa có trang login)
 api.interceptors.response.use(
   (response) => response,
   (error: unknown) => {
-    if (axios.isAxiosError(error) && error.response?.status === 401) {
-      localStorage.removeItem('token');
-      window.location.href = '/login';
-    }
     return Promise.reject(
       error instanceof Error ? error : new Error('Unknown error')
     );
   }
 );
 
-// ─── 2. ĐỊNH NGHĨA CÁC TYPES ──────────────────────────────────────────────
-import type { AuthPayload, AuthResponse } from '@/types/auth';
-import type { LanguageOption, Language } from '@/types/language_selection';
+// ─── 2. ĐỊNH NGHĨA KIỂU DỮ LIỆU ĐANG DÙNG ──────────────────────────────────
 import type { LessonBlock, DraggableBlock } from '../features/lesson/types';
 
-// ─── 3. CÁC HÀM API AUTHENTICATION ────────────────────────────────────────
-export async function loginUser(payload: AuthPayload): Promise<AuthResponse> {
-  /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-  const { data } = await api.post<AuthResponse>('/auth/login', payload);
-  return data;
-}
-
-export async function registerUser(
-  payload: AuthPayload
-): Promise<AuthResponse> {
-  const { data } = await api.post<AuthResponse>('/auth/register', payload);
-  return data;
-}
-
-// ─── 4. CÁC HÀ M API LANGUAGE SELECTION ────────────────────────────────────
-export async function fetchLanguages(): Promise<LanguageOption[]> {
-  await new Promise((r) => setTimeout(r, 800));
-  return LANGUAGE_DATA;
-}
-
-export async function saveLanguage(language: Language): Promise<void> {
-  await new Promise((r) => setTimeout(r, 600));
-  console.log(language);
-}
-
-// ─── 5. CÁC HÀM API LESSON PRACTICE ───────────────────────────────────────
+// ─── 3. CÁC HÀM API CHẠY THỰC TẾ CHO LESSON / PRACTICE ──────────────────────
 
 export async function fetchSidebarLessons(): Promise<LessonBlock[]> {
-  await new Promise((r) => setTimeout(r, 600));
+  await new Promise((r) => setTimeout(r, 600)); // Giả lập độ trễ mạng 0.6s
   return SIDEBAR_LESSON_DATA;
 }
 
@@ -76,32 +39,7 @@ export async function checkAnswerAPI(
   return { success: correct };
 }
 
-// ─── 6. TOÀN BỘ MOCK DATA TRONG HỆ THỐNG ───────────────────────────────────
-
-const LANGUAGE_DATA: LanguageOption[] = [
-  {
-    id: 'cpp',
-    label: 'C++',
-    tagline: 'Powerful, fast & foundational',
-    strengths: ['Performance', 'Memory Control', 'Hardware Access'],
-    challenges: ['Manual Memory', 'Complex Syntax'],
-    useCases: [
-      'Game Engines (Unreal)',
-      'Operating Systems',
-      'Embedded Systems',
-    ],
-    color: { background: 'bg-[#3730a3]', main: 'bg-accent' },
-  },
-  {
-    id: 'java',
-    label: 'Java',
-    tagline: 'Readable, structured & enterprise-ready',
-    strengths: ['Clean OOP', 'Rich Ecosystem', 'Platform Independent'],
-    challenges: ['Verbose Code', 'Memory Heavy'],
-    useCases: ['Android Development', 'Enterprise Backend', 'Big Data Systems'],
-    color: { background: 'bg-[#c2410c]', main: 'bg-accent' },
-  },
-];
+// ─── 4. MOCK DATA ĐANG PHỤC VỤ CHO PAGE CỦA BẠN ────────────────────────────
 
 const SIDEBAR_LESSON_DATA: LessonBlock[] = [
   {
