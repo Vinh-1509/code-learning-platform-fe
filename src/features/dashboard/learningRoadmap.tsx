@@ -91,7 +91,7 @@ function LessonItem({
   );
 }
 
-// --- COMPONENT CON 3: KHỐI MODULE ---
+// COMPONENT CON 3: BLOCK MODULE
 function ModuleItem({
   module,
   isExpanded,
@@ -216,7 +216,7 @@ function ModuleItem({
   );
 }
 
-// --- COMPONENT CHÍNH ---
+//  COMPONENT CHÍNH
 export function LearningRoadmap() {
   const { modules, expandedModules, toggleModule, handleLessonComplete } =
     useRoadmap();
