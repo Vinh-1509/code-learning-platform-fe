@@ -8,187 +8,188 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router';
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as PracticeRouteImport } from './routes/practice'
-import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as rootRouteImport } from './routes/__root';
+import { Route as PracticeRouteImport } from './routes/practice';
+import { Route as LessonRouteImport } from './routes/lesson';
+import { Route as DashboardRouteImport } from './routes/dashboard';
+import { Route as IndexRouteImport } from './routes/index';
 
-const SignupLazyRouteImport = createFileRoute('/signup')()
-const LoginLazyRouteImport = createFileRoute('/login')()
-const LessonLazyRouteImport = createFileRoute('/lesson')()
-const LanguageselectionLazyRouteImport = createFileRoute('/languageselection')()
+const SignupLazyRouteImport = createFileRoute('/signup')();
+const LoginLazyRouteImport = createFileRoute('/login')();
+const LanguageselectionLazyRouteImport =
+  createFileRoute('/languageselection')();
 
 const SignupLazyRoute = SignupLazyRouteImport.update({
   id: '/signup',
   path: '/signup',
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/signup.lazy').then((d) => d.Route))
+} as any).lazy(() => import('./routes/signup.lazy').then((d) => d.Route));
 const LoginLazyRoute = LoginLazyRouteImport.update({
   id: '/login',
   path: '/login',
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/login.lazy').then((d) => d.Route))
-const LessonLazyRoute = LessonLazyRouteImport.update({
-  id: '/lesson',
-  path: '/lesson',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/lesson.lazy').then((d) => d.Route))
+} as any).lazy(() => import('./routes/login.lazy').then((d) => d.Route));
 const LanguageselectionLazyRoute = LanguageselectionLazyRouteImport.update({
   id: '/languageselection',
   path: '/languageselection',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() =>
-  import('./routes/languageselection.lazy').then((d) => d.Route),
-)
+  import('./routes/languageselection.lazy').then((d) => d.Route)
+);
 const PracticeRoute = PracticeRouteImport.update({
   id: '/practice',
   path: '/practice',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
+const LessonRoute = LessonRouteImport.update({
+  id: '/lesson',
+  path: '/lesson',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() => import('./routes/lesson.lazy').then((d) => d.Route));
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/dashboard.lazy').then((d) => d.Route))
+} as any).lazy(() => import('./routes/dashboard.lazy').then((d) => d.Route));
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
-  '/practice': typeof PracticeRoute
-  '/languageselection': typeof LanguageselectionLazyRoute
-  '/lesson': typeof LessonLazyRoute
-  '/login': typeof LoginLazyRoute
-  '/signup': typeof SignupLazyRoute
+  '/': typeof IndexRoute;
+  '/dashboard': typeof DashboardRoute;
+  '/lesson': typeof LessonRoute;
+  '/practice': typeof PracticeRoute;
+  '/languageselection': typeof LanguageselectionLazyRoute;
+  '/login': typeof LoginLazyRoute;
+  '/signup': typeof SignupLazyRoute;
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
-  '/practice': typeof PracticeRoute
-  '/languageselection': typeof LanguageselectionLazyRoute
-  '/lesson': typeof LessonLazyRoute
-  '/login': typeof LoginLazyRoute
-  '/signup': typeof SignupLazyRoute
+  '/': typeof IndexRoute;
+  '/dashboard': typeof DashboardRoute;
+  '/lesson': typeof LessonRoute;
+  '/practice': typeof PracticeRoute;
+  '/languageselection': typeof LanguageselectionLazyRoute;
+  '/login': typeof LoginLazyRoute;
+  '/signup': typeof SignupLazyRoute;
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
-  '/practice': typeof PracticeRoute
-  '/languageselection': typeof LanguageselectionLazyRoute
-  '/lesson': typeof LessonLazyRoute
-  '/login': typeof LoginLazyRoute
-  '/signup': typeof SignupLazyRoute
+  __root__: typeof rootRouteImport;
+  '/': typeof IndexRoute;
+  '/dashboard': typeof DashboardRoute;
+  '/lesson': typeof LessonRoute;
+  '/practice': typeof PracticeRoute;
+  '/languageselection': typeof LanguageselectionLazyRoute;
+  '/login': typeof LoginLazyRoute;
+  '/signup': typeof SignupLazyRoute;
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
+  fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
     | '/'
     | '/dashboard'
+    | '/lesson'
     | '/practice'
     | '/languageselection'
-    | '/lesson'
     | '/login'
-    | '/signup'
-  fileRoutesByTo: FileRoutesByTo
+    | '/signup';
+  fileRoutesByTo: FileRoutesByTo;
   to:
     | '/'
     | '/dashboard'
+    | '/lesson'
     | '/practice'
     | '/languageselection'
-    | '/lesson'
     | '/login'
-    | '/signup'
+    | '/signup';
   id:
     | '__root__'
     | '/'
     | '/dashboard'
+    | '/lesson'
     | '/practice'
     | '/languageselection'
-    | '/lesson'
     | '/login'
-    | '/signup'
-  fileRoutesById: FileRoutesById
+    | '/signup';
+  fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  DashboardRoute: typeof DashboardRoute
-  PracticeRoute: typeof PracticeRoute
-  LanguageselectionLazyRoute: typeof LanguageselectionLazyRoute
-  LessonLazyRoute: typeof LessonLazyRoute
-  LoginLazyRoute: typeof LoginLazyRoute
-  SignupLazyRoute: typeof SignupLazyRoute
+  IndexRoute: typeof IndexRoute;
+  DashboardRoute: typeof DashboardRoute;
+  LessonRoute: typeof LessonRoute;
+  PracticeRoute: typeof PracticeRoute;
+  LanguageselectionLazyRoute: typeof LanguageselectionLazyRoute;
+  LoginLazyRoute: typeof LoginLazyRoute;
+  SignupLazyRoute: typeof SignupLazyRoute;
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
     '/signup': {
-      id: '/signup'
-      path: '/signup'
-      fullPath: '/signup'
-      preLoaderRoute: typeof SignupLazyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/signup';
+      path: '/signup';
+      fullPath: '/signup';
+      preLoaderRoute: typeof SignupLazyRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginLazyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/lesson': {
-      id: '/lesson'
-      path: '/lesson'
-      fullPath: '/lesson'
-      preLoaderRoute: typeof LessonLazyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/login';
+      path: '/login';
+      fullPath: '/login';
+      preLoaderRoute: typeof LoginLazyRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/languageselection': {
-      id: '/languageselection'
-      path: '/languageselection'
-      fullPath: '/languageselection'
-      preLoaderRoute: typeof LanguageselectionLazyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/languageselection';
+      path: '/languageselection';
+      fullPath: '/languageselection';
+      preLoaderRoute: typeof LanguageselectionLazyRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/practice': {
-      id: '/practice'
-      path: '/practice'
-      fullPath: '/practice'
-      preLoaderRoute: typeof PracticeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/practice';
+      path: '/practice';
+      fullPath: '/practice';
+      preLoaderRoute: typeof PracticeRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    '/lesson': {
+      id: '/lesson';
+      path: '/lesson';
+      fullPath: '/lesson';
+      preLoaderRoute: typeof LessonRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/dashboard';
+      path: '/dashboard';
+      fullPath: '/dashboard';
+      preLoaderRoute: typeof DashboardRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/';
+      path: '/';
+      fullPath: '/';
+      preLoaderRoute: typeof IndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
+  LessonRoute: LessonRoute,
   PracticeRoute: PracticeRoute,
   LanguageselectionLazyRoute: LanguageselectionLazyRoute,
-  LessonLazyRoute: LessonLazyRoute,
   LoginLazyRoute: LoginLazyRoute,
   SignupLazyRoute: SignupLazyRoute,
-}
+};
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+  ._addFileTypes<FileRouteTypes>();

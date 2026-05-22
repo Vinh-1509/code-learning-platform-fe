@@ -40,23 +40,77 @@ export async function registerUser(
 
 import type { LanguageOption, Language } from '@/types/language_selection';
 
+// thay bằng api.get('/languages') khi BE xong
 export async function fetchLanguages(): Promise<LanguageOption[]> {
-  const { data } =
-    await api.get<{ language: string; info: string }[]>('/languages');
-  return data.map((lang) => ({
-    id: lang.language.toLowerCase(),
-    label: lang.language,
-    tagline: `Learn ${lang.language}`,
-    strengths: [],
-    challenges: [],
-    useCases: [],
-    color: {
-      background: lang.language === 'Java' ? 'bg-[#c2410c]' : 'bg-[#3730a3]',
-      main: 'bg-accent',
-    },
-  }));
+  await new Promise((r) => setTimeout(r, 800));
+  return LANGUAGE_DATA;
 }
 
+// thay bằng api.post('/user/language', { language }) khi BE xong
 export async function saveLanguage(language: Language): Promise<void> {
-  await api.post('/languages/select', { language });
+  await new Promise((r) => setTimeout(r, 600));
+  console.log(language);
+}
+
+// Mock data
+const LANGUAGE_DATA: LanguageOption[] = [
+  {
+    id: 'cpp',
+    label: 'C++',
+    tagline: 'Powerful, fast & foundational',
+    strengths: ['Performance', 'Memory Control', 'Hardware Access'],
+    challenges: ['Manual Memory', 'Complex Syntax'],
+    useCases: [
+      'Game Engines (Unreal)',
+      'Operating Systems',
+      'Embedded Systems',
+    ],
+    color: {
+      background: 'bg-[#3730a3]',
+      main: 'bg-accent',
+    },
+  },
+  {
+    id: 'java',
+    label: 'Java',
+    tagline: 'Readable, structured & enterprise-ready',
+    strengths: ['Clean OOP', 'Rich Ecosystem', 'Platform Independent'],
+    challenges: ['Verbose Code', 'Memory Heavy'],
+    useCases: ['Android Development', 'Enterprise Backend', 'Big Data Systems'],
+    color: {
+      background: 'bg-[#c2410c]',
+      main: 'bg-accent',
+    },
+  },
+];
+
+export interface MilestoneResponse {
+  _id: string;
+  title: string;
+  description: string;
+  order: number;
+  progress: {
+    status: 'Active' | 'Locked' | 'Completed';
+    completionPercentage: number;
+  };
+}
+
+export interface LessonResponse {
+  _id: string;
+  title: string;
+  status: 'done' | 'current' | 'locked';
+}
+
+export async function fetchMilestones(): Promise<MilestoneResponse[]> {
+  const { data } = await api.get<MilestoneResponse[]>('/learning/milestones');
+  return data;
+}
+
+export async function fetchLessonsByMilestone(
+  milestoneId: string
+): Promise<LessonResponse[]> {
+  const { data } = await api.get<LessonResponse[]>(
+    `/learning/milestones/${milestoneId}/lessons`
+  );
+  return data;
 }
