@@ -40,46 +40,23 @@ export async function registerUser(
 
 import type { LanguageOption, Language } from '@/types/language_selection';
 
-// thay bằng api.get('/languages') khi BE xong
 export async function fetchLanguages(): Promise<LanguageOption[]> {
-  await new Promise((r) => setTimeout(r, 800));
-  return LANGUAGE_DATA;
+  const { data } =
+    await api.get<{ language: string; info: string }[]>('/languages');
+  return data.map((lang) => ({
+    id: lang.language.toLowerCase(),
+    label: lang.language,
+    tagline: `Learn ${lang.language}`,
+    strengths: [],
+    challenges: [],
+    useCases: [],
+    color: {
+      background: lang.language === 'Java' ? 'bg-[#c2410c]' : 'bg-[#3730a3]',
+      main: 'bg-accent',
+    },
+  }));
 }
 
-// thay bằng api.post('/user/language', { language }) khi BE xong
 export async function saveLanguage(language: Language): Promise<void> {
-  await new Promise((r) => setTimeout(r, 600));
-  console.log(language);
+  await api.post('/languages/select', { language });
 }
-
-// Mock data
-const LANGUAGE_DATA: LanguageOption[] = [
-  {
-    id: 'cpp',
-    label: 'C++',
-    tagline: 'Powerful, fast & foundational',
-    strengths: ['Performance', 'Memory Control', 'Hardware Access'],
-    challenges: ['Manual Memory', 'Complex Syntax'],
-    useCases: [
-      'Game Engines (Unreal)',
-      'Operating Systems',
-      'Embedded Systems',
-    ],
-    color: {
-      background: 'bg-[#3730a3]',
-      main: 'bg-accent',
-    },
-  },
-  {
-    id: 'java',
-    label: 'Java',
-    tagline: 'Readable, structured & enterprise-ready',
-    strengths: ['Clean OOP', 'Rich Ecosystem', 'Platform Independent'],
-    challenges: ['Verbose Code', 'Memory Heavy'],
-    useCases: ['Android Development', 'Enterprise Backend', 'Big Data Systems'],
-    color: {
-      background: 'bg-[#c2410c]',
-      main: 'bg-accent',
-    },
-  },
-];
