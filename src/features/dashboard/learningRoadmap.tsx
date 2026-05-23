@@ -65,6 +65,7 @@ interface ModuleItemProps {
   isExpanded: boolean;
   onToggle: () => void;
   onLessonStart: (lessonId: string) => void;
+  isLast: boolean;
 }
 
 function ModuleItem({
@@ -73,6 +74,7 @@ function ModuleItem({
   isExpanded,
   onToggle,
   onLessonStart,
+  isLast,
 }: ModuleItemProps) {
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -113,7 +115,9 @@ function ModuleItem({
         >
           {index}
         </div>
-        <div className="w-0.5 flex-1 mt-2 bg-slate-200" />
+        {(!isLast || isExpanded) && (
+          <div className="w-0.5 flex-1 mt-2 bg-slate-200" />
+        )}
       </div>
 
       <div className="flex-1 pb-6">
@@ -122,9 +126,7 @@ function ModuleItem({
           className="w-full flex items-center justify-between p-4 border-2 rounded-xl bg-white text-left hover:border-blue-200 transition-colors"
         >
           <div className="flex items-center gap-3">
-            <span className="font-semibold text-slate-800">
-              Module {index}: {module.name}
-            </span>
+            <span className="font-semibold text-slate-800">{module.name}</span>
             {getStatusBadge(module.status)}
           </div>
           {isExpanded ? (
@@ -180,6 +182,7 @@ export function LearningRoadmap({
       isExpanded={expandedModules.includes(m.id)}
       onToggle={() => toggleModule(m.id)}
       onLessonStart={handleStartLesson}
+      isLast={i === modules.length - 1}
     />
   ));
 

@@ -112,6 +112,44 @@ export interface LessonResponse {
   title: string;
   status: 'done' | 'current' | 'locked';
 }
+export interface ContentItem {
+  type: 'theory' | 'code';
+  data: {
+    order: number;
+    text?: string;
+    code?: string;
+    explanation?: string;
+  };
+}
+
+export interface Block {
+  _id: string;
+  content: ContentItem[];
+  feynmanQuestion: string;
+  state: 'active' | 'locked' | 'completed';
+  isFeynmanPassed: boolean;
+}
+
+export interface LessonDetailResponse {
+  _id: string;
+  title: string;
+  order: number;
+  blocks: Block[];
+  progress: {
+    completionPercentage: number;
+    isCompleted: boolean;
+    lastAccessed?: string;
+  };
+}
+
+export async function fetchLessonById(
+  lessonId: string
+): Promise<LessonDetailResponse> {
+  const { data } = await api.get<LessonDetailResponse>(
+    `/api/learning/lessons/${lessonId}`
+  );
+  return data;
+}
 
 export async function fetchMilestones(): Promise<MilestoneResponse[]> {
   const { data } = await api.get<MilestoneResponse[]>(

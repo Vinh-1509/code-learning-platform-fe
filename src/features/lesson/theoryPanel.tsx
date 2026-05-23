@@ -1,4 +1,10 @@
-export function TheoryPane() {
+import type { Block } from '@/lib/axios';
+
+interface TheoryPaneProps {
+  block: Block | undefined;
+}
+export function TheoryPane({ block }: TheoryPaneProps) {
+  console.log(block);
   return (
     <div className="flex-1 flex flex-col bg-white overflow-y-auto min-w-0 p-6 border-r border-slate-200">
       <h1 className="text-2xl font-bold text-slate-900">For Loop</h1>

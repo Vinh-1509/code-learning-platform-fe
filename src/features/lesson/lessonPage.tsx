@@ -3,41 +3,34 @@ import { ChevronLeft } from 'lucide-react';
 import { usePractice } from './usePractice';
 import { LessonSidebar } from './lessonSidebar';
 import { TheoryPane } from './theoryPanel';
-import { PracticePane } from './practicePanel';
-
-const lessonRouteApi = getRouteApi('/lesson');
+// import { PracticePane } from './practicePanel';
+import { useState } from 'react';
+import type { Block } from '@/lib/axios';
+const lessonRouteApi = getRouteApi('/lesson/$lessonId');
 
 export function LessonPage() {
-  const { lessonId } = lessonRouteApi.useSearch();
+  const { lessonId } = lessonRouteApi.useParams();
 
-  const {
-    sidebarLessons,
-    availableBlocks,
-    isLoading,
-    isSubmitting,
-    droppedBlocks,
-    overSlot,
-    submitted,
-    showResult,
-    handleDragStart,
-    handleDragOver,
-    handleDrop,
-    handleRemove,
-    handleSubmitAnswer,
-    handleReset,
-    setOverSlot,
-  } = usePractice({ lessonId });
+  const { currentLesson } = usePractice({ lessonId });
 
-  if (isLoading)
-    return (
-      <div className="flex h-screen items-center justify-center text-slate-400 text-xs">
-        LOADING LESSON...
-      </div>
+  const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
+
+  if (currentLesson?.blocks && currentLesson.blocks.length > 0) {
+    const firstActiveBlock = currentLesson.blocks.find(
+      (b: Block) => b.state === 'active'
     );
-
+    if (firstActiveBlock) {
+      setSelectedBlockId(firstActiveBlock._id);
+    } else {
+      setSelectedBlockId(currentLesson.blocks[0]._id);
+    }
+  }
+  const currentBlock = currentLesson?.blocks?.find(
+    (b: Block) => b._id === selectedBlockId
+  );
   return (
     <div className="flex flex-col h-screen bg-white antialiased overflow-hidden">
-      <header className="flex items-center justify-between px-6 h-14 bg-white border-b border-slate-200 flex-shrink-0">
+      <header className="flex items-center justify-between px-6 h-14 bg-white border-b border-slate-200 ">
         <span className="text-xl font-black text-blue-600 tracking-tight">
           CodeStep
         </span>
@@ -49,9 +42,14 @@ export function LessonPage() {
       </header>
 
       <div className="flex flex-1 min-h-0 overflow-hidden">
-        <LessonSidebar blocks={sidebarLessons} />
-        <TheoryPane />
-        <PracticePane
+        <LessonSidebar
+          blocks={currentLesson?.blocks || []}
+          lessonTitle={currentLesson?.title}
+          selectedBlockId={selectedBlockId}
+          onSelectBlock={setSelectedBlockId}
+        />
+        <TheoryPane block={currentBlock} />
+        {/* <PracticePane
           availableBlocks={availableBlocks}
           droppedBlocks={droppedBlocks}
           overSlot={overSlot}
@@ -65,7 +63,7 @@ export function LessonPage() {
           onRemove={handleRemove}
           onSubmit={handleSubmitAnswer}
           onReset={handleReset}
-        />
+        /> */}
       </div>
     </div>
   );

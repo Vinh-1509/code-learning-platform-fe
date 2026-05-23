@@ -5,7 +5,7 @@ import { CurrentLessonBanner } from './currentLessonBanner';
 import { StatsGrid } from './statsGrid';
 import { LearningRoadmap } from './learningRoadmap';
 import { useRoadmap } from './useRoadmap';
-import { useStartLesson } from '@/hooks/useStartLesson';
+import { useStartLesson } from '@/features/dashboard/useStartLesson';
 
 export function DashboardPage() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'practice'>(

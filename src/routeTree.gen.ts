@@ -12,10 +12,10 @@ import { createFileRoute } from '@tanstack/react-router';
 
 import { Route as rootRouteImport } from './routes/__root';
 import { Route as PracticeRouteImport } from './routes/practice';
-import { Route as LessonRouteImport } from './routes/lesson';
 import { Route as LanguageselectionRouteImport } from './routes/languageselection';
 import { Route as DashboardRouteImport } from './routes/dashboard';
 import { Route as IndexRouteImport } from './routes/index';
+import { Route as LessonLessonIdRouteImport } from './routes/lesson.$lessonId';
 
 const SignupLazyRouteImport = createFileRoute('/signup')();
 const LoginLazyRouteImport = createFileRoute('/login')();
@@ -35,11 +35,6 @@ const PracticeRoute = PracticeRouteImport.update({
   path: '/practice',
   getParentRoute: () => rootRouteImport,
 } as any);
-const LessonRoute = LessonRouteImport.update({
-  id: '/lesson',
-  path: '/lesson',
-  getParentRoute: () => rootRouteImport,
-} as any);
 const LanguageselectionRoute = LanguageselectionRouteImport.update({
   id: '/languageselection',
   path: '/languageselection',
@@ -55,34 +50,39 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any);
+const LessonLessonIdRoute = LessonLessonIdRouteImport.update({
+  id: '/lesson/$lessonId',
+  path: '/lesson/$lessonId',
+  getParentRoute: () => rootRouteImport,
+} as any);
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute;
   '/dashboard': typeof DashboardRoute;
   '/languageselection': typeof LanguageselectionRoute;
-  '/lesson': typeof LessonRoute;
   '/practice': typeof PracticeRoute;
   '/login': typeof LoginLazyRoute;
   '/signup': typeof SignupLazyRoute;
+  '/lesson/$lessonId': typeof LessonLessonIdRoute;
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute;
   '/dashboard': typeof DashboardRoute;
   '/languageselection': typeof LanguageselectionRoute;
-  '/lesson': typeof LessonRoute;
   '/practice': typeof PracticeRoute;
   '/login': typeof LoginLazyRoute;
   '/signup': typeof SignupLazyRoute;
+  '/lesson/$lessonId': typeof LessonLessonIdRoute;
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport;
   '/': typeof IndexRoute;
   '/dashboard': typeof DashboardRoute;
   '/languageselection': typeof LanguageselectionRoute;
-  '/lesson': typeof LessonRoute;
   '/practice': typeof PracticeRoute;
   '/login': typeof LoginLazyRoute;
   '/signup': typeof SignupLazyRoute;
+  '/lesson/$lessonId': typeof LessonLessonIdRoute;
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
@@ -90,38 +90,38 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/languageselection'
-    | '/lesson'
     | '/practice'
     | '/login'
-    | '/signup';
+    | '/signup'
+    | '/lesson/$lessonId';
   fileRoutesByTo: FileRoutesByTo;
   to:
     | '/'
     | '/dashboard'
     | '/languageselection'
-    | '/lesson'
     | '/practice'
     | '/login'
-    | '/signup';
+    | '/signup'
+    | '/lesson/$lessonId';
   id:
     | '__root__'
     | '/'
     | '/dashboard'
     | '/languageselection'
-    | '/lesson'
     | '/practice'
     | '/login'
-    | '/signup';
+    | '/signup'
+    | '/lesson/$lessonId';
   fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute;
   DashboardRoute: typeof DashboardRoute;
   LanguageselectionRoute: typeof LanguageselectionRoute;
-  LessonRoute: typeof LessonRoute;
   PracticeRoute: typeof PracticeRoute;
   LoginLazyRoute: typeof LoginLazyRoute;
   SignupLazyRoute: typeof SignupLazyRoute;
+  LessonLessonIdRoute: typeof LessonLessonIdRoute;
 }
 
 declare module '@tanstack/react-router' {
@@ -147,13 +147,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PracticeRouteImport;
       parentRoute: typeof rootRouteImport;
     };
-    '/lesson': {
-      id: '/lesson';
-      path: '/lesson';
-      fullPath: '/lesson';
-      preLoaderRoute: typeof LessonRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
     '/languageselection': {
       id: '/languageselection';
       path: '/languageselection';
@@ -175,6 +168,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport;
       parentRoute: typeof rootRouteImport;
     };
+    '/lesson/$lessonId': {
+      id: '/lesson/$lessonId';
+      path: '/lesson/$lessonId';
+      fullPath: '/lesson/$lessonId';
+      preLoaderRoute: typeof LessonLessonIdRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
   }
 }
 
@@ -182,10 +182,10 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
   LanguageselectionRoute: LanguageselectionRoute,
-  LessonRoute: LessonRoute,
   PracticeRoute: PracticeRoute,
   LoginLazyRoute: LoginLazyRoute,
   SignupLazyRoute: SignupLazyRoute,
+  LessonLessonIdRoute: LessonLessonIdRoute,
 };
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
