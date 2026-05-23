@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { requireAuth } from '@/lib/auth';
 
 // Fake API request
 const fetchExercises = async () => {
@@ -41,6 +42,8 @@ function ExercisesPage() {
 
 // Route
 export const Route = createFileRoute('/practice')({
+  beforeLoad: requireAuth,
+
   loader: fetchExercises,
 
   pendingComponent: LoadingScreen,

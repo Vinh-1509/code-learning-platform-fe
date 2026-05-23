@@ -1,4 +1,4 @@
-export type Language = 'cpp' | 'java';
+export type Language = 'C++' | 'Java';
 
 export interface LanguageStrength {
   label: string;
@@ -8,8 +8,8 @@ export interface LanguageChallenge {
 }
 
 export interface LanguageOption {
-  id: Language;
-  label: string;
+  id: string;
+  language: Language;
   tagline: string;
   strengths: string[];
   challenges: string[];

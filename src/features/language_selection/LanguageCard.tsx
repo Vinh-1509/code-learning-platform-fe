@@ -20,7 +20,7 @@ export function LanguageCard({
       <div className={`${lang.color.background} p-6 relative`}>
         <div className="flex items-start justify-between">
           <span className="text-xs font-bold text-white/80 bg-white/20 px-2.5 py-1 rounded-lg">
-            {lang.label}
+            {lang.language}
           </span>
           <div className="w-6 h-6 rounded-full border-2 border-white/60 flex items-center justify-center">
             {isSelected && (
@@ -29,7 +29,9 @@ export function LanguageCard({
           </div>
         </div>
         <div className="mt-6">
-          <h2 className="text-2xl font-extrabold text-white">{lang.label}</h2>
+          <h2 className="text-2xl font-extrabold text-white">
+            {lang.language}
+          </h2>
           <p className="text-sm text-white/70 mt-1">{lang.tagline}</p>
         </div>
       </div>
@@ -91,7 +93,7 @@ export function LanguageCard({
           onClick={onSelect}
           className={`w-full mt-2 h-11 rounded-xl text-white text-sm font-semibold transition-colors ${lang.color.main}`}
         >
-          {isSelected ? '✓ Selected' : `Select ${lang.label}`}
+          {isSelected ? '✓ Selected' : `Select ${lang.language}`}
         </button>
       </div>
     </div>

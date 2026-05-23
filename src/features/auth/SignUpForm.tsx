@@ -15,7 +15,7 @@ interface SignUpFormProps {
   error?: string | null;
 }
 
-export function SignUpForm({ onSubmit, loading }: SignUpFormProps) {
+export function SignUpForm({ onSubmit, loading, error }: SignUpFormProps) {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -29,7 +29,10 @@ export function SignUpForm({ onSubmit, loading }: SignUpFormProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) return;
-    const { ...payload } = formData;
+    const payload = {
+      email: formData.email,
+      password: formData.password,
+    };
     void onSubmit(payload);
   };
 
@@ -125,6 +128,7 @@ export function SignUpForm({ onSubmit, loading }: SignUpFormProps) {
           >
             {loading ? 'Đang tạo tài khoản...' : 'Create account →'}
           </Button>
+          {error ? <p className="text-sm text-red-600 mt-3">{error}</p> : null}
 
           <FieldDescription className="text-center mt-4 text-slate-500 text-sm">
             Already have an account?{' '}

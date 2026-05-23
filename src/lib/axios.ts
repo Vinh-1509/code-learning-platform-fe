@@ -24,62 +24,75 @@ api.interceptors.response.use(
   }
 );
 
-import type { AuthPayload, AuthResponse } from '@/types/auth';
+import type { AuthPayload, AuthResponse, AuthUserResponse } from '@/types/auth';
 
 export async function loginUser(payload: AuthPayload): Promise<AuthResponse> {
-  const { data } = await api.post<AuthResponse>('/auth/login', payload);
+  const { data } = await api.post<AuthResponse>('/api/auth/login', payload);
   return data;
 }
 
 export async function registerUser(
   payload: AuthPayload
 ): Promise<AuthResponse> {
-  const { data } = await api.post<AuthResponse>('/auth/register', payload);
+  const { data } = await api.post<AuthResponse>('/api/auth/register', payload);
+  return data;
+}
+
+export async function getMe(): Promise<AuthUserResponse> {
+  const { data } = await api.get<AuthUserResponse>('/api/auth/me');
   return data;
 }
 
 import type { LanguageOption, Language } from '@/types/language_selection';
 
-// thay bằng api.get('/languages') khi BE xong
+interface LanguageListItem {
+  _id: string;
+  language: Language;
+}
+
+interface LanguageDetailResponse {
+  _id: string;
+  language: Language;
+  info: string;
+  strengths: string[];
+  challenges: string[];
+  useCases: string[];
+}
+
 export async function fetchLanguages(): Promise<LanguageOption[]> {
-  await new Promise((r) => setTimeout(r, 800));
-  return LANGUAGE_DATA;
+  const { data } = await api.get<LanguageListItem[]>('/api/languages');
+
+  const languageDetails = await Promise.all(
+    data.map(async (item) => getLanguageDetails(item._id))
+  );
+
+  return languageDetails;
 }
 
-// thay bằng api.post('/user/language', { language }) khi BE xong
+export async function getLanguageDetails(
+  languageId: string
+): Promise<LanguageOption> {
+  const { data } = await api.get<LanguageDetailResponse>(
+    `/api/languages/${languageId}`
+  );
+
+  return {
+    id: data._id,
+    language: data.language,
+    tagline: data.info,
+    strengths: data.strengths,
+    challenges: data.challenges,
+    useCases: data.useCases,
+    color: {
+      background: data.language === 'C++' ? 'bg-[#3730a3]' : 'bg-[#c2410c]',
+      main: 'bg-accent',
+    },
+  };
+}
+
 export async function saveLanguage(language: Language): Promise<void> {
-  await new Promise((r) => setTimeout(r, 600));
-  console.log(language);
+  await api.post('/api/languages/select', { language });
 }
-
-// Mock data
-const LANGUAGE_DATA: LanguageOption[] = [
-  {
-    id: 'cpp',
-    label: 'C++',
-    tagline: 'Powerful, fast & foundational',
-    strengths: ['Performance', 'Memory Control', 'Hardware Access'],
-    challenges: ['Manual Memory', 'Complex Syntax'],
-    useCases: [
-      'Game Engines (Unreal)',
-      'Operating Systems',
-      'Embedded Systems',
-    ],
-    color: {
-      background: 'bg-[#3730a3]',
-      main: 'bg-accent',
-    },
-  },
-  {
-    id: 'java',
-    label: 'Java',
-    tagline: 'Readable, structured & enterprise-ready',
-    strengths: ['Clean OOP', 'Rich Ecosystem', 'Platform Independent'],
-    challenges: ['Verbose Code', 'Memory Heavy'],
-    useCases: ['Android Development', 'Enterprise Backend', 'Big Data Systems'],
-    color: {
-      background: 'bg-[#c2410c]',
-      main: 'bg-accent',
-    },
-  },
-];
+export interface ApiError {
+  message?: string;
+}

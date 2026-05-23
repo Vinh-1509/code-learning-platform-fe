@@ -10,6 +10,15 @@ export interface AuthPayload {
 }
 
 export interface AuthResponse {
-  token: string;
-  user: User;
+  access_token?: string;
+  message?: string;
+}
+
+export interface AuthUserResponse {
+  _id: string;
+  email: string;
+  username?: string;
+  fullName?: string;
+  selectedLanguage?: string[];
+  createdAt: string;
 }
