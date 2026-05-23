@@ -1,11 +1,15 @@
-import { Link } from '@tanstack/react-router';
+import { Link, getRouteApi } from '@tanstack/react-router';
 import { ChevronLeft } from 'lucide-react';
 import { usePractice } from './usePractice';
 import { LessonSidebar } from './lessonSidebar';
 import { TheoryPane } from './theoryPanel';
 import { PracticePane } from './practicePanel';
 
+const lessonRouteApi = getRouteApi('/lesson');
+
 export function LessonPage() {
+  const { lessonId } = lessonRouteApi.useSearch();
+
   const {
     sidebarLessons,
     availableBlocks,
@@ -22,7 +26,7 @@ export function LessonPage() {
     handleSubmitAnswer,
     handleReset,
     setOverSlot,
-  } = usePractice();
+  } = usePractice({ lessonId });
 
   if (isLoading)
     return (

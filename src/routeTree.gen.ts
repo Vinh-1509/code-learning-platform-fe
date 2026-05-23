@@ -45,6 +45,11 @@ const LanguageselectionRoute = LanguageselectionRouteImport.update({
   path: '/languageselection',
   getParentRoute: () => rootRouteImport,
 } as any);
+const LessonRoute = LessonRouteImport.update({
+  id: '/lesson',
+  path: '/lesson',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() => import('./routes/lesson.lazy').then((d) => d.Route));
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -159,6 +164,13 @@ declare module '@tanstack/react-router' {
       path: '/languageselection';
       fullPath: '/languageselection';
       preLoaderRoute: typeof LanguageselectionRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    '/lesson': {
+      id: '/lesson';
+      path: '/lesson';
+      fullPath: '/lesson';
+      preLoaderRoute: typeof LessonRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     '/dashboard': {
