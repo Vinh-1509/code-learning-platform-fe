@@ -96,3 +96,35 @@ export async function saveLanguage(language: Language): Promise<void> {
 export interface ApiError {
   message?: string;
 }
+
+export interface MilestoneResponse {
+  _id: string;
+  title: string;
+  description: string;
+  order: number;
+  progress: {
+    status: 'Active' | 'Locked' | 'Completed';
+    completionPercentage: number;
+  };
+}
+export interface LessonResponse {
+  _id: string;
+  title: string;
+  status: 'done' | 'current' | 'locked';
+}
+
+export async function fetchMilestones(): Promise<MilestoneResponse[]> {
+  const { data } = await api.get<MilestoneResponse[]>(
+    '/api/learning/milestones'
+  );
+  return data;
+}
+
+export async function fetchLessonsByMilestone(
+  milestoneId: string
+): Promise<LessonResponse[]> {
+  const { data } = await api.get<LessonResponse[]>(
+    `/api/learning/milestones/${milestoneId}/lessons`
+  );
+  return data;
+}
