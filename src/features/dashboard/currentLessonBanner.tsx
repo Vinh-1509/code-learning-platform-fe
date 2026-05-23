@@ -3,16 +3,24 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface CurrentLessonBannerProps {
+  lessonId: string;
   lessonName: string;
   moduleName: string;
   progress: number;
+  onStartLesson: (lessonId: string) => void;
 }
 
 export function CurrentLessonBanner({
+  lessonId,
   lessonName,
   moduleName,
   progress,
+  onStartLesson,
 }: CurrentLessonBannerProps) {
+  const handleContinue = () => {
+    onStartLesson(lessonId);
+  };
+
   return (
     <Card className="bg-white border border-slate-200 shadow-sm transition-all duration-300 ease-in-out hover:bg-slate-50 hover:shadow-lg hover:scale-[1.01] hover:border-slate-300 cursor-pointer">
       <CardContent className="p-6">
@@ -52,7 +60,11 @@ export function CurrentLessonBanner({
             <span className="text-sm text-muted-foreground">
               {progress}% Completed
             </span>
-            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+            <Button
+              type="button"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground"
+              onClick={handleContinue}
+            >
               Continue lesson
             </Button>
           </div>

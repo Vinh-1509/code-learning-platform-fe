@@ -31,7 +31,11 @@ const mockAvailableBlocks: DraggableBlock[] = [
   { id: 'b3', code: 'i = i + 1', indent: 1 },
 ];
 
-export function usePractice() {
+interface UsePracticeOptions {
+  lessonId: string;
+}
+
+export function usePractice({ lessonId }: UsePracticeOptions) {
   const [sidebarLessons] = useState<LessonBlock[]>(mockSidebarLessons);
   const [availableBlocks] = useState<DraggableBlock[]>(mockAvailableBlocks);
   const [isLoading] = useState(false);
@@ -115,6 +119,7 @@ export function usePractice() {
   };
 
   return {
+    lessonId,
     sidebarLessons,
     availableBlocks,
     isLoading,

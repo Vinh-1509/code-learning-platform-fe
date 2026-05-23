@@ -1,111 +1,113 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { fetchMilestones, fetchLessonsByMilestone } from '../../lib/axios';
+import type { MilestoneResponse, LessonResponse } from '../../lib/axios';
+import { useStartLesson } from '@/hooks/useStartLesson';
 
-// 1. Định nghĩa kiểu dữ liệu (Types)
-type LessonStatus = 'done' | 'current' | 'locked';
-interface Lesson {
+export type LessonStatus = 'done' | 'current' | 'locked';
+
+export interface Lesson {
   id: string;
   name: string;
   status: LessonStatus;
 }
-interface Module {
-  id: number;
+
+export interface Module {
+  id: string;
   name: string;
+  status: string;
+  progress: number;
   lessons: Lesson[];
 }
 
-// 2. Dữ liệu Mock ban đầu
-const initialModules: Module[] = [
-  {
-    id: 1,
-    name: 'Variables & Types',
-    lessons: [
-      { id: '1-1', name: 'Setting Up', status: 'done' },
-      { id: '1-2', name: 'Loop', status: 'current' },
-      { id: '1-3', name: 'Your First App', status: 'locked' },
-    ],
-  },
-  {
-    id: 2,
-    name: 'Variables',
-    lessons: [
-      { id: '2-1', name: 'Variable Declaration', status: 'locked' },
-      { id: '2-2', name: 'Data Types', status: 'locked' },
-      { id: '2-3', name: 'Type Conversion', status: 'locked' },
-    ],
-  },
-  {
-    id: 3,
-    name: 'Control Flow',
-    lessons: [
-      { id: '3-1', name: 'If Statements', status: 'locked' },
-      { id: '3-2', name: 'Switch Cases', status: 'locked' },
-    ],
-  },
-  {
-    id: 4,
-    name: 'Functions',
-    lessons: [
-      { id: '4-1', name: 'Function Basics', status: 'locked' },
-      { id: '4-2', name: 'Parameters & Arguments', status: 'locked' },
-      { id: '4-3', name: 'Return Values', status: 'locked' },
-    ],
-  },
-];
+export interface CurrentLessonInfo {
+  lessonId: string;
+  lessonName: string;
+  moduleName: string;
+  progress: number;
+}
 
-// 3. Khai báo Custom Hook chứa toàn bộ logic nhấn nút & trạng thái
+export function getCurrentLesson(modules: Module[]): CurrentLessonInfo | null {
+  for (const module of modules) {
+    const currentLesson = module.lessons.find((l) => l.status === 'current');
+    if (currentLesson) {
+      return {
+        lessonId: currentLesson.id,
+        lessonName: currentLesson.name,
+        moduleName: module.name,
+        progress: module.progress,
+      };
+    }
+  }
+  return null;
+}
+
 export function useRoadmap() {
-  const [modules, setModules] = useState<Module[]>(initialModules);
-  const [expandedModules, setExpandedModules] = useState<number[]>([1]);
+  const [modules, setModules] = useState<Module[]>([]);
+  const [expandedModules, setExpandedModules] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const startLesson = useStartLesson();
 
-  // Logic Đóng / Mở Module
-  const toggleModule = (moduleId: number) => {
+  useEffect(() => {
+    async function loadData() {
+      try {
+        setLoading(true);
+        const milestones = await fetchMilestones();
+
+        if (!Array.isArray(milestones)) {
+          console.error('Backend trả về KHÔNG PHẢI MẢNG:', milestones);
+          return;
+        }
+
+        const data: Module[] = await Promise.all(
+          milestones.map(async (m: MilestoneResponse) => {
+            const lessons = await fetchLessonsByMilestone(m._id);
+            const lessonList = Array.isArray(lessons) ? lessons : [];
+
+            return {
+              id: m._id,
+              name: m.title,
+              status: m.progress.status,
+              progress: m.progress.completionPercentage,
+              lessons: lessonList.map((l: LessonResponse) => ({
+                id: l._id,
+                name: l.title,
+                status: l.status,
+              })),
+            };
+          })
+        );
+
+        setModules(
+          data.sort((a: Module, b: Module) => a.id.localeCompare(b.id))
+        );
+      } catch (error) {
+        console.error('Lỗi:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    void loadData();
+  }, []);
+
+  const toggleModule = (id: string) => {
     setExpandedModules((prev) =>
-      prev.includes(moduleId)
-        ? prev.filter((id) => id !== moduleId)
-        : [...prev, moduleId]
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
     );
   };
 
-  // Logic Bấm nút hoàn thành bài học và tự động mở khóa bài tiếp theo
-  const handleLessonComplete = (lessonId: string) => {
-    setModules((prev) => {
-      const newModules: Module[] = prev.map((m) => ({
-        ...m,
-        lessons: m.lessons.map((l) => ({ ...l })),
-      }));
-
-      for (let i = 0; i < newModules.length; i++) {
-        for (let j = 0; j < newModules[i].lessons.length; j++) {
-          if (
-            newModules[i].lessons[j].id === lessonId &&
-            newModules[i].lessons[j].status === 'current'
-          ) {
-            newModules[i].lessons[j].status = 'done';
-
-            for (let mi = i; mi < newModules.length; mi++) {
-              const startJ = mi === i ? j + 1 : 0;
-              for (let mj = startJ; mj < newModules[mi].lessons.length; mj++) {
-                if (newModules[mi].lessons[mj].status === 'locked') {
-                  newModules[mi].lessons[mj].status = 'current';
-                  if (!expandedModules.includes(newModules[mi].id)) {
-                    setExpandedModules((exp) => [...exp, newModules[mi].id]);
-                  }
-                  return newModules;
-                }
-              }
-            }
-            return newModules;
-          }
-        }
-      }
-      return newModules;
-    });
+  const handleStartLesson = (lessonId: string) => {
+    startLesson(lessonId);
   };
+
+  const currentLesson = getCurrentLesson(modules);
 
   return {
     modules,
     expandedModules,
     toggleModule,
-    handleLessonComplete,
+    handleStartLesson,
+    currentLesson,
+    loading,
   };
 }

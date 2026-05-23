@@ -1,15 +1,35 @@
 import { useState } from 'react';
-// ✅ Đã sửa đường dẫn import khớp 100% với tên file viết hoa chữ cái giữa của bạn
 import { Sidebar } from './sideBar';
 import { Header } from './header';
 import { CurrentLessonBanner } from './currentLessonBanner';
 import { StatsGrid } from './statsGrid';
 import { LearningRoadmap } from './learningRoadmap';
+import { useRoadmap } from './useRoadmap';
+import { useStartLesson } from '@/hooks/useStartLesson';
 
 export function DashboardPage() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'practice'>(
     'dashboard'
   );
+  const {
+    modules,
+    expandedModules,
+    toggleModule,
+    handleStartLesson,
+    currentLesson,
+    loading,
+  } = useRoadmap();
+  const startLesson = useStartLesson();
+
+  const currentLessonBanner = currentLesson ? (
+    <CurrentLessonBanner
+      lessonId={currentLesson.lessonId}
+      lessonName={currentLesson.lessonName}
+      moduleName={currentLesson.moduleName}
+      progress={currentLesson.progress}
+      onStartLesson={startLesson}
+    />
+  ) : null;
 
   return (
     <div className="min-h-screen bg-white">
@@ -18,13 +38,15 @@ export function DashboardPage() {
         <div className="max-w-7xl w-full mx-auto space-y-6">
           <Header />
           <div className="space-y-6">
-            <CurrentLessonBanner
-              lessonName="Loop"
-              moduleName="Module 1: Variables & Types"
-              progress={65}
-            />
+            {!loading && currentLessonBanner}
             <StatsGrid lessonsLearned={12} problemsSolved={42} />
-            <LearningRoadmap />
+            <LearningRoadmap
+              modules={modules}
+              expandedModules={expandedModules}
+              toggleModule={toggleModule}
+              handleStartLesson={handleStartLesson}
+              loading={loading}
+            />
           </div>
         </div>
       </main>
