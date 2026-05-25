@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { Sidebar } from './sideBar';
-import { Header } from './header';
+import { AppSidebar } from '../../components/sidebar/sideBar';
 import { CurrentLessonBanner } from './currentLessonBanner';
 import { StatsGrid } from './statsGrid';
 import { LearningRoadmap } from './learningRoadmap';
 import { useRoadmap } from './useRoadmap';
-import { useStartLesson } from '@/features/dashboard/useStartLesson';
+import { useStartLesson } from './useStartLesson';
+import Navbar from '@/components/sidebar/Navbar';
 
 export function DashboardPage() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'practice'>(
@@ -32,22 +32,28 @@ export function DashboardPage() {
   ) : null;
 
   return (
-    <div className="min-h-screen bg-white">
-      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
-      <main className="ml-64 min-h-screen p-8 bg-[#f8fafc] flex justify-center">
-        <div className="max-w-7xl w-full mx-auto space-y-6">
-          <Header />
-          <div className="space-y-6">
-            {!loading && currentLessonBanner}
-            <StatsGrid lessonsLearned={12} problemsSolved={42} />
-            <LearningRoadmap
-              modules={modules}
-              expandedModules={expandedModules}
-              toggleModule={toggleModule}
-              handleStartLesson={handleStartLesson}
-              loading={loading}
-            />
-          </div>
+    <div className="h-screen overflow-hidden">
+      {/* HEADER */}
+      <Navbar />
+
+      {/* SIDEBAR */}
+
+      <AppSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+
+      {/* CONTENT */}
+      <main className="ml-64 pt-14 h-screen overflow-y-auto">
+        <div className="p-8 max-w-7xl mx-auto space-y-6">
+          {!loading && currentLessonBanner}
+
+          <StatsGrid lessonsLearned={12} problemsSolved={42} />
+
+          <LearningRoadmap
+            modules={modules}
+            expandedModules={expandedModules}
+            toggleModule={toggleModule}
+            handleStartLesson={handleStartLesson}
+            loading={loading}
+          />
         </div>
       </main>
     </div>

@@ -1,5 +1,7 @@
 import axios from 'axios';
-
+export interface ApiError {
+  message?: string;
+}
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   headers: { 'Content-Type': 'application/json' },
@@ -24,6 +26,7 @@ api.interceptors.response.use(
   }
 );
 
+// Auth API
 import type { AuthPayload, AuthResponse, AuthUserResponse } from '@/types/auth';
 
 export async function loginUser(payload: AuthPayload): Promise<AuthResponse> {
@@ -43,12 +46,9 @@ export async function getMe(): Promise<AuthUserResponse> {
   return data;
 }
 
-import type { LanguageOption, Language } from '@/types/language_selection';
+// Language Selection API
 
-interface LanguageListItem {
-  _id: string;
-  language: Language;
-}
+import type { LanguageOption, Language } from '@/types/language_selection';
 
 interface LanguageDetailResponse {
   _id: string;
@@ -60,43 +60,27 @@ interface LanguageDetailResponse {
 }
 
 export async function fetchLanguages(): Promise<LanguageOption[]> {
-  const { data } = await api.get<LanguageListItem[]>('/api/languages');
+  const { data } = await api.get<LanguageDetailResponse[]>('/api/languages');
 
-  const languageDetails = await Promise.all(
-    data.map(async (item) => getLanguageDetails(item._id))
-  );
-
-  return languageDetails;
-}
-
-export async function getLanguageDetails(
-  languageId: string
-): Promise<LanguageOption> {
-  const { data } = await api.get<LanguageDetailResponse>(
-    `/api/languages/${languageId}`
-  );
-
-  return {
-    id: data._id,
-    language: data.language,
-    tagline: data.info,
-    strengths: data.strengths,
-    challenges: data.challenges,
-    useCases: data.useCases,
+  return data.map((item) => ({
+    id: item._id,
+    language: item.language,
+    tagline: item.info,
+    strengths: item.strengths,
+    challenges: item.challenges,
+    useCases: item.useCases,
     color: {
-      background: data.language === 'C++' ? 'bg-[#3730a3]' : 'bg-[#c2410c]',
+      background: item.language === 'C++' ? 'bg-[#3730a3]' : 'bg-[#c2410c]',
       main: 'bg-accent',
     },
-  };
+  }));
 }
 
 export async function saveLanguage(language: Language): Promise<void> {
   await api.post('/api/languages/select', { language });
 }
-export interface ApiError {
-  message?: string;
-}
 
+// Learning API
 export interface MilestoneResponse {
   _id: string;
   title: string;
@@ -110,7 +94,12 @@ export interface MilestoneResponse {
 export interface LessonResponse {
   _id: string;
   title: string;
-  status: 'done' | 'current' | 'locked';
+  order: number;
+  progress: {
+    status: 'active' | 'locked' | 'completed';
+    isCompleted: boolean;
+    completionPercentage: number;
+  };
 }
 export interface ContentItem {
   type: 'theory' | 'code';
@@ -124,6 +113,7 @@ export interface ContentItem {
 
 export interface Block {
   _id: string;
+  title: string;
   content: ContentItem[];
   feynmanQuestion: string;
   state: 'active' | 'locked' | 'completed';
