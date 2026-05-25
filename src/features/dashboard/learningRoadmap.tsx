@@ -10,9 +10,9 @@ import { cn } from '@/lib/utils';
 import type { Module, Lesson } from './useRoadmap';
 
 function LessonIcon({ status }: { status: string }) {
-  if (status === 'done')
+  if (status === 'completed')
     return <CheckCircle2 className="size-5 text-green-500" />;
-  if (status === 'current')
+  if (status === 'active')
     return (
       <div className="size-5 rounded-full bg-blue-500 flex items-center justify-center">
         <Play className="size-3 text-white fill-white ml-0.5" />
@@ -28,7 +28,7 @@ interface LessonItemProps {
 
 function LessonItem({ lesson, onStart }: LessonItemProps) {
   const showStartButton = lesson.status !== 'locked';
-  const startButtonLabel = lesson.status === 'done' ? 'Continue' : 'Start';
+  const startButtonLabel = lesson.status === 'completed' ? 'Continue' : 'Start';
   console.log(lesson.status);
 
   const startButton = showStartButton ? (

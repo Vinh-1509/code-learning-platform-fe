@@ -1,41 +1,76 @@
-import type { Block } from '@/lib/axios';
+import type { Block, ContentItem } from '@/lib/axios';
 
 interface TheoryPaneProps {
   block: Block | undefined;
 }
+
 export function TheoryPane({ block }: TheoryPaneProps) {
-  console.log(block);
+  if (!block) {
+    return null;
+  }
+
+  const sortedContent = [...block.content].sort(
+    (a, b) => a.data.order - b.data.order
+  );
+
   return (
-    <div className="flex-1 flex flex-col bg-white overflow-y-auto min-w-0 p-6 border-r border-slate-200">
-      <h1 className="text-2xl font-bold text-slate-900">For Loop</h1>
-      <p className="text-sm text-slate-500 mt-1">
-        Range, iteration, and index control
-      </p>
-      <div className="h-px bg-slate-200 my-4" />
-      <div className="rounded-lg p-4 bg-blue-50/50 border-l-4 border-blue-600 mb-4 text-sm text-blue-700 font-medium">
-        A for loop repeats code a fixed number of times over a sequence.
-      </div>
-      <div className="rounded-xl overflow-hidden bg-[#1b2130]">
-        <div className="flex items-center px-4 h-8 justify-between bg-[#121726]">
-          <div className="flex gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-red-500" />
-            <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-            <span className="w-2.5 h-2.5 rounded-full bg-green-500" />
-          </div>
-          <span className="text-xs text-slate-500 font-mono">python</span>
-        </div>
-        <div className="p-4 font-mono text-sm text-slate-100 space-y-1">
-          <div>
-            <span className="text-pink-400">for</span>
-            <span className="text-blue-300"> i </span>
-            <span className="text-pink-400">in</span>
-            <span> range(3):</span>
-          </div>
-          <div>
-            <span>{'    print(i)'}</span>
-            <span className="ml-8 text-slate-500"># → 0, 1, 2</span>
-          </div>
-        </div>
+    <div className="flex-1 bg-white p-6 min-w-0 border-r border-slate-200">
+      <h1 className="mt-2 text-3xl font-bold text-slate-900">hello</h1>
+
+      <div className="my-6 h-px bg-slate-200" />
+
+      <div className="space-y-8">
+        {sortedContent.map((item: ContentItem, index: number) => {
+          if (item.type === 'theory') {
+            return (
+              <section key={index} className="space-y-3">
+                <h2 className="text-sm font-bold text-slate-900">
+                  {index + 1}. What is it?
+                </h2>
+
+                <div className="rounded-lg border-l-4 border-blue-600 bg-blue-50 p-4 text-sm text-blue-700">
+                  {item.data.text}
+                </div>
+              </section>
+            );
+          }
+
+          if (item.type === 'code') {
+            return (
+              <section key={index} className="space-y-3">
+                <h2 className="text-sm font-bold text-slate-900">
+                  {index + 1}. Example
+                </h2>
+
+                {item.data.explanation && (
+                  <p className="text-sm leading-6 text-slate-600">
+                    {item.data.explanation}
+                  </p>
+                )}
+
+                <div className="overflow-hidden rounded-xl bg-[#1b2130]">
+                  <div className="flex h-8 items-center justify-between bg-[#121726] px-4">
+                    <div className="flex gap-1.5">
+                      <span className="h-2.5 w-2.5 rounded-full bg-red-500" />
+                      <span className="h-2.5 w-2.5 rounded-full bg-amber-500" />
+                      <span className="h-2.5 w-2.5 rounded-full bg-green-500" />
+                    </div>
+
+                    <span className="font-mono text-xs text-slate-500">
+                      cpp
+                    </span>
+                  </div>
+
+                  <pre className="overflow-x-auto p-4 font-mono text-sm text-slate-100">
+                    <code>{item.data.code}</code>
+                  </pre>
+                </div>
+              </section>
+            );
+          }
+
+          return null;
+        })}
       </div>
     </div>
   );

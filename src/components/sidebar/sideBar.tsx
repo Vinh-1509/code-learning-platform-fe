@@ -1,0 +1,110 @@
+import { Link } from '@tanstack/react-router';
+import {
+  LayoutDashboard,
+  Grid3x3,
+  SquareTerminal,
+  ChevronLeft,
+} from 'lucide-react';
+
+import { cn } from '@/lib/utils';
+
+interface AppSidebarProps {
+  variant?: 'dashboard' | 'lesson';
+  activeTab?: 'dashboard' | 'practice';
+  onTabChange?: (tab: 'dashboard' | 'practice') => void;
+}
+
+export function AppSidebar({
+  variant = 'dashboard',
+  activeTab,
+  onTabChange,
+}: AppSidebarProps) {
+  return (
+    <aside className="fixed top-14 left-0 bottom-0 w-64 border-r bg-white">
+      {variant === 'dashboard' ? (
+        <>
+          <div className="px-4 py-4">
+            <div className="rounded-xl bg-sidebar p-4">
+              <div className="flex items-start gap-3">
+                <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                  <SquareTerminal className="size-5 text-primary" />
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-sm font-semibold text-foreground">
+                    C++ Mastery
+                  </h3>
+
+                  <p className="text-xs text-muted-foreground">
+                    12/45 Lessons Learned
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted">
+                <div
+                  className="h-full rounded-full bg-primary"
+                  style={{ width: '27%' }}
+                />
+              </div>
+            </div>
+          </div>
+
+          <nav className="flex-1 px-4">
+            <button
+              onClick={() => onTabChange?.('dashboard')}
+              className={cn(
+                'flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-left text-sm font-medium transition-colors',
+                activeTab === 'dashboard'
+                  ? 'bg-accent text-primary'
+                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+              )}
+            >
+              <LayoutDashboard className="size-5" />
+              Dashboard
+            </button>
+
+            <button
+              onClick={() => onTabChange?.('practice')}
+              className={cn(
+                'mt-1 flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-left text-sm font-medium transition-colors',
+                activeTab === 'practice'
+                  ? 'bg-accent text-primary'
+                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+              )}
+            >
+              <Grid3x3 className="size-5" />
+              Practice
+            </button>
+          </nav>
+        </>
+      ) : (
+        <div className="flex flex-1 flex-col justify-between p-4">
+          <div>
+            <div className="rounded-xl border border-blue-100 bg-blue-50/70 p-4">
+              <p className="text-xs font-bold uppercase tracking-wider text-blue-600">
+                Current Lesson
+              </p>
+
+              <h3 className="mt-2 text-sm font-semibold text-slate-900">
+                Variables & Data Types
+              </h3>
+
+              <p className="mt-1 text-xs text-slate-500">
+                Learn variables, primitive types and basic syntax.
+              </p>
+            </div>
+          </div>
+
+          <Link
+            to="/dashboard"
+            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+          >
+            <ChevronLeft className="size-4" />
+            Back to Dashboard
+          </Link>
+        </div>
+      )}
+    </aside>
+  );
+}

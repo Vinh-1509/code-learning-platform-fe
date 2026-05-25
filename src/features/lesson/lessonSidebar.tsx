@@ -30,6 +30,7 @@ function BlockIcon({ status }: { status: Block['state'] }) {
 
 export function LessonSidebar({
   blocks,
+  lessonTitle,
   selectedBlockId,
   onSelectBlock,
 }: LessonSidebarProps) {
@@ -47,13 +48,12 @@ export function LessonSidebar({
 
           const isSelected = block._id === selectedBlockId;
 
-          const blockTypeLabel =
-            block.content[0]?.type === 'theory' ? 'Lý thuyết' : 'Bài tập Code';
+          const blockTypeLabel = lessonTitle;
 
           return (
             <div
               key={block._id}
-              onClick={() => !isLocked && onSelectBlock(block._id)} // Không cho click nếu block bị khóa
+              onClick={() => !isLocked && onSelectBlock(block._id)}
               className={cn(
                 'relative flex items-center gap-3 px-4 h-15 transition-colors select-none',
                 isLocked ? 'cursor-not-allowed opacity-60' : 'cursor-pointer',
