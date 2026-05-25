@@ -1,9 +1,10 @@
-import { Button } from '../../components/ui/button';
-import { cn } from '../../lib/utils';
-import { Lightbulb } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import type { DraggableBlock } from './types';
+import { ResultBanner } from './shared/ResultBanner';
+import { HintStrip } from './shared/HintStrip';
+import { SubmitBar } from './shared/SubmitBar';
 
-interface PracticePaneProps {
+interface DragDropPaneProps {
   availableBlocks: DraggableBlock[];
   droppedBlocks: (string | null)[];
   overSlot: number | null;
@@ -17,9 +18,10 @@ interface PracticePaneProps {
   onRemove: (slotIndex: number) => void;
   onSubmit: () => void;
   onReset: () => void;
+  onShowHint?: () => void;
 }
 
-export function PracticePane({
+export function DragDropPane({
   availableBlocks,
   droppedBlocks,
   overSlot,
@@ -33,14 +35,15 @@ export function PracticePane({
   onRemove,
   onSubmit,
   onReset,
-}: PracticePaneProps) {
+  onShowHint = () => {},
+}: DragDropPaneProps) {
   const usedIds = new Set(
     droppedBlocks.filter((id): id is string => id !== null)
   );
   const allFilled = droppedBlocks.every((b) => b !== null);
 
   return (
-    <div className=" min-h-full bg-white p-6 flex flex-col justify-between">
+    <div className="min-h-full bg-white p-6 flex flex-col justify-between">
       <div>
         <div className="rounded-xl p-4 bg-blue-50/80 border border-blue-100/70 text-sm text-blue-600 mb-5">
           <p className="font-bold text-[13px]">
@@ -51,31 +54,11 @@ export function PracticePane({
           </p>
         </div>
 
-        {showResult && (
-          <div
-            className={cn(
-              'rounded-xl p-4 flex items-center justify-between border mb-4',
-              showResult === 'correct'
-                ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
-                : 'bg-rose-50 border-rose-300 text-rose-800'
-            )}
-          >
-            <span className="text-sm font-semibold">
-              {showResult === 'correct'
-                ? '✓ Correct Answer!'
-                : '✗ Incorrect. Try again.'}
-            </span>
-            {showResult === 'wrong' && (
-              <Button
-                size="sm"
-                onClick={onReset}
-                className="bg-rose-200 text-rose-900 hover:bg-rose-300 h-7 text-xs rounded-lg"
-              >
-                Reset
-              </Button>
-            )}
-          </div>
-        )}
+        <ResultBanner
+          showResult={showResult}
+          submitted={submitted}
+          onReset={onReset}
+        />
 
         <p className="text-[11px] font-bold text-slate-400 mb-2 tracking-wider uppercase">
           Available Blocks — drag to zone below
@@ -167,34 +150,15 @@ export function PracticePane({
           })}
         </div>
 
-        <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50/60 p-3 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-xs font-bold text-amber-800 uppercase tracking-wider">
-            <Lightbulb className="size-4 text-amber-600 fill-amber-100" />
-            <span>Hints</span>
-          </div>
-          <button className="bg-amber-500 hover:bg-amber-600 text-white text-[11px] font-bold px-3 h-7 rounded-lg transition-colors shadow-sm">
-            Show Hint
-          </button>
-        </div>
+        <HintStrip onShowHint={onShowHint} />
       </div>
 
-      <div className="pt-6">
-        <p className="text-[10px] text-slate-400 text-center mb-2 font-medium">
-          {!allFilled && 'Arrange all 3 blocks to enable submit.'}
-        </p>
-        <Button
-          onClick={onSubmit}
-          disabled={!allFilled || submitted || isSubmitting}
-          className={cn(
-            'w-full font-bold h-10 text-xs text-white rounded-xl transition-all uppercase tracking-wider',
-            allFilled && !submitted && !isSubmitting
-              ? 'bg-blue-600 hover:bg-blue-700 shadow-md cursor-pointer'
-              : 'bg-blue-200 text-blue-400/80 cursor-not-allowed shadow-none'
-          )}
-        >
-          {isSubmitting ? 'Verifying...' : 'Submit Answer →'}
-        </Button>
-      </div>
+      <SubmitBar
+        allFilled={allFilled}
+        submitted={submitted}
+        isSubmitting={isSubmitting}
+        onSubmit={onSubmit}
+      />
     </div>
   );
 }

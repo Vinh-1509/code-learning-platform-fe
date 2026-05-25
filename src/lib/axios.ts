@@ -114,6 +114,7 @@ export interface ContentItem {
 export interface Block {
   _id: string;
   title: string;
+  description?: string;
   content: ContentItem[];
   feynmanQuestion: string;
   state: 'active' | 'locked' | 'completed';
