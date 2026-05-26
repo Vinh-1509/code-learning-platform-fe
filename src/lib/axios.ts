@@ -157,3 +157,85 @@ export async function fetchLessonsByMilestone(
   );
   return data;
 }
+
+// Practice/Exercise API
+export type ExerciseType = 'dragdrop' | 'fillblank';
+
+export interface DragDropBlockResponse {
+  id: string;
+  code: string;
+  indent: number;
+}
+
+export interface ExercisePartResponse {
+  id: string;
+  text: string;
+  isBlank: boolean;
+  answer?: string;
+}
+
+export interface ExerciseLineResponse {
+  id: string;
+  parts: ExercisePartResponse[];
+  indent: number;
+}
+
+export interface DragDropExerciseResponse {
+  _id: string;
+  type: 'dragdrop';
+  title: string;
+  description: string;
+  blocks: DragDropBlockResponse[];
+  answer?: (string | null)[];
+}
+
+export interface FillBlankExerciseResponse {
+  _id: string;
+  type: 'fillblank';
+  title: string;
+  description: string;
+  lines: ExerciseLineResponse[];
+}
+
+export type ExerciseResponse =
+  | DragDropExerciseResponse
+  | FillBlankExerciseResponse;
+
+export interface SubmitAnswerResponse {
+  correct: boolean;
+  feedback?: string;
+}
+
+export interface HintResponse {
+  hintLevel: number;
+  hint: string;
+}
+
+export async function fetchExerciseById(
+  exerciseId: string
+): Promise<ExerciseResponse> {
+  const { data } = await api.get<ExerciseResponse>(
+    `/api/practice/exercises/${exerciseId}`
+  );
+  return data;
+}
+
+export async function submitExerciseAnswer(
+  exerciseId: string,
+  answer: unknown
+): Promise<SubmitAnswerResponse> {
+  const { data } = await api.post<SubmitAnswerResponse>(
+    `/api/practice/exercises/${exerciseId}/submit`,
+    { answer }
+  );
+  return data;
+}
+
+export async function getExerciseHint(
+  exerciseId: string
+): Promise<HintResponse> {
+  const { data } = await api.post<HintResponse>(
+    `/api/practice/exercises/${exerciseId}/hint`
+  );
+  return data;
+}
