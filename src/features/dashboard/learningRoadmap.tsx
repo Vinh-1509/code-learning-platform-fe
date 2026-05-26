@@ -78,19 +78,19 @@ function ModuleItem({
 }: ModuleItemProps) {
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'Completed':
+      case 'completed':
         return (
           <span className="text-[10px] uppercase font-bold text-green-700 bg-green-100 px-2 py-0.5 rounded-full">
             Done
           </span>
         );
-      case 'Active':
+      case 'active':
         return (
           <span className="text-[10px] uppercase font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full">
             Active
           </span>
         );
-      case 'Locked':
+      case 'locked':
       default:
         return (
           <span className="text-[10px] uppercase font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
