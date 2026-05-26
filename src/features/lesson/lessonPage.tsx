@@ -26,9 +26,10 @@ export function LessonPage() {
     currentLesson?.blocks.find((b: Block) => b._id === activeBlockId) ??
     undefined;
 
-  const { exercises, loading, error } = useBlockExercises({
-    block: currentBlock,
-  });
+  const { exercises, loading, error, submitAnswer, getHint } =
+    useBlockExercises({
+      block: currentBlock,
+    });
   const [activeExerciseIndex, setActiveExerciseIndex] = useState(0);
 
   useEffect(() => {
@@ -48,11 +49,12 @@ export function LessonPage() {
           onSelectBlock={setSelectedBlockId}
         />
 
-        <div className="flex-1  overflow-y-auto">
+        <div className="flex-1 overflow-y-auto">
           <TheoryPane block={currentBlock} />
         </div>
 
-        <div className="flex-1  overflow-y-auto flex flex-col">
+        <div className="flex-1 overflow-y-auto flex flex-col">
+          {/* Question tab bar */}
           <div className="flex gap-2 p-4 border-b border-slate-200 bg-slate-50">
             {loading ? (
               <span className="text-sm text-slate-500">
@@ -86,7 +88,12 @@ export function LessonPage() {
 
           <div className="flex-1 overflow-y-auto">
             {exercises.length > 0 && exercises[activeExerciseIndex] && (
-              <PracticePanel exercise={exercises[activeExerciseIndex]} />
+              <PracticePanel
+                key={exercises[activeExerciseIndex].id}
+                exercise={exercises[activeExerciseIndex]}
+                onSubmit={submitAnswer}
+                onGetHint={getHint}
+              />
             )}
           </div>
         </div>

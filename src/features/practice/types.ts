@@ -24,6 +24,7 @@ export interface DragDropExercise {
   blocks: DraggableBlock[];
   answer?: (string | null)[];
   description: string;
+  hints?: Record<string, string>;
 }
 
 export interface FillBlankExercise {
@@ -32,11 +33,14 @@ export interface FillBlankExercise {
   title: string;
   lines: BlankLine[];
   description: string;
+  hints?: Record<string, string>;
 }
 
 export type PracticeExercise = DragDropExercise | FillBlankExercise;
 
-// Conversion functions for API responses
+// ---------------------------------------------------------------------------
+// Conversion: raw API response → UI exercise types
+// ---------------------------------------------------------------------------
 import type {
   DragDropExerciseResponse,
   FillBlankExerciseResponse,
@@ -44,39 +48,88 @@ import type {
 } from '@/lib/axios';
 
 export function convertDragDropExercise(
-  apiExercise: DragDropExerciseResponse
+  api: DragDropExerciseResponse
 ): DragDropExercise {
   return {
-    id: apiExercise._id,
+    id: api._id,
     type: 'dragdrop',
-    title: apiExercise.title,
-    description: apiExercise.description,
-    blocks: apiExercise.blocks,
-    answer: apiExercise.answer,
+    title: api.title,
+    description: api.instruction,
+    blocks: api.data.blocks,
+    answer: api.data.answer,
+    hints: api.hints,
   };
 }
 
 export function convertFillBlankExercise(
-  apiExercise: FillBlankExerciseResponse
+  api: FillBlankExerciseResponse
 ): FillBlankExercise {
+  const { template, placeholders } = api.data;
+
+  const flat: Array<
+    | { kind: 'text'; text: string }
+    | { kind: 'blank'; id: string; answer: string }
+  > = [];
+
+  template.forEach((text, i) => {
+    flat.push({ kind: 'text', text });
+    const key = `input_${i + 1}`;
+    if (placeholders && placeholders[key]) {
+      flat.push({ kind: 'blank', id: key, answer: placeholders[key] });
+    }
+  });
+
+  const lines: BlankLine[] = [];
+  let currentParts: BlankPart[] = [];
+  let lineIdx = 0;
+  let textPartIdx = 0;
+
+  const flushLine = () => {
+    if (currentParts.length > 0) {
+      lines.push({ id: `line-${lineIdx++}`, parts: currentParts, indent: 0 });
+      currentParts = [];
+    }
+  };
+
+  for (const item of flat) {
+    if (item.kind === 'blank') {
+      currentParts.push({
+        id: item.id,
+        text: '',
+        isBlank: true,
+        answer: item.answer,
+      });
+    } else {
+      const subLines = item.text.split('\n');
+      subLines.forEach((subLine, idx) => {
+        if (idx > 0) flushLine();
+        if (subLine.length > 0) {
+          currentParts.push({
+            id: `text-${textPartIdx++}`,
+            text: subLine,
+            isBlank: false,
+          });
+        }
+      });
+    }
+  }
+  flushLine();
+
   return {
-    id: apiExercise._id,
+    id: api._id,
     type: 'fillblank',
-    title: apiExercise.title,
-    description: apiExercise.description,
-    lines: apiExercise.lines.map((line) => ({
-      id: line.id,
-      indent: line.indent,
-      parts: line.parts,
-    })),
+    title: api.title,
+    description: api.instruction,
+    lines,
+    hints: api.hints,
   };
 }
 
 export function convertExerciseResponse(
-  apiExercise: ExerciseResponse
+  api: ExerciseResponse
 ): PracticeExercise {
-  if (apiExercise.type === 'dragdrop') {
-    return convertDragDropExercise(apiExercise);
+  if (api.type === 'fill_blank') {
+    return convertFillBlankExercise(api);
   }
-  return convertFillBlankExercise(apiExercise);
+  return convertDragDropExercise(api);
 }

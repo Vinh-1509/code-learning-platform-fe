@@ -5,9 +5,12 @@ import { HintStrip } from './shared/HintStrip';
 import { SubmitBar } from './shared/SubmitBar';
 
 interface DragDropPaneProps {
+  description: string;
   availableBlocks: DraggableBlock[];
   droppedBlocks: (string | null)[];
   overSlot: number | null;
+  hints: string[];
+  isHintOpen: boolean;
   showResult: 'correct' | 'wrong' | null;
   submitted: boolean;
   isSubmitting: boolean;
@@ -18,13 +21,17 @@ interface DragDropPaneProps {
   onRemove: (slotIndex: number) => void;
   onSubmit: () => void;
   onReset: () => void;
-  onShowHint?: () => void;
+  onToggleHint: () => void;
+  onRequestHint: () => void;
 }
 
 export function DragDropPane({
+  description,
   availableBlocks,
   droppedBlocks,
   overSlot,
+  hints,
+  isHintOpen,
   showResult,
   submitted,
   isSubmitting,
@@ -35,7 +42,8 @@ export function DragDropPane({
   onRemove,
   onSubmit,
   onReset,
-  onShowHint = () => {},
+  onToggleHint,
+  onRequestHint,
 }: DragDropPaneProps) {
   const usedIds = new Set(
     droppedBlocks.filter((id): id is string => id !== null)
@@ -46,9 +54,7 @@ export function DragDropPane({
     <div className="min-h-full bg-white p-6 flex flex-col justify-between">
       <div>
         <div className="rounded-xl p-4 bg-blue-50/80 border border-blue-100/70 text-sm text-blue-600 mb-5">
-          <p className="font-bold text-[13px]">
-            Task: Arrange the blocks to print numbers 0, 1, 2
-          </p>
+          <p className="font-bold text-[13px]">{description}</p>
           <p className="text-xs text-blue-500/90 mt-0.5">
             Drag the code blocks into the correct order in the drop zone below.
           </p>
@@ -150,7 +156,12 @@ export function DragDropPane({
           })}
         </div>
 
-        <HintStrip onShowHint={onShowHint} />
+        <HintStrip
+          onToggleHint={onToggleHint}
+          onRequestHint={onRequestHint}
+          hints={hints}
+          isOpen={isHintOpen}
+        />
       </div>
 
       <SubmitBar

@@ -17,6 +17,12 @@ export function useBlockExercises({ block }: UseBlockExercisesOptions) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Use block._id (a primitive) as the dependency — not the full block object.
+  // Using the object itself causes the effect to re-fire on every render because
+  // currentBlock is re-derived via .find(), yielding a new reference each time
+  // even when the underlying data hasn't changed.
+  const blockId = block?._id;
+
   useEffect(() => {
     async function getExercises() {
       if (!block) {
@@ -33,7 +39,6 @@ export function useBlockExercises({ block }: UseBlockExercisesOptions) {
         return;
       }
 
-      // Sort practice items by order if it exists
       practiceItems.sort((a, b) => {
         const orderA = typeof a.data.order === 'number' ? a.data.order : 0;
         const orderB = typeof b.data.order === 'number' ? b.data.order : 0;
@@ -68,7 +73,8 @@ export function useBlockExercises({ block }: UseBlockExercisesOptions) {
     }
 
     void getExercises();
-  }, [block]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [blockId]); // blockId is a stable string — won't cause reference churn
 
   async function submitAnswer(
     exerciseId: string,
@@ -77,8 +83,11 @@ export function useBlockExercises({ block }: UseBlockExercisesOptions) {
     return await submitExerciseAnswer(exerciseId, answer);
   }
 
-  async function getHint(exerciseId: string): Promise<HintResponse> {
-    return await getExerciseHint(exerciseId);
+  async function getHint(
+    exerciseId: string,
+    level?: number
+  ): Promise<HintResponse> {
+    return await getExerciseHint(exerciseId, level);
   }
 
   return {

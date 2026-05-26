@@ -7,7 +7,10 @@ import { CodeEditor } from '@/components/ui/codeEditor';
 import { TOKEN_COLORS, tokenize } from '@/lib/syntax';
 
 interface FillBlankPaneProps {
+  description: string;
   lines: BlankLine[];
+  hints: string[];
+  isHintOpen: boolean;
   userAnswers: Record<string, string>;
   showResult: 'correct' | 'wrong' | null;
   submitted: boolean;
@@ -15,19 +18,24 @@ interface FillBlankPaneProps {
   onAnswerChange: (partId: string, value: string) => void;
   onSubmit: () => void;
   onReset: () => void;
-  onShowHint?: () => void;
+  onToggleHint: () => void;
+  onRequestHint: () => void;
 }
 
 export function FillBlankPane({
+  description,
   lines,
   userAnswers,
+  hints,
+  isHintOpen,
   showResult,
   submitted,
   isSubmitting,
   onAnswerChange,
   onSubmit,
   onReset,
-  onShowHint = () => {},
+  onToggleHint,
+  onRequestHint,
 }: FillBlankPaneProps) {
   const allFilled = lines.every((line) =>
     line.parts.every((part) => !part.isBlank || userAnswers[part.id])
@@ -39,7 +47,7 @@ export function FillBlankPane({
         {/* Task description */}
         <div className="rounded-xl p-4 bg-blue-50/80 border border-blue-100/70 text-sm text-blue-600 mb-5">
           <p className="font-bold text-[13px]">
-            Task: Fill in the missing code snippets
+            {description || 'Task: Fill in the missing code snippets'}
           </p>
           <p className="text-xs text-blue-500/90 mt-0.5">
             Read the code carefully and fill in the blank fields to complete the
@@ -117,7 +125,12 @@ export function FillBlankPane({
           ))}
         </CodeEditor>
 
-        <HintStrip onShowHint={onShowHint} />
+        <HintStrip
+          onToggleHint={onToggleHint}
+          onRequestHint={onRequestHint}
+          hints={hints}
+          isOpen={isHintOpen}
+        />
       </div>
 
       <SubmitBar
