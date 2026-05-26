@@ -102,18 +102,21 @@ export interface LessonResponse {
   };
 }
 export interface ContentItem {
-  type: 'theory' | 'code';
+  type: 'theory' | 'code' | 'practice';
   data: {
     order: number;
     text?: string;
     code?: string;
     explanation?: string;
+    exerciseId?: string;
+    required?: boolean;
   };
 }
 
 export interface Block {
   _id: string;
   title: string;
+  description?: string;
   content: ContentItem[];
   feynmanQuestion: string;
   state: 'active' | 'locked' | 'completed';
@@ -153,6 +156,116 @@ export async function fetchLessonsByMilestone(
 ): Promise<LessonResponse[]> {
   const { data } = await api.get<LessonResponse[]>(
     `/api/learning/milestones/${milestoneId}/lessons`
+  );
+  return data;
+}
+
+// Practice/Exercise API
+export type ExerciseType = 'drag_drop' | 'fill_blank';
+
+export interface DragDropBlockResponse {
+  id: string;
+  code: string;
+  indent: number;
+}
+
+export interface DragDropExerciseResponse {
+  _id: string;
+  type: 'drag_drop';
+  title: string;
+  instruction: string;
+  language: string;
+  level: string;
+  order: number;
+  data: {
+    blocks: DragDropBlockResponse[];
+    answer?: (string | null)[];
+  };
+  hints?: Record<string, string>;
+}
+
+export interface FillBlankExerciseResponse {
+  _id: string;
+  type: 'fill_blank';
+  title: string;
+  instruction: string;
+  language: string;
+  level: string;
+  order: number;
+  data: {
+    template: string[];
+    placeholders: Record<string, string>;
+  };
+  hints?: Record<string, string>;
+}
+
+export type ExerciseResponse =
+  | DragDropExerciseResponse
+  | FillBlankExerciseResponse;
+
+export interface SubmitAnswerItem {
+  field: string;
+  isCorrect: boolean;
+}
+
+export interface SubmitAnswerResponse {
+  correct: boolean;
+  items?: SubmitAnswerItem[];
+  attemptNumber?: number;
+}
+
+export interface HintResponse {
+  hintLevel: number;
+  hint: string;
+}
+
+export async function fetchExerciseById(
+  exerciseId: string
+): Promise<ExerciseResponse> {
+  const { data } = await api.get<ExerciseResponse>(
+    `/api/practice/exercises/${exerciseId}`
+  );
+  return data;
+}
+
+export async function submitExerciseAnswer(
+  exerciseId: string,
+  answer: unknown
+): Promise<SubmitAnswerResponse> {
+  const { data } = await api.post<SubmitAnswerResponse>(
+    `/api/practice/exercises/${exerciseId}/submit`,
+    { answer }
+  );
+  return data;
+}
+
+export async function getExerciseHint(
+  exerciseId: string,
+  level?: number
+): Promise<HintResponse> {
+  const { data } = await api.post<HintResponse>(
+    `/api/practice/exercises/${exerciseId}/hint`,
+    { level }
+  );
+  return data;
+}
+
+export interface ExerciseAttemptResponse {
+  _id: string;
+  exerciseId: string;
+  isPassed: boolean;
+  items: SubmitAnswerItem[];
+  hintLevel: number;
+  userAnswer?: unknown;
+  attemptNumber: number;
+  attemptedAt: string;
+}
+
+export async function getExerciseHistory(
+  exerciseId: string
+): Promise<ExerciseAttemptResponse[]> {
+  const { data } = await api.get<ExerciseAttemptResponse[]>(
+    `/api/practice/exercises/${exerciseId}/history`
   );
   return data;
 }

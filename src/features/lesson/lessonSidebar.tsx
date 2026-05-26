@@ -55,7 +55,7 @@ export function LessonSidebar({
               key={block._id}
               onClick={() => !isLocked && onSelectBlock(block._id)}
               className={cn(
-                'relative flex items-center gap-3 px-4 h-15 transition-colors select-none',
+                'relative flex items-center gap-3 px-4 py-3 min-h-[72px] transition-colors select-none',
                 isLocked ? 'cursor-not-allowed opacity-60' : 'cursor-pointer',
                 isSelected
                   ? 'bg-blue-50/50'
@@ -70,15 +70,23 @@ export function LessonSidebar({
 
               <BlockIcon status={block.state} />
 
-              <div className="flex flex-col min-w-0 flex-1">
+              <div className="flex flex-col min-w-0 flex-1 justify-center gap-0.5">
                 <span
                   className={cn(
-                    'text-[10px] font-bold truncate uppercase tracking-wider',
-                    isSelected ? 'text-blue-600' : 'text-slate-400'
+                    'text-[10px] font-bold uppercase tracking-wider',
+                    isSelected ? 'text-blue-600' : 'text-slate-500'
                   )}
                 >
-                  {index + 1} . {blockTypeLabel}
+                  Block {index + 1}
                 </span>
+                <span className="text-sm font-medium text-slate-800 truncate leading-tight">
+                  {block.title || blockTypeLabel}
+                </span>
+                {block.description && (
+                  <span className="text-xs text-slate-400 truncate leading-tight">
+                    {block.description}
+                  </span>
+                )}
               </div>
             </div>
           );

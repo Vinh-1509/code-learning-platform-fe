@@ -138,3 +138,57 @@ export function Badge({ label, variant = 'default' }: BadgeProps) { … }
 - All backend requests go through the `/api` proxy (never hardcode `localhost:3000` in component code).
 - Centralise fetch logic in `src/lib/api.ts`; components call typed helper functions, not raw `fetch`.
 - Use `VITE_API_URL` from `.env` only inside `vite.config.ts` — never import it in component code.
+
+---
+
+## Agent Workflow (Mandatory)
+
+These steps apply to **every** code change made by the AI agent.
+
+### 1 — Understand `src/` before placing files
+
+Before creating any new file, **read the existing `src/` directory tree** to understand where similar files live.  
+Follow the established feature/component structure; never invent new top-level folders without a clear reason.
+
+```
+src/
+├── features/<domain>/            # domain logic (pages, hooks, sub-components)
+│   └── <domain>/components/      # components private to this feature
+│   └── <domain>/shared/          # utilities shared between sub-panes
+├── components/ui/                 # global primitive atoms
+└── lib/                           # shared utilities & API client
+```
+
+Key rules:
+- Feature-private components → `src/features/<domain>/components/`
+- Feature-private shared utilities/sub-components → `src/features/<domain>/shared/`
+- **Never** place feature-specific components directly in `src/components/`
+
+### 2 — Run `yarn format` after every edit
+
+```bash
+yarn format   # prettier --write .
+```
+
+Run this after every set of file edits to keep the codebase consistently formatted.
+
+### 3 — Run `yarn lint` and fix all errors
+
+```bash
+yarn lint     # eslint .
+```
+
+Fix every reported error before finishing. Warnings may be left if they are pre-existing and unrelated to the current change.
+
+### 4 — Run `yarn dev` to verify the build
+
+```bash
+yarn dev      # vite dev server
+```
+
+Start the dev server and confirm:
+- No TypeScript compile errors in the terminal
+- No red error overlays in the browser
+- The changed UI renders correctly and matches the intended design
+
+Only mark a task complete once `yarn dev` runs without errors.
