@@ -12,7 +12,7 @@ export const Route = createFileRoute('/lesson/$lessonId')({
       const lesson = await fetchLessonById(params.lessonId);
       const isLessonBlocked = lesson.blocks.every(
         // check  if all blocks are locked
-        (block) => block.state === 'locked'
+        (block) => block.status === 'locked'
       );
 
       if (isLessonBlocked) {

@@ -87,7 +87,7 @@ export interface MilestoneResponse {
   description: string;
   order: number;
   progress: {
-    status: 'Active' | 'Locked' | 'Completed';
+    status: 'active' | 'locked' | 'completed';
     completionPercentage: number;
   };
 }
@@ -119,7 +119,7 @@ export interface Block {
   description?: string;
   content: ContentItem[];
   feynmanQuestion: string;
-  state: 'active' | 'locked' | 'completed';
+  status: 'active' | 'locked' | 'completed';
   isFeynmanPassed: boolean;
 }
 

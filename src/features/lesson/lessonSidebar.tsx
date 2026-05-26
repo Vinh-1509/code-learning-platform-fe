@@ -8,7 +8,7 @@ interface LessonSidebarProps {
   onSelectBlock: (id: string) => void;
 }
 
-function BlockIcon({ status }: { status: Block['state'] }) {
+function BlockIcon({ status }: { status: Block['status'] }) {
   if (status === 'completed')
     return (
       <div className="size-5 rounded-full flex items-center justify-center bg-green-100 text-green-600 text-[10px] font-bold flex-shrink-0">
@@ -44,7 +44,7 @@ export function LessonSidebar({
       </div>
       <div className="flex flex-col">
         {blocks.map((block, index) => {
-          const isLocked = block.state === 'locked';
+          const isLocked = block.status === 'locked';
 
           const isSelected = block._id === selectedBlockId;
 
@@ -68,7 +68,7 @@ export function LessonSidebar({
                 <div className="absolute left-0 top-0 w-0.75 h-full bg-blue-600" />
               )}
 
-              <BlockIcon status={block.state} />
+              <BlockIcon status={block.status} />
 
               <div className="flex flex-col min-w-0 flex-1 justify-center gap-0.5">
                 <span
