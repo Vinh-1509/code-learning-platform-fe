@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { fetchLanguages, saveLanguage, getMe } from '@/lib/axios';
+import { fetchLanguages, saveLanguage } from '@/lib/axios';
 import type { LanguageOption } from '@/types/language_selection';
 
 export function useLanguageSelection() {
@@ -12,16 +12,6 @@ export function useLanguageSelection() {
 
   useEffect(() => {
     const initialize = async () => {
-      try {
-        const user = await getMe();
-        if (user.selectedLanguage?.length) {
-          void navigate({ to: '/' });
-          return;
-        }
-      } catch {
-        void navigate({ to: '/' });
-      }
-
       const langs = await fetchLanguages();
       setLanguages(langs);
     };

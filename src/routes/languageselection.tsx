@@ -1,8 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { LanguageSelectionPage } from '@/features/language_selection/LanguageSelectionPage';
-import { requireAuth } from '@/lib/auth';
-
+import { checkLanguageSelection } from '@/lib/auth';
 export const Route = createFileRoute('/languageselection')({
-  beforeLoad: requireAuth,
+  beforeLoad: checkLanguageSelection,
   component: LanguageSelectionPage,
 });

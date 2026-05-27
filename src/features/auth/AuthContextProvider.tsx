@@ -29,7 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const res = await loginUser(data);
       setAuth(res);
-      void navigate({ to: '/dashboard' });
+      void navigate({ to: '/languageselection' });
     } catch (err) {
       if (axios.isAxiosError<ApiError>(err) && err.response?.data?.message) {
         const errorMessage = err.response?.data?.message;
