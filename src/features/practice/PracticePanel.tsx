@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { DragDropPane } from './dragDrop';
-import { FillBlankPane } from './fillBlank';
+import { DragDropPane } from './DragDropPane';
+import { FillBlankPane } from './FillBlankPane';
 import type {
   DragDropExercise,
   FillBlankExercise,
   PracticeExercise,
-} from './types';
+} from './types/practice.types';
+import type { ExplanationStatus } from './types/async.types';
 import type {
   SubmitAnswerResponse,
   HintResponse,
@@ -15,11 +16,14 @@ import { getExerciseHistory } from '@/lib/axios';
 
 interface PracticePanelProps {
   exercise: PracticeExercise;
+
   onSubmit: (
     exerciseId: string,
     answer: unknown
   ) => Promise<SubmitAnswerResponse>;
+
   onGetHint: (exerciseId: string, level?: number) => Promise<HintResponse>;
+
   onExplain?: (
     exerciseId: string,
     answer: unknown
@@ -37,16 +41,19 @@ export function PracticePanel({
   );
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const [hints, setHints] = useState<string[]>([]);
   const [isHintOpen, setIsHintOpen] = useState(false);
-
   // AI explanation state
   const [explanation, setExplanation] = useState<ExplainAnswerResponse | null>(
     null
   );
-  const [isExplaining, setIsExplaining] = useState(false);
+  const [explanationStatus, setExplanationStatus] = useState<ExplanationStatus>(
+    {
+      status: 'idle',
+    }
+  );
 
+  // Sync previously unlocked hints
   useEffect(() => {
     let isMounted = true;
 
@@ -59,12 +66,18 @@ export function PracticePanel({
 
           if (historicalAttempts && historicalAttempts.length > 0) {
             const savedLevel = historicalAttempts[0].hintLevel || 0;
+
             if (savedLevel > 0 && exercise.hints) {
               const previouslyUnlocked: string[] = [];
+
               for (let i = 1; i <= savedLevel; i++) {
                 const text = exercise.hints[String(i)];
-                if (text) previouslyUnlocked.push(text);
+
+                if (text) {
+                  previouslyUnlocked.push(text);
+                }
               }
+
               setHints(previouslyUnlocked);
             }
           }
@@ -87,33 +100,58 @@ export function PracticePanel({
     setHints([]);
     setIsHintOpen(false);
     setExplanation(null);
-    setIsExplaining(false);
+    setExplanationStatus({
+      status: 'idle',
+    });
   };
 
   const handleSubmit = async (answer: unknown) => {
     setIsSubmitting(true);
     setExplanation(null);
+    setExplanationStatus({
+      status: 'idle',
+    });
+
     try {
       const result = await onSubmit(exercise.id, answer);
       const isCorrect = result.correct;
+
       setShowResult(isCorrect ? 'correct' : 'wrong');
       setSubmitted(true);
 
-      // Fire AI explanation on wrong answers — non-blocking so UI updates first
+      // Generate AI explanation for wrong answers
       if (!isCorrect && onExplain) {
-        setIsExplaining(true);
+        setExplanationStatus({
+          status: 'loading',
+        });
+
         onExplain(exercise.id, answer)
           .then((exp) => {
+            if (!exp) {
+              setExplanationStatus({
+                status: 'error',
+              });
+
+              return;
+            }
+
             setExplanation(exp);
+
+            setExplanationStatus({
+              status: 'success',
+            });
           })
           .catch((err) => {
             console.error('Failed to fetch explanation:', err);
-          })
-          .finally(() => {
-            setIsExplaining(false);
+
+            setExplanationStatus({
+              status: 'error',
+            });
           });
       }
-    } catch {
+    } catch (err) {
+      console.error('Failed submitting answer:', err);
+
       setShowResult('wrong');
       setSubmitted(true);
     } finally {
@@ -135,18 +173,27 @@ export function PracticePanel({
 
           if (exercise.hints) {
             const incrementalHints: string[] = [];
+
             for (let i = 1; i <= targetLevel; i++) {
               const item = exercise.hints[String(i)];
-              if (item) incrementalHints.push(item);
+
+              if (item) {
+                incrementalHints.push(item);
+              }
             }
+
             setHints(incrementalHints);
           } else {
             setHints((prev) => {
-              if (prev.includes(res.hint)) return prev;
+              if (prev.includes(res.hint)) {
+                return prev;
+              }
+
               return [...prev, res.hint];
             });
           }
         }
+
         setIsHintOpen(true);
       } catch (err) {
         console.error('Failed to request hint string updates:', err);
@@ -158,7 +205,7 @@ export function PracticePanel({
     showResult,
     submitted,
     explanation,
-    isExplaining,
+    explanationStatus,
   };
 
   if (exercise.type === 'dragdrop') {
@@ -202,7 +249,7 @@ interface SharedResultProps {
   showResult: 'correct' | 'wrong' | null;
   submitted: boolean;
   explanation: ExplainAnswerResponse | null;
-  isExplaining: boolean;
+  explanationStatus: ExplanationStatus;
 }
 
 interface DragDropWrapperProps extends SharedResultProps {
@@ -222,7 +269,7 @@ function DragDropPaneWrapper({
   submitted,
   isSubmitting,
   explanation,
-  isExplaining,
+  explanationStatus,
   onSubmit,
   onReset,
   onToggleHint,
@@ -233,8 +280,8 @@ function DragDropPaneWrapper({
   const [droppedBlocks, setDroppedBlocks] = useState<(string | null)[]>(
     exercise.answer || Array(exercise.blocks.length).fill(null)
   );
-
   const [prevExerciseId, setPrevExerciseId] = useState<string>(exercise.id);
+
   if (exercise.id !== prevExerciseId) {
     setPrevExerciseId(exercise.id);
     setDroppedBlocks(
@@ -258,9 +305,12 @@ function DragDropPaneWrapper({
       submitted={submitted}
       isSubmitting={isSubmitting}
       explanation={explanation}
-      isExplaining={isExplaining}
+      explanationStatus={explanationStatus}
       onDragStart={(id, fromSlot) => {
-        setDraggedFrom({ id, slot: fromSlot });
+        setDraggedFrom({
+          id,
+          slot: fromSlot,
+        });
       }}
       onDragOver={(e, slotIndex) => {
         e.preventDefault();
@@ -271,18 +321,24 @@ function DragDropPaneWrapper({
       }}
       onDrop={(slotIndex) => {
         if (!draggedFrom) return;
+
         const newDropped = [...droppedBlocks];
+
         if (draggedFrom.slot !== undefined) {
           newDropped[draggedFrom.slot] = null;
         }
+
         newDropped[slotIndex] = draggedFrom.id;
+
         setDroppedBlocks(newDropped);
         setOverSlot(null);
         setDraggedFrom(null);
       }}
       onRemove={(slotIndex) => {
         const newDropped = [...droppedBlocks];
+
         newDropped[slotIndex] = null;
+
         setDroppedBlocks(newDropped);
       }}
       onSubmit={() => {
@@ -314,7 +370,7 @@ function FillBlankPaneWrapper({
   submitted,
   isSubmitting,
   explanation,
-  isExplaining,
+  explanationStatus,
   onSubmit,
   onReset,
   onToggleHint,
@@ -333,7 +389,7 @@ function FillBlankPaneWrapper({
       submitted={submitted}
       isSubmitting={isSubmitting}
       explanation={explanation}
-      isExplaining={isExplaining}
+      explanationStatus={explanationStatus}
       onAnswerChange={(partId, value) => {
         setUserAnswers((prev) => ({
           ...prev,
@@ -345,6 +401,7 @@ function FillBlankPaneWrapper({
       }}
       onReset={() => {
         setUserAnswers({});
+
         onReset();
       }}
       onToggleHint={onToggleHint}

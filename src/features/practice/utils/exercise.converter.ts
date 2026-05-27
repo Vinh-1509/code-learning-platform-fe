@@ -1,51 +1,19 @@
-export interface DraggableBlock {
-  id: string;
-  code: string;
-  indent: number;
-}
-
-export interface BlankPart {
-  id: string;
-  text: string;
-  isBlank: boolean;
-  answer?: string;
-}
-
-export interface BlankLine {
-  id: string;
-  parts: BlankPart[];
-  indent: number;
-}
-
-export interface DragDropExercise {
-  id: string;
-  type: 'dragdrop';
-  title: string;
-  blocks: DraggableBlock[];
-  answer?: (string | null)[];
-  description: string;
-  hints?: Record<string, string>;
-}
-
-export interface FillBlankExercise {
-  id: string;
-  type: 'fillblank';
-  title: string;
-  lines: BlankLine[];
-  description: string;
-  hints?: Record<string, string>;
-}
-
-export type PracticeExercise = DragDropExercise | FillBlankExercise;
-
-// ---------------------------------------------------------------------------
-// Conversion: raw API response → UI exercise types
-// ---------------------------------------------------------------------------
+import type {
+  DragDropExercise,
+  FillBlankExercise,
+  PracticeExercise,
+  BlankLine,
+  BlankPart,
+} from '../types/practice.types';
 import type {
   DragDropExerciseResponse,
   FillBlankExerciseResponse,
   ExerciseResponse,
 } from '@/lib/axios';
+
+/**
+ * Convert a raw drag-drop exercise from the API response into the UI exercise type.
+ */
 
 export function convertDragDropExercise(
   api: DragDropExerciseResponse

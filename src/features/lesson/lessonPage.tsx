@@ -4,7 +4,7 @@ import { LessonSidebar } from './lessonSidebar';
 import { TheoryPane } from './theoryPanel';
 import { useState, useEffect } from 'react';
 import type { Block } from '@/lib/axios';
-import { PracticePanel } from '@/features/practice/PracticePanel';
+import { PracticePanel } from '@/features/practice/practicePanel';
 import { cn } from '@/lib/utils';
 import Navbar from '@/components/sidebar/Navbar';
 import { useBlockExercises } from './useBlockExercises';
