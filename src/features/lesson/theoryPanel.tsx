@@ -1,5 +1,5 @@
 import type { Block, ContentItem } from '@/lib/axios';
-import { CodeEditor } from '@/components/ui/codeEditor';
+import { CodeEditor } from '@/components/ui/CodeEditor';
 
 interface TheoryPaneProps {
   block: Block | undefined;

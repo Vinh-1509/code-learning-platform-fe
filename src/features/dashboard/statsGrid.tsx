@@ -9,7 +9,7 @@ interface StatCardProps {
 
 function StatCard({ icon, value, label }: StatCardProps) {
   return (
-    <Card className="bg-white border border-slate-200 shadow-sm rounded-xl transition-all duration-300 ease-in-out hover:shadow-md hover:border-slate-300">
+    <Card className="bg-white border-2 border-primary shadow-sm rounded-xl transition-all duration-300 ease-in-out hover:shadow-md hover:border-primary/80">
       <CardContent className="p-6 flex flex-col items-center justify-center text-center">
         <div className="text-primary mb-2">{icon}</div>
         <span className="text-4xl font-semibold text-foreground">{value}</span>
