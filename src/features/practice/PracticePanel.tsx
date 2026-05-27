@@ -6,7 +6,11 @@ import type {
   FillBlankExercise,
   PracticeExercise,
 } from './types';
-import type { SubmitAnswerResponse, HintResponse } from '@/lib/axios';
+import type {
+  SubmitAnswerResponse,
+  HintResponse,
+  ExplainAnswerResponse,
+} from '@/lib/axios';
 import { getExerciseHistory } from '@/lib/axios';
 
 interface PracticePanelProps {
@@ -16,12 +20,17 @@ interface PracticePanelProps {
     answer: unknown
   ) => Promise<SubmitAnswerResponse>;
   onGetHint: (exerciseId: string, level?: number) => Promise<HintResponse>;
+  onExplain?: (
+    exerciseId: string,
+    answer: unknown
+  ) => Promise<ExplainAnswerResponse>;
 }
 
 export function PracticePanel({
   exercise,
   onSubmit,
   onGetHint,
+  onExplain,
 }: PracticePanelProps) {
   const [showResult, setShowResult] = useState<'correct' | 'wrong' | null>(
     null
@@ -31,6 +40,12 @@ export function PracticePanel({
 
   const [hints, setHints] = useState<string[]>([]);
   const [isHintOpen, setIsHintOpen] = useState(false);
+
+  // AI explanation state
+  const [explanation, setExplanation] = useState<ExplainAnswerResponse | null>(
+    null
+  );
+  const [isExplaining, setIsExplaining] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -71,16 +86,36 @@ export function PracticePanel({
     setSubmitted(false);
     setHints([]);
     setIsHintOpen(false);
+    setExplanation(null);
+    setIsExplaining(false);
   };
 
   const handleSubmit = async (answer: unknown) => {
     setIsSubmitting(true);
+    setExplanation(null);
     try {
       const result = await onSubmit(exercise.id, answer);
-      setShowResult(result.correct ? 'correct' : 'wrong');
+      const isCorrect = result.correct;
+      setShowResult(isCorrect ? 'correct' : 'wrong');
       setSubmitted(true);
+
+      // Fire AI explanation on wrong answers — non-blocking so UI updates first
+      if (!isCorrect && onExplain) {
+        setIsExplaining(true);
+        onExplain(exercise.id, answer)
+          .then((exp) => {
+            setExplanation(exp);
+          })
+          .catch((err) => {
+            console.error('Failed to fetch explanation:', err);
+          })
+          .finally(() => {
+            setIsExplaining(false);
+          });
+      }
     } catch {
       setShowResult('wrong');
+      setSubmitted(true);
     } finally {
       setIsSubmitting(false);
     }
@@ -119,13 +154,18 @@ export function PracticePanel({
     })();
   };
 
+  const sharedResultProps = {
+    showResult,
+    submitted,
+    explanation,
+    isExplaining,
+  };
+
   if (exercise.type === 'dragdrop') {
     return (
       <DragDropPaneWrapper
         key={exercise.id}
         exercise={exercise}
-        showResult={showResult}
-        submitted={submitted}
         isSubmitting={isSubmitting}
         onSubmit={handleSubmit}
         onReset={handleReset}
@@ -133,6 +173,7 @@ export function PracticePanel({
         onRequestHint={handleRequestHint}
         hints={hints}
         isHintOpen={isHintOpen}
+        {...sharedResultProps}
       />
     );
   }
@@ -141,8 +182,6 @@ export function PracticePanel({
     <FillBlankPaneWrapper
       key={exercise.id}
       exercise={exercise}
-      showResult={showResult}
-      submitted={submitted}
       isSubmitting={isSubmitting}
       onSubmit={handleSubmit}
       onReset={handleReset}
@@ -150,6 +189,7 @@ export function PracticePanel({
       onRequestHint={handleRequestHint}
       hints={hints}
       isHintOpen={isHintOpen}
+      {...sharedResultProps}
     />
   );
 }
@@ -158,10 +198,15 @@ export function PracticePanel({
 // WRAPPERS
 // ============================================================================
 
-interface DragDropWrapperProps {
-  exercise: DragDropExercise;
+interface SharedResultProps {
   showResult: 'correct' | 'wrong' | null;
   submitted: boolean;
+  explanation: ExplainAnswerResponse | null;
+  isExplaining: boolean;
+}
+
+interface DragDropWrapperProps extends SharedResultProps {
+  exercise: DragDropExercise;
   isSubmitting: boolean;
   onSubmit: (answer: unknown) => Promise<void>;
   onReset: () => void;
@@ -176,6 +221,8 @@ function DragDropPaneWrapper({
   showResult,
   submitted,
   isSubmitting,
+  explanation,
+  isExplaining,
   onSubmit,
   onReset,
   onToggleHint,
@@ -210,6 +257,8 @@ function DragDropPaneWrapper({
       showResult={showResult}
       submitted={submitted}
       isSubmitting={isSubmitting}
+      explanation={explanation}
+      isExplaining={isExplaining}
       onDragStart={(id, fromSlot) => {
         setDraggedFrom({ id, slot: fromSlot });
       }}
@@ -248,10 +297,8 @@ function DragDropPaneWrapper({
   );
 }
 
-interface FillBlankWrapperProps {
+interface FillBlankWrapperProps extends SharedResultProps {
   exercise: FillBlankExercise;
-  showResult: 'correct' | 'wrong' | null;
-  submitted: boolean;
   isSubmitting: boolean;
   onSubmit: (answer: unknown) => Promise<void>;
   onReset: () => void;
@@ -266,6 +313,8 @@ function FillBlankPaneWrapper({
   showResult,
   submitted,
   isSubmitting,
+  explanation,
+  isExplaining,
   onSubmit,
   onReset,
   onToggleHint,
@@ -283,6 +332,8 @@ function FillBlankPaneWrapper({
       showResult={showResult}
       submitted={submitted}
       isSubmitting={isSubmitting}
+      explanation={explanation}
+      isExplaining={isExplaining}
       onAnswerChange={(partId, value) => {
         setUserAnswers((prev) => ({
           ...prev,

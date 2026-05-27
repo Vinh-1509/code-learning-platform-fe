@@ -5,6 +5,7 @@ import { HintStrip } from './shared/HintStrip';
 import { SubmitBar } from './shared/SubmitBar';
 import { CodeEditor } from '@/components/ui/codeEditor';
 import { TOKEN_COLORS, tokenize } from '@/lib/syntax';
+import type { ExplainAnswerResponse } from '@/lib/axios';
 
 interface FillBlankPaneProps {
   description: string;
@@ -15,6 +16,8 @@ interface FillBlankPaneProps {
   showResult: 'correct' | 'wrong' | null;
   submitted: boolean;
   isSubmitting: boolean;
+  explanation?: ExplainAnswerResponse | null;
+  isExplaining?: boolean;
   onAnswerChange: (partId: string, value: string) => void;
   onSubmit: () => void;
   onReset: () => void;
@@ -31,6 +34,8 @@ export function FillBlankPane({
   showResult,
   submitted,
   isSubmitting,
+  explanation,
+  isExplaining,
   onAnswerChange,
   onSubmit,
   onReset,
@@ -59,6 +64,8 @@ export function FillBlankPane({
           showResult={showResult}
           submitted={submitted}
           onReset={onReset}
+          explanation={explanation}
+          isExplaining={isExplaining}
         />
 
         <p className="text-[11px] font-bold text-slate-400 mb-3 tracking-wider uppercase">

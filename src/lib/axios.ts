@@ -269,3 +269,48 @@ export async function getExerciseHistory(
   );
   return data;
 }
+
+// Exercise explanation (AI)
+export interface ExplainAnswerItem {
+  field: string;
+  isCorrect: boolean;
+  explanation: string;
+}
+
+export interface ExplainAnswerResponse {
+  exerciseId: string;
+  isCorrect: boolean;
+  feedback: string;
+  items: ExplainAnswerItem[];
+  suggestion?: string;
+}
+
+export async function explainExerciseAnswer(
+  exerciseId: string,
+  answer: unknown
+): Promise<ExplainAnswerResponse> {
+  const { data } = await api.post<ExplainAnswerResponse>(
+    `/api/exercises/${exerciseId}/explain`,
+    { answer }
+  );
+  return data;
+}
+
+// Block completion
+export interface BlockCompleteResponse {
+  message: string;
+  lessonProgress: {
+    status: string;
+    completionPercentage: number;
+    isCompleted: boolean;
+  };
+}
+
+export async function completeBlock(
+  blockId: string
+): Promise<BlockCompleteResponse> {
+  const { data } = await api.post<BlockCompleteResponse>(
+    `/api/learning/blocks/${blockId}/complete`
+  );
+  return data;
+}

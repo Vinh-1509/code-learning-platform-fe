@@ -13,12 +13,12 @@ const lessonRouteApi = getRouteApi('/lesson/$lessonId');
 
 export function LessonPage() {
   const { lessonId } = lessonRouteApi.useParams();
-  const { currentLesson } = usePractice({ lessonId });
+  const { currentLesson, refetchLesson } = usePractice({ lessonId });
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
 
   const activeBlockId =
     selectedBlockId ??
-    currentLesson?.blocks.find((b: Block) => b.state === 'active')?._id ??
+    currentLesson?.blocks.find((b: Block) => b.status === 'active')?._id ??
     currentLesson?.blocks[0]?._id ??
     null;
 
@@ -26,16 +26,30 @@ export function LessonPage() {
     currentLesson?.blocks.find((b: Block) => b._id === activeBlockId) ??
     undefined;
 
-  const { exercises, loading, error, submitAnswer, getHint } =
-    useBlockExercises({
-      block: currentBlock,
-    });
+  const {
+    exercises,
+    loading,
+    error,
+    submitAnswer,
+    getHint,
+    explainAnswer,
+    exercisePassMap,
+    blockCompleted,
+  } = useBlockExercises({ block: currentBlock });
+
   const [activeExerciseIndex, setActiveExerciseIndex] = useState(0);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setActiveExerciseIndex(0);
   }, [activeBlockId]);
+
+  // When all exercises are done, refresh lesson so the next block unlocks
+  useEffect(() => {
+    if (blockCompleted) {
+      void refetchLesson?.();
+    }
+  }, [blockCompleted, refetchLesson]);
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-white">
@@ -69,20 +83,38 @@ export function LessonPage() {
                 No practice available
               </span>
             ) : (
-              exercises.map((ex, idx) => (
-                <button
-                  key={ex.id}
-                  onClick={() => setActiveExerciseIndex(idx)}
-                  className={cn(
-                    'px-3 py-1.5 text-xs font-bold rounded-lg transition-colors',
-                    activeExerciseIndex === idx
-                      ? 'bg-blue-600 text-white shadow-sm'
-                      : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300'
-                  )}
-                >
-                  Question {idx + 1}
-                </button>
-              ))
+              <>
+                {exercises.map((ex, idx) => {
+                  const isPassed = exercisePassMap[ex.id] === true;
+                  const isActive = activeExerciseIndex === idx;
+                  return (
+                    <button
+                      key={ex.id}
+                      onClick={() => setActiveExerciseIndex(idx)}
+                      className={cn(
+                        'px-3 py-1.5 text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5',
+                        isActive
+                          ? isPassed
+                            ? 'bg-emerald-600 text-white shadow-sm'
+                            : 'bg-blue-600 text-white shadow-sm'
+                          : isPassed
+                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-300 hover:border-emerald-400'
+                            : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300'
+                      )}
+                    >
+                      {isPassed && <span>✓</span>}
+                      Question {idx + 1}
+                    </button>
+                  );
+                })}
+
+                {/* Block completion badge */}
+                {blockCompleted && (
+                  <span className="ml-auto flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-300 rounded-lg">
+                    🎉 Block complete!
+                  </span>
+                )}
+              </>
             )}
           </div>
 
@@ -93,6 +125,7 @@ export function LessonPage() {
                 exercise={exercises[activeExerciseIndex]}
                 onSubmit={submitAnswer}
                 onGetHint={getHint}
+                onExplain={explainAnswer}
               />
             )}
           </div>
