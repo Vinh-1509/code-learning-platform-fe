@@ -53,12 +53,12 @@ export function CurrentLessonBanner({
           <div className="h-2.5 bg-muted rounded-full overflow-hidden">
             <div
               className="h-full bg-primary rounded-full transition-all duration-500"
-              style={{ width: `${progress}%` }}
+              style={{ width: `${progress.toFixed(0)}%` }}
             />
           </div>
           <div className="flex items-center justify-between mt-4">
             <span className="text-sm text-muted-foreground">
-              {progress}% Completed
+              {progress.toFixed(0)}% Completed
             </span>
             <Button
               type="button"

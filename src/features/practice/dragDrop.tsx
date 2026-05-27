@@ -3,6 +3,7 @@ import type { DraggableBlock } from './types';
 import { ResultBanner } from './shared/ResultBanner';
 import { HintStrip } from './shared/HintStrip';
 import { SubmitBar } from './shared/SubmitBar';
+import type { ExplainAnswerResponse } from '@/lib/axios';
 
 interface DragDropPaneProps {
   description: string;
@@ -14,6 +15,8 @@ interface DragDropPaneProps {
   showResult: 'correct' | 'wrong' | null;
   submitted: boolean;
   isSubmitting: boolean;
+  explanation?: ExplainAnswerResponse | null;
+  isExplaining?: boolean;
   onDragStart: (id: string, fromSlot?: number) => void;
   onDragOver: (e: React.DragEvent, slotIndex: number) => void;
   onDragLeave: () => void;
@@ -35,6 +38,8 @@ export function DragDropPane({
   showResult,
   submitted,
   isSubmitting,
+  explanation,
+  isExplaining,
   onDragStart,
   onDragOver,
   onDragLeave,
@@ -64,6 +69,8 @@ export function DragDropPane({
           showResult={showResult}
           submitted={submitted}
           onReset={onReset}
+          explanation={explanation}
+          isExplaining={isExplaining}
         />
 
         <p className="text-[11px] font-bold text-slate-400 mb-2 tracking-wider uppercase">
