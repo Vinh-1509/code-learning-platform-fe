@@ -25,6 +25,9 @@ export function LoginForm({ onSubmit, loading }: LoginFormProps) {
     e.preventDefault();
     void onSubmit(formData);
   };
+  const isFormValid =
+    formData.email.trim() !== '' && formData.password.trim() !== '';
+
   return (
     <form
       onSubmit={handleSubmit}
@@ -67,7 +70,7 @@ export function LoginForm({ onSubmit, loading }: LoginFormProps) {
           </div>
         </Field>
 
-        <Field className="space-y-2" onChange={handleChange}>
+        <Field className="space-y-2">
           <FieldLabel
             htmlFor="password"
             className="text-xs font-bold uppercase text-slate-500 tracking-wider"
@@ -82,6 +85,7 @@ export function LoginForm({ onSubmit, loading }: LoginFormProps) {
               type="password"
               placeholder="Min. 8 characters"
               required
+              onChange={handleChange}
               className="bg-background pl-10 pr-10 h-12 border-slate-200 focus-visible:ring-blue-600 rounded-lg"
             />
           </div>
@@ -90,7 +94,11 @@ export function LoginForm({ onSubmit, loading }: LoginFormProps) {
         <Field className="pt-2">
           <Button
             type="submit"
-            className="w-full h-12 bg-[#89a5f0] hover:bg-[#7694e0] text-white font-medium text-base rounded-xl transition-colors shadow-sm"
+            className={`w-full h-12 text-white font-medium text-base rounded-xl transition-colors shadow-sm ${
+              isFormValid
+                ? 'bg-[#155DFC] hover:bg-[#155DFC]/90'
+                : 'bg-[#89a5f0] hover:bg-[#7694e0]'
+            }`}
           >
             {loading ? 'Đang đăng nhập...' : 'Sign in'}
           </Button>

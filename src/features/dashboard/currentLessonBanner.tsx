@@ -22,7 +22,7 @@ export function CurrentLessonBanner({
   };
 
   return (
-    <Card className="bg-white border border-slate-200 shadow-sm transition-all duration-300 ease-in-out hover:bg-slate-50 hover:shadow-lg hover:scale-[1.01] hover:border-slate-300 cursor-pointer">
+    <Card className="bg-white drop-shadow-lg border border-slate-200 shadow-sm transition-all duration-300 ease-in-out hover:bg-slate-50 hover:shadow-lg hover:scale-[1.01] hover:border-slate-300 cursor-pointer">
       <CardContent className="p-6">
         <div className="flex items-start justify-between">
           <div className="flex-1">

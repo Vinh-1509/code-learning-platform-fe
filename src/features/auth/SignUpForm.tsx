@@ -36,6 +36,11 @@ export function SignUpForm({ onSubmit, loading, error }: SignUpFormProps) {
     void onSubmit(payload);
   };
 
+  const isFormValid =
+    formData.email.trim() !== '' &&
+    formData.password.trim() !== '' &&
+    formData.confirmPassword.trim() !== '';
+
   return (
     <form
       onSubmit={handleSubmit}
@@ -124,7 +129,11 @@ export function SignUpForm({ onSubmit, loading, error }: SignUpFormProps) {
           <Button
             type="submit"
             disabled={loading}
-            className="w-full h-12 bg-[#89a5f0] hover:bg-[#7694e0] text-white font-medium text-base rounded-xl transition-colors shadow-sm"
+            className={`w-full h-12 text-white font-medium text-base rounded-xl transition-colors shadow-sm ${
+              isFormValid
+                ? 'bg-[#155DFC] hover:bg-[#155DFC]/90'
+                : 'bg-[#89a5f0] hover:bg-[#7694e0]'
+            }`}
           >
             {loading ? 'Đang tạo tài khoản...' : 'Create account →'}
           </Button>

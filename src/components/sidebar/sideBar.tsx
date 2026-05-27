@@ -12,13 +12,20 @@ interface AppSidebarProps {
   variant?: 'dashboard' | 'lesson';
   activeTab?: 'dashboard' | 'practice';
   onTabChange?: (tab: 'dashboard' | 'practice') => void;
+  completedLessons?: number;
+  totalLessons?: number;
 }
 
 export function AppSidebar({
   variant = 'dashboard',
   activeTab,
   onTabChange,
+  completedLessons = 12,
+  totalLessons = 45,
 }: AppSidebarProps) {
+  const progressPercent =
+    totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+
   return (
     <aside className="fixed top-14 left-0 bottom-0 w-64 border-r bg-white">
       {variant === 'dashboard' ? (
@@ -36,7 +43,7 @@ export function AppSidebar({
                   </h3>
 
                   <p className="text-xs text-muted-foreground">
-                    12/45 Lessons Learned
+                    {completedLessons}/{totalLessons} Lessons Learned
                   </p>
                 </div>
               </div>
@@ -44,7 +51,7 @@ export function AppSidebar({
               <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted">
                 <div
                   className="h-full rounded-full bg-primary"
-                  style={{ width: '27%' }}
+                  style={{ width: `${progressPercent}%` }}
                 />
               </div>
             </div>
@@ -54,10 +61,10 @@ export function AppSidebar({
             <button
               onClick={() => onTabChange?.('dashboard')}
               className={cn(
-                'flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-left text-sm font-medium transition-colors',
+                'flex w-full items-center gap-3 rounded-l-lg rounded-r-none px-4 py-2.5 text-left text-sm font-medium transition-colors',
                 activeTab === 'dashboard'
-                  ? 'bg-accent text-primary'
-                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                  ? 'bg-[#EAEFFF] text-primary border-r-4 border-r-primary'
+                  : 'border-r-4 border-r-transparent text-muted-foreground hover:bg-muted hover:text-foreground'
               )}
             >
               <LayoutDashboard className="size-5" />
@@ -67,10 +74,10 @@ export function AppSidebar({
             <button
               onClick={() => onTabChange?.('practice')}
               className={cn(
-                'mt-1 flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-left text-sm font-medium transition-colors',
+                'mt-1 flex w-full items-center gap-3 rounded-l-lg rounded-r-none px-4 py-2.5 text-left text-sm font-medium transition-colors',
                 activeTab === 'practice'
-                  ? 'bg-accent text-primary'
-                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                  ? 'bg-[#EAEFFF] text-primary border-r-4 border-r-primary'
+                  : 'border-r-4 border-r-transparent text-muted-foreground hover:bg-muted hover:text-foreground'
               )}
             >
               <Grid3x3 className="size-5" />

@@ -3,7 +3,7 @@ import type { BlankLine } from './types';
 import { ResultBanner } from './shared/ResultBanner';
 import { HintStrip } from './shared/HintStrip';
 import { SubmitBar } from './shared/SubmitBar';
-import { CodeEditor } from '@/components/ui/codeEditor';
+import { CodeEditor } from '@/components/ui/CodeEditor';
 import { TOKEN_COLORS, tokenize } from '@/lib/syntax';
 
 interface FillBlankPaneProps {
