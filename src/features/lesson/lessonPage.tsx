@@ -4,7 +4,7 @@ import { LessonSidebar } from './lessonSidebar';
 import { TheoryPane } from './theoryPanel';
 import { useState, useEffect } from 'react';
 import type { Block } from '@/lib/axios';
-import { PracticePanel } from '@/features/practice/practicePanel';
+import { PracticePanel } from '@/features/practice/PracticePanel';
 import { cn } from '@/lib/utils';
 import Navbar from '@/components/sidebar/Navbar';
 import { useBlockExercises } from './useBlockExercises';
@@ -18,7 +18,7 @@ export function LessonPage() {
 
   const activeBlockId =
     selectedBlockId ??
-    currentLesson?.blocks.find((b: Block) => b.state === 'active')?._id ??
+    currentLesson?.blocks.find((b: Block) => b.status === 'active')?._id ??
     currentLesson?.blocks[0]?._id ??
     null;
 
