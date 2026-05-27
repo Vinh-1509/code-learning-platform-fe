@@ -31,6 +31,10 @@ export function DashboardPage() {
     />
   ) : null;
 
+  // Sử dụng mock data cho số lượng bài học theo yêu cầu của bạn
+  const totalLessons = 45;
+  const completedLessons = 12;
+
   return (
     <div className="h-screen overflow-hidden">
       {/* HEADER */}
@@ -38,14 +42,22 @@ export function DashboardPage() {
 
       {/* SIDEBAR */}
 
-      <AppSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+      <AppSidebar
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        completedLessons={loading ? undefined : completedLessons}
+        totalLessons={loading ? undefined : totalLessons}
+      />
 
       {/* CONTENT */}
       <main className="ml-64 pt-14 h-screen overflow-y-auto">
         <div className="p-8 max-w-7xl mx-auto space-y-6">
           {!loading && currentLessonBanner}
 
-          <StatsGrid lessonsLearned={12} problemsSolved={42} />
+          <StatsGrid
+            lessonsLearned={loading ? 0 : completedLessons}
+            problemsSolved={42}
+          />
 
           <LearningRoadmap
             modules={modules}
