@@ -39,6 +39,12 @@ export default defineConfig([
           varsIgnorePattern: '^_' 
         },
       ],
+      '@typescript-eslint/only-throw-error': [
+        'error',
+        {
+          allow: ['Redirect'],
+        },
+      ],
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-floating-promises': 'error',
       '@typescript-eslint/require-await': 'error',

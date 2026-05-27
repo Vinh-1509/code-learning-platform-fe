@@ -1,26 +1,22 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { fetchLessonById } from '@/lib/axios';
 import { LessonPage } from '../features/lesson/lessonPage';
+import { redirect } from '@tanstack/react-router';
+import { requireAuth } from '@/lib/auth';
 export const Route = createFileRoute('/lesson/$lessonId')({
   beforeLoad: async ({ params }) => {
-    // too  fragile be may give lesson.status or sth
-    if (!params.lessonId || params.lessonId.trim() === '') {
-      throw new Error('INVALID_LESSON_ID');
-    }
+    // 1. auth check
+    await requireAuth();
 
-    try {
-      const lesson = await fetchLessonById(params.lessonId);
-      const isLessonBlocked = lesson.blocks.every(
-        // check  if all blocks are locked
-        (block) => block.status === 'locked'
-      );
+    // 3. fetch lesson
+    const lesson = await fetchLessonById(params.lessonId);
 
-      if (isLessonBlocked) {
-        throw new Error('INVALID_LESSON_ID');
-      }
-    } catch {
-      throw new Error('INVALID_LESSON_ID');
+    const isBlocked = lesson.blocks?.every((b) => b.status === 'locked');
+
+    if (isBlocked) {
+      throw redirect({ to: '/dashboard' });
     }
   },
+
   component: LessonPage,
 });
