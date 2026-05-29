@@ -6,8 +6,8 @@ import {
   explainExerciseAnswer,
   completeBlock,
 } from '@/lib/axios';
-import { convertExerciseResponse } from '@/features/practice/types';
-import type { PracticeExercise } from '@/features/practice/types';
+import { convertExerciseResponse } from '@/features/practice/utils/exercise.converter';
+import type { PracticeExercise } from '@/features/practice/types/practice.types';
 import type {
   SubmitAnswerResponse,
   HintResponse,
