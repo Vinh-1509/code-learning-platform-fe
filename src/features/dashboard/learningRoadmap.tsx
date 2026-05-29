@@ -30,7 +30,6 @@ interface LessonItemProps {
 function LessonItem({ lesson, onStart }: LessonItemProps) {
   const showStartButton = lesson.status !== 'locked';
   const startButtonLabel = lesson.status === 'completed' ? 'Continue' : 'Start';
-  console.log(lesson.status);
 
   const startButton = showStartButton ? (
     <Button
