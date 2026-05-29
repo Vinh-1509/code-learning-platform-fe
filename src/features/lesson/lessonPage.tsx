@@ -8,6 +8,7 @@ import { PracticePanel } from '@/features/practice/PracticePanel';
 import { cn } from '@/lib/utils';
 import Navbar from '@/components/sidebar/Navbar';
 import { useBlockExercises } from './useBlockExercises';
+import { Button } from '@/components/ui/button';
 
 const lessonRouteApi = getRouteApi('/lesson/$lessonId');
 
@@ -70,18 +71,20 @@ export function LessonPage() {
               </span>
             ) : (
               exercises.map((ex, idx) => (
-                <button
+                <Button
                   key={ex.id}
+                  variant={activeExerciseIndex === idx ? 'default' : 'outline'}
+                  size="sm"
                   onClick={() => setActiveExerciseIndex(idx)}
                   className={cn(
-                    'px-3 py-1.5 text-xs font-bold rounded-lg transition-colors',
+                    'text-xs font-bold rounded-lg transition-colors h-8 px-3 shadow-sm',
                     activeExerciseIndex === idx
-                      ? 'bg-blue-600 text-white shadow-sm'
+                      ? 'bg-blue-600 hover:bg-blue-700 text-white'
                       : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300'
                   )}
                 >
                   Question {idx + 1}
-                </button>
+                </Button>
               ))
             )}
           </div>

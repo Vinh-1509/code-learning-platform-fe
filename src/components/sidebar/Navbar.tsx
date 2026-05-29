@@ -1,6 +1,8 @@
 import { ChevronLeft, User } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
 import { useAuth } from '@/features/auth/useAuth';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Separator } from '@/components/ui/separator';
 
 interface NavbarProps {
   variant?: 'dashboard' | 'lesson';
@@ -36,9 +38,15 @@ const Navbar = ({ variant = 'dashboard' }: NavbarProps) => {
           >
             Sign Out
           </button>
-          <div className="size-8 rounded-xl border border-border flex items-center justify-center bg-muted text-muted-foreground">
-            <User className="size-4 text-muted-foreground" />
-          </div>
+
+          <Separator orientation="vertical" className="h-4 bg-slate-300" />
+
+          <Avatar className="size-8">
+            <AvatarImage src="" alt="User profile" />
+            <AvatarFallback className="bg-muted text-muted-foreground border border-border flex items-center justify-center">
+              <User className="size-4" />
+            </AvatarFallback>
+          </Avatar>
         </div>
       )}
     </header>
