@@ -1,5 +1,6 @@
 import type { Block } from '@/lib/axios';
 import { cn } from '@/lib/utils';
+import { Separator } from '@/components/ui/separator';
 
 interface LessonSidebarProps {
   blocks: Block[];
@@ -40,7 +41,7 @@ export function LessonSidebar({
         <p className="text-[10px] font-bold mb-2 text-slate-400 tracking-wider">
           LESSON BLOCKS
         </p>
-        <div className="h-px bg-slate-200" />
+        <Separator />
       </div>
       <div className="flex flex-col">
         {blocks.map((block, index) => {

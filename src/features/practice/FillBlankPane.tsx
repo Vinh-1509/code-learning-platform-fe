@@ -1,5 +1,5 @@
 import type { ExplainAnswerResponse } from '@/lib/axios';
-import { CodeEditor } from '@/components/ui/codeEditor';
+import { CodeEditor } from '@/components/ui/CodeEditor';
 
 import type { BlankLine } from './types/practice.types';
 import type { ExplanationStatus } from './types/async.types';

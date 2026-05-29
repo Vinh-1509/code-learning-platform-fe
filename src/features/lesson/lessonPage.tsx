@@ -8,6 +8,7 @@ import { PracticePanel } from '@/features/practice/PracticePanel';
 import { cn } from '@/lib/utils';
 import Navbar from '@/components/sidebar/Navbar';
 import { useBlockExercises } from './useBlockExercises';
+import { Button } from '@/components/ui/button';
 
 const lessonRouteApi = getRouteApi('/lesson/$lessonId');
 
@@ -88,23 +89,25 @@ export function LessonPage() {
                   const isPassed = exercisePassMap[ex.id] === true;
                   const isActive = activeExerciseIndex === idx;
                   return (
-                    <button
+                    <Button
                       key={ex.id}
+                      variant={isActive ? 'default' : 'outline'}
+                      size="sm"
                       onClick={() => setActiveExerciseIndex(idx)}
                       className={cn(
-                        'px-3 py-1.5 text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5',
+                        'text-xs font-bold rounded-lg transition-colors h-8 px-3 flex items-center gap-1.5 shadow-sm',
                         isActive
                           ? isPassed
-                            ? 'bg-emerald-600 text-white shadow-sm'
-                            : 'bg-blue-600 text-white shadow-sm'
+                            ? 'bg-emerald-600 hover:bg-emerald-700 text-white border-none'
+                            : 'bg-blue-600 hover:bg-blue-700 text-white border-none'
                           : isPassed
-                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-300 hover:border-emerald-400'
+                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-300 hover:bg-emerald-100/50'
                             : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300'
                       )}
                     >
                       {isPassed && <span>✓</span>}
                       Question {idx + 1}
-                    </button>
+                    </Button>
                   );
                 })}
 

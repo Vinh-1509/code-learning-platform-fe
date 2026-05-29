@@ -1,5 +1,6 @@
 import type { Block, ContentItem } from '@/lib/axios';
-import { CodeEditor } from '@/components/ui/codeEditor';
+import { CodeEditor } from '@/components/ui/CodeEditor';
+import { Separator } from '@/components/ui/separator';
 
 interface TheoryPaneProps {
   block: Block | undefined;
@@ -23,7 +24,7 @@ export function TheoryPane({ block }: TheoryPaneProps) {
         <p className="mt-2 text-slate-500">{block.description}</p>
       )}
 
-      <div className="my-6 h-px bg-slate-200" />
+      <Separator className="my-6" />
 
       <div className="space-y-8">
         {sortedContent.map((item: ContentItem, index: number) => {

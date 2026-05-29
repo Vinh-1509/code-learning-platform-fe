@@ -7,6 +7,7 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 import type { Module, Lesson } from './useRoadmap';
 
 function LessonIcon({ status }: { status: string }) {
@@ -32,13 +33,13 @@ function LessonItem({ lesson, onStart }: LessonItemProps) {
   console.log(lesson.status);
 
   const startButton = showStartButton ? (
-    <button
+    <Button
       type="button"
       onClick={onStart}
-      className="bg-blue-600 text-white px-4 py-1 text-xs rounded-md"
+      className="bg-blue-600 hover:bg-blue-700 text-white px-4 h-7 text-xs rounded-md shadow-sm font-semibold"
     >
       {startButtonLabel}
-    </button>
+    </Button>
   ) : null;
 
   return (
