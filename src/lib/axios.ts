@@ -178,6 +178,7 @@ export interface DragDropExerciseResponse {
   level: string;
   order: number;
   data: {
+    expectedSlots?: number;
     blocks: DragDropBlockResponse[];
     answer?: (string | null)[];
   };

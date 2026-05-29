@@ -13,6 +13,7 @@ import type {
   ExplainAnswerResponse,
 } from '@/lib/axios';
 import { getExerciseHistory } from '@/lib/axios';
+import { prepareAnswerForSubmission } from './utils/exercise.converter';
 
 interface PracticePanelProps {
   exercise: PracticeExercise;
@@ -277,16 +278,16 @@ function DragDropPaneWrapper({
   hints,
   isHintOpen,
 }: DragDropWrapperProps) {
+  const initialSlots = exercise.answer?.length || exercise.expectedSlots;
+
   const [droppedBlocks, setDroppedBlocks] = useState<(string | null)[]>(
-    exercise.answer || Array(exercise.blocks.length).fill(null)
+    exercise.answer || Array(initialSlots).fill(null)
   );
   const [prevExerciseId, setPrevExerciseId] = useState<string>(exercise.id);
 
   if (exercise.id !== prevExerciseId) {
     setPrevExerciseId(exercise.id);
-    setDroppedBlocks(
-      exercise.answer || Array(exercise.blocks.length).fill(null)
-    );
+    setDroppedBlocks(exercise.answer || Array(initialSlots).fill(null));
   }
 
   const [overSlot, setOverSlot] = useState<number | null>(null);
@@ -304,6 +305,10 @@ function DragDropPaneWrapper({
       showResult={showResult}
       submitted={submitted}
       isSubmitting={isSubmitting}
+      onSubmit={() => {
+        const formatted = prepareAnswerForSubmission('dragdrop', droppedBlocks);
+        void onSubmit(formatted);
+      }}
       explanation={explanation}
       explanationStatus={explanationStatus}
       onDragStart={(id, fromSlot) => {
@@ -340,9 +345,6 @@ function DragDropPaneWrapper({
         newDropped[slotIndex] = null;
 
         setDroppedBlocks(newDropped);
-      }}
-      onSubmit={() => {
-        void onSubmit(droppedBlocks);
       }}
       onReset={onReset}
       onToggleHint={onToggleHint}
@@ -388,6 +390,10 @@ function FillBlankPaneWrapper({
       showResult={showResult}
       submitted={submitted}
       isSubmitting={isSubmitting}
+      onSubmit={() => {
+        const formatted = prepareAnswerForSubmission('fillblank', userAnswers);
+        void onSubmit(formatted);
+      }}
       explanation={explanation}
       explanationStatus={explanationStatus}
       onAnswerChange={(partId, value) => {
@@ -395,9 +401,6 @@ function FillBlankPaneWrapper({
           ...prev,
           [partId]: value,
         }));
-      }}
-      onSubmit={() => {
-        void onSubmit(userAnswers);
       }}
       onReset={() => {
         setUserAnswers({});

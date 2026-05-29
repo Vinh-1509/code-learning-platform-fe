@@ -23,6 +23,7 @@ export function convertDragDropExercise(
     type: 'dragdrop',
     title: api.title,
     description: api.instruction,
+    expectedSlots: api.data.expectedSlots ?? api.data.blocks.length,
     blocks: api.data.blocks,
     answer: api.data.answer,
     hints: api.hints,
@@ -101,3 +102,19 @@ export function convertExerciseResponse(
   }
   return convertDragDropExercise(api);
 }
+
+export const prepareAnswerForSubmission = (
+  type: PracticeExercise['type'],
+  rawAnswer: unknown
+): Record<string, string> => {
+  if (type === 'dragdrop' && Array.isArray(rawAnswer)) {
+    return rawAnswer.reduce<Record<string, string>>((acc, val, idx) => {
+      if (val !== null && val !== undefined) {
+        acc[String(idx + 1)] = String(val);
+      }
+      return acc;
+    }, {});
+  }
+
+  return rawAnswer as Record<string, string>;
+};
