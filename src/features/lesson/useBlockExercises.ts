@@ -1,12 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   fetchExerciseById,
   submitExerciseAnswer,
   getExerciseHint,
+  explainExerciseAnswer,
+  completeBlock,
 } from '@/lib/axios';
-import { convertExerciseResponse } from '@/features/practice/types';
-import type { PracticeExercise } from '@/features/practice/types';
-import type { SubmitAnswerResponse, HintResponse, Block } from '@/lib/axios';
+import { convertExerciseResponse } from '@/features/practice/utils/exercise.converter';
+import type { PracticeExercise } from '@/features/practice/types/practice.types';
+import type {
+  SubmitAnswerResponse,
+  HintResponse,
+  Block,
+  ExplainAnswerResponse,
+} from '@/lib/axios';
 
 interface UseBlockExercisesOptions {
   block: Block | undefined;
@@ -16,17 +23,19 @@ export function useBlockExercises({ block }: UseBlockExercisesOptions) {
   const [exercises, setExercises] = useState<PracticeExercise[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [exercisePassMap, setExercisePassMap] = useState<
+    Record<string, boolean>
+  >({});
+  const [blockCompleted, setBlockCompleted] = useState(false);
+  const exercisesRef = useRef<PracticeExercise[]>(exercises);
 
-  // Use block._id (a primitive) as the dependency — not the full block object.
-  // Using the object itself causes the effect to re-fire on every render because
-  // currentBlock is re-derived via .find(), yielding a new reference each time
-  // even when the underlying data hasn't changed.
   const blockId = block?._id;
 
   useEffect(() => {
     async function getExercises() {
       if (!block) {
         setExercises([]);
+        exercisesRef.current = [];
         return;
       }
 
@@ -36,6 +45,7 @@ export function useBlockExercises({ block }: UseBlockExercisesOptions) {
 
       if (practiceItems.length === 0) {
         setExercises([]);
+        exercisesRef.current = [];
         return;
       }
 
@@ -51,22 +61,28 @@ export function useBlockExercises({ block }: UseBlockExercisesOptions) {
 
       if (exerciseIds.length === 0) {
         setExercises([]);
+        exercisesRef.current = [];
         return;
       }
 
       setLoading(true);
       setError(null);
+      // Reset pass tracking when block changes
+      setExercisePassMap({});
+      setBlockCompleted(false);
       try {
         const apiExercises = await Promise.all(
           exerciseIds.map((id) => fetchExerciseById(id))
         );
         const convertedExercises = apiExercises.map(convertExerciseResponse);
         setExercises(convertedExercises);
+        exercisesRef.current = convertedExercises;
       } catch (err) {
         setError(
           err instanceof Error ? err.message : 'Failed to fetch exercises'
         );
         setExercises([]);
+        exercisesRef.current = [];
       } finally {
         setLoading(false);
       }
@@ -80,7 +96,26 @@ export function useBlockExercises({ block }: UseBlockExercisesOptions) {
     exerciseId: string,
     answer: unknown
   ): Promise<SubmitAnswerResponse> {
-    return await submitExerciseAnswer(exerciseId, answer);
+    const result = await submitExerciseAnswer(exerciseId, answer);
+
+    if (result.correct) {
+      setExercisePassMap((prev) => {
+        const next = { ...prev, [exerciseId]: true };
+
+        // Check if every exercise in the current block is now passed
+        const allPassed = exercisesRef.current.every((ex) => next[ex.id]);
+        if (allPassed && block && !blockCompleted) {
+          setBlockCompleted(true);
+          void completeBlock(block._id).catch((err) => {
+            console.error('Failed to mark block as complete:', err);
+          });
+        }
+
+        return next;
+      });
+    }
+
+    return result;
   }
 
   async function getHint(
@@ -90,11 +125,21 @@ export function useBlockExercises({ block }: UseBlockExercisesOptions) {
     return await getExerciseHint(exerciseId, level);
   }
 
+  async function explainAnswer(
+    exerciseId: string,
+    answer: unknown
+  ): Promise<ExplainAnswerResponse> {
+    return await explainExerciseAnswer(exerciseId, answer);
+  }
+
   return {
     exercises,
     loading,
     error,
+    exercisePassMap,
+    blockCompleted,
     submitAnswer,
     getHint,
+    explainAnswer,
   };
 }

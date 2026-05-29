@@ -14,7 +14,7 @@ const lessonRouteApi = getRouteApi('/lesson/$lessonId');
 
 export function LessonPage() {
   const { lessonId } = lessonRouteApi.useParams();
-  const { currentLesson } = usePractice({ lessonId });
+  const { currentLesson, refetchLesson } = usePractice({ lessonId });
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
 
   const activeBlockId =
@@ -27,16 +27,30 @@ export function LessonPage() {
     currentLesson?.blocks.find((b: Block) => b._id === activeBlockId) ??
     undefined;
 
-  const { exercises, loading, error, submitAnswer, getHint } =
-    useBlockExercises({
-      block: currentBlock,
-    });
+  const {
+    exercises,
+    loading,
+    error,
+    submitAnswer,
+    getHint,
+    explainAnswer,
+    exercisePassMap,
+    blockCompleted,
+  } = useBlockExercises({ block: currentBlock });
+
   const [activeExerciseIndex, setActiveExerciseIndex] = useState(0);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setActiveExerciseIndex(0);
   }, [activeBlockId]);
+
+  // When all exercises are done, refresh lesson so the next block unlocks
+  useEffect(() => {
+    if (blockCompleted) {
+      void refetchLesson?.();
+    }
+  }, [blockCompleted, refetchLesson]);
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-white">
@@ -70,22 +84,40 @@ export function LessonPage() {
                 No practice available
               </span>
             ) : (
-              exercises.map((ex, idx) => (
-                <Button
-                  key={ex.id}
-                  variant={activeExerciseIndex === idx ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setActiveExerciseIndex(idx)}
-                  className={cn(
-                    'text-xs font-bold rounded-lg transition-colors h-8 px-3 shadow-sm',
-                    activeExerciseIndex === idx
-                      ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                      : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300'
-                  )}
-                >
-                  Question {idx + 1}
-                </Button>
-              ))
+              <>
+                {exercises.map((ex, idx) => {
+                  const isPassed = exercisePassMap[ex.id] === true;
+                  const isActive = activeExerciseIndex === idx;
+                  return (
+                    <Button
+                      key={ex.id}
+                      variant={isActive ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setActiveExerciseIndex(idx)}
+                      className={cn(
+                        'text-xs font-bold rounded-lg transition-colors h-8 px-3 flex items-center gap-1.5 shadow-sm',
+                        isActive
+                          ? isPassed
+                            ? 'bg-emerald-600 hover:bg-emerald-700 text-white border-none'
+                            : 'bg-blue-600 hover:bg-blue-700 text-white border-none'
+                          : isPassed
+                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-300 hover:bg-emerald-100/50'
+                            : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300'
+                      )}
+                    >
+                      {isPassed && <span>✓</span>}
+                      Question {idx + 1}
+                    </Button>
+                  );
+                })}
+
+                {/* Block completion badge */}
+                {blockCompleted && (
+                  <span className="ml-auto flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-300 rounded-lg">
+                    🎉 Block complete!
+                  </span>
+                )}
+              </>
             )}
           </div>
 
@@ -96,6 +128,7 @@ export function LessonPage() {
                 exercise={exercises[activeExerciseIndex]}
                 onSubmit={submitAnswer}
                 onGetHint={getHint}
+                onExplain={explainAnswer}
               />
             )}
           </div>

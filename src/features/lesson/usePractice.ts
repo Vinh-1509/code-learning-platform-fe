@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-// Import hàm gọi API từ file chứa Axios của ông (sửa lại đường dẫn cho đúng)
 import { fetchLessonById } from '@/lib/axios';
 import type { LessonDetailResponse } from '@/lib/axios';
 
@@ -12,9 +11,9 @@ export function usePractice({ lessonId }: UsePracticeOptions) {
     useState<LessonDetailResponse | null>(null);
 
   useEffect(() => {
-    async function getLessonData() {
-      if (!lessonId) return;
+    if (!lessonId) return;
 
+    const loadLesson = async () => {
       try {
         const data = await fetchLessonById(lessonId);
         setCurrentLesson(data);
@@ -22,15 +21,25 @@ export function usePractice({ lessonId }: UsePracticeOptions) {
         console.error('Lỗi:', error);
         setCurrentLesson(null);
       }
-    }
+    };
 
-    void getLessonData();
-
-    return () => {};
+    void loadLesson();
   }, [lessonId]);
 
+  const refetchLesson = async () => {
+    if (!lessonId) return;
+
+    try {
+      const data = await fetchLessonById(lessonId);
+      setCurrentLesson(data);
+    } catch (error) {
+      console.error('Lỗi:', error);
+      setCurrentLesson(null);
+    }
+  };
+
   return {
-    // Data thật từ API
     currentLesson,
+    refetchLesson,
   };
 }

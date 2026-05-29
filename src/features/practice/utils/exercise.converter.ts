@@ -1,51 +1,19 @@
-export interface DraggableBlock {
-  id: string;
-  code: string;
-  indent: number;
-}
-
-export interface BlankPart {
-  id: string;
-  text: string;
-  isBlank: boolean;
-  answer?: string;
-}
-
-export interface BlankLine {
-  id: string;
-  parts: BlankPart[];
-  indent: number;
-}
-
-export interface DragDropExercise {
-  id: string;
-  type: 'dragdrop';
-  title: string;
-  blocks: DraggableBlock[];
-  answer?: (string | null)[];
-  description: string;
-  hints?: Record<string, string>;
-}
-
-export interface FillBlankExercise {
-  id: string;
-  type: 'fillblank';
-  title: string;
-  lines: BlankLine[];
-  description: string;
-  hints?: Record<string, string>;
-}
-
-export type PracticeExercise = DragDropExercise | FillBlankExercise;
-
-// ---------------------------------------------------------------------------
-// Conversion: raw API response → UI exercise types
-// ---------------------------------------------------------------------------
+import type {
+  DragDropExercise,
+  FillBlankExercise,
+  PracticeExercise,
+  BlankLine,
+  BlankPart,
+} from '../types/practice.types';
 import type {
   DragDropExerciseResponse,
   FillBlankExerciseResponse,
   ExerciseResponse,
 } from '@/lib/axios';
+
+/**
+ * Convert a raw drag-drop exercise from the API response into the UI exercise type.
+ */
 
 export function convertDragDropExercise(
   api: DragDropExerciseResponse
@@ -55,6 +23,7 @@ export function convertDragDropExercise(
     type: 'dragdrop',
     title: api.title,
     description: api.instruction,
+    expectedSlots: api.data.expectedSlots ?? api.data.blocks.length,
     blocks: api.data.blocks,
     answer: api.data.answer,
     hints: api.hints,
@@ -133,3 +102,19 @@ export function convertExerciseResponse(
   }
   return convertDragDropExercise(api);
 }
+
+export const prepareAnswerForSubmission = (
+  type: PracticeExercise['type'],
+  rawAnswer: unknown
+): Record<string, string> => {
+  if (type === 'dragdrop' && Array.isArray(rawAnswer)) {
+    return rawAnswer.reduce<Record<string, string>>((acc, val, idx) => {
+      if (val !== null && val !== undefined) {
+        acc[String(idx + 1)] = String(val);
+      }
+      return acc;
+    }, {});
+  }
+
+  return rawAnswer as Record<string, string>;
+};
