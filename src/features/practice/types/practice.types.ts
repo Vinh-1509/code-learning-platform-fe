@@ -21,6 +21,7 @@ export interface DragDropExercise {
   id: string;
   type: 'dragdrop';
   title: string;
+  expectedSlots: number;
   blocks: DraggableBlock[];
   answer?: (string | null)[];
   description: string;
