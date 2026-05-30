@@ -5,17 +5,25 @@ import type { ApiError } from '@/lib/axios';
 import { loginUser, registerUser } from '@/lib/axios';
 import type { AuthResponse, AuthPayload } from '@/types/auth';
 import { AuthContext } from './authContext';
-
+/**
+ * Retrieves the persisted access token from localStorage.
+ */
 function getInitialToken() {
   return localStorage.getItem('token');
 }
 
+/**
+ * Provides authentication state and actions to the application.
+ */
 export function AuthProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const [token, setToken] = useState<string | null>(getInitialToken);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  /**
+   * Persists the access token and updates authentication state.
+   */
   const setAuth = (res: AuthResponse) => {
     const token = res.access_token;
     if (!token) return;
@@ -69,7 +77,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     localStorage.removeItem('token');
-    localStorage.removeItem('user');
     setToken(null);
     void navigate({ to: '/login' });
   };

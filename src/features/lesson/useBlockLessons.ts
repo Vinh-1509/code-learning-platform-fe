@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react';
 import { fetchLessonById } from '@/lib/axios';
 import type { LessonDetailResponse } from '@/lib/axios';
 
-interface UsePracticeOptions {
+interface UseBlockLessonsOptions {
   lessonId: string;
 }
 
-export function usePractice({ lessonId }: UsePracticeOptions) {
+export function useBlockLessons({ lessonId }: UseBlockLessonsOptions) {
   const [currentLesson, setCurrentLesson] =
     useState<LessonDetailResponse | null>(null);
 

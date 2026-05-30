@@ -32,7 +32,14 @@ export const checkLanguageSelection = async () => {
     throw redirect({ to: '/login' });
   }
 
-  const user = await getMe();
+  let user;
+
+  try {
+    user = await getMe();
+  } catch {
+    localStorage.removeItem('token');
+    throw redirect({ to: '/login' });
+  }
 
   if (user?.selectedLanguage && user.selectedLanguage.length > 0) {
     throw redirect({
