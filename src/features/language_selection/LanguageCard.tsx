@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button';
 import type { LanguageOption } from '@/types/language_selection';
 
 interface LanguageCardProps {
@@ -129,13 +130,13 @@ export function LanguageCard({
           </ul>
         </div>
 
-        <button
+        <Button
           type="button"
           onClick={onSelect}
           className={`w-full mt-2 h-11 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${theme.buttonBg}`}
         >
           {isSelected ? '✓ Selected' : `Select ${lang.language}`}
-        </button>
+        </Button>
       </div>
     </div>
   );
