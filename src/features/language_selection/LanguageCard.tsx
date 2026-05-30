@@ -11,13 +11,41 @@ export function LanguageCard({
   isSelected,
   onSelect,
 }: LanguageCardProps) {
-  const ringClass = isSelected ? 'ring-2 ring-blue-500 ring-offset-2' : '';
+  const isCpp = lang.language === 'C++';
+
+  const theme = isCpp
+    ? {
+        headerBg: 'bg-purple-cpp',
+        badgeBg: 'bg-purple-jv-background',
+        badgeText: 'text-purple-cpp',
+        badgeBorder: 'border-purple-cpp/20',
+        bulletBg: 'bg-purple-cpp',
+        buttonBg: 'bg-purple-cpp hover:bg-purple-cpp/90 text-white',
+        selectedBorder:
+          'border-purple-cpp ring-2 ring-purple-cpp ring-offset-2',
+        unselectedBorder: 'border-slate-200 hover:border-purple-cpp/30',
+      }
+    : {
+        headerBg: 'bg-orange-jv',
+        badgeBg: 'bg-orange-jv-background',
+        badgeText: 'text-orange-jv',
+        badgeBorder: 'border-orange-jv/20',
+        bulletBg: 'bg-orange-jv',
+        buttonBg: 'bg-orange-jv hover:bg-orange-jv/90 text-white',
+        selectedBorder: 'border-orange-jv ring-2 ring-orange-jv ring-offset-2',
+        unselectedBorder: 'border-slate-200 hover:border-orange-jv/30',
+      };
+
+  const borderClass = isSelected
+    ? theme.selectedBorder
+    : theme.unselectedBorder;
 
   return (
     <div
-      className={`flex-1 rounded-2xl overflow-hidden border border-slate-200 shadow-sm transition-all ${ringClass}`}
+      onClick={onSelect}
+      className={`flex-1 rounded-2xl overflow-hidden border shadow-sm transition-all duration-300 cursor-pointer ${borderClass}`}
     >
-      <div className={`${lang.color.background} p-6 relative`}>
+      <div className={`${theme.headerBg} p-6 relative`}>
         <div className="flex items-start justify-between">
           <span className="text-xs font-bold text-white/80 bg-white/20 px-2.5 py-1 rounded-lg">
             {lang.language}
@@ -36,7 +64,10 @@ export function LanguageCard({
         </div>
       </div>
 
-      <div className="p-5 space-y-4 bg-white">
+      <div
+        className="p-5 space-y-4 bg-white"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div>
           <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
             Strengths
@@ -45,7 +76,7 @@ export function LanguageCard({
             {lang.strengths.map((s) => (
               <span
                 key={s}
-                className={`text-xs px-2.5 py-1 rounded-full border ${lang.color.background} ${lang.color.main}`}
+                className={`text-xs px-2.5 py-1 rounded-full border ${theme.badgeBg} ${theme.badgeText} ${theme.badgeBorder}`}
               >
                 {s}
               </span>
@@ -61,7 +92,7 @@ export function LanguageCard({
             {lang.challenges.map((c) => (
               <span
                 key={c}
-                className="text-xs px-2.5 py-1 rounded-full border border-slate-200 text-slate-500"
+                className="text-xs px-2.5 py-1 rounded-full border border-slate-200 text-slate-500 bg-slate-50/50"
               >
                 {c}
               </span>
@@ -80,7 +111,7 @@ export function LanguageCard({
                 className="flex items-center gap-2 text-sm text-slate-600"
               >
                 <span
-                  className={`w-1.5 h-1.5 rounded-full shrink-0 ${lang.color.main}`}
+                  className={`w-1.5 h-1.5 rounded-full shrink-0 ${theme.bulletBg}`}
                 />
                 {u}
               </li>
@@ -91,7 +122,7 @@ export function LanguageCard({
         <button
           type="button"
           onClick={onSelect}
-          className={`w-full mt-2 h-11 rounded-xl text-white text-sm font-semibold transition-colors ${lang.color.main}`}
+          className={`w-full mt-2 h-11 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${theme.buttonBg}`}
         >
           {isSelected ? '✓ Selected' : `Select ${lang.language}`}
         </button>
