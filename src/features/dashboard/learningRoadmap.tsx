@@ -150,9 +150,10 @@ function ModuleItem({
       </div>
 
       <div className="flex-1 pb-6">
-        <button
+        <Button
+          variant="ghost"
           onClick={onToggle}
-          className="w-full flex items-center justify-between p-4 border-2 rounded-xl bg-white text-left hover:border-blue-200 transition-colors"
+          className="w-full flex items-center justify-between p-4 border-2 rounded-xl bg-white text-left hover:border-blue-200 transition-colors h-auto text-foreground hover:bg-white shadow-none font-normal"
         >
           <div className="flex items-center gap-3">
             <span className="font-semibold text-slate-800">{module.name}</span>
@@ -163,7 +164,7 @@ function ModuleItem({
           ) : (
             <ChevronDown className="text-slate-500" />
           )}
-        </button>
+        </Button>
 
         {isExpanded && (
           <div className="mt-4 space-y-3">
