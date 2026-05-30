@@ -6,7 +6,7 @@ interface TheoryPaneProps {
   block: Block | undefined;
 }
 
-export function TheoryPane({ block }: TheoryPaneProps) {
+export function TheoryPanel({ block }: TheoryPaneProps) {
   if (!block) {
     return null;
   }
@@ -16,12 +16,12 @@ export function TheoryPane({ block }: TheoryPaneProps) {
   );
 
   return (
-    <div className="flex-1 bg-white p-6 min-w-0 border-r border-slate-200">
-      <h1 className="mt-2 text-3xl font-bold text-slate-900">
+    <div className="flex-1 bg-card p-6 min-w-0 ">
+      <h1 className="mt-2 text-3xl font-bold text-foreground">
         {block.title || 'Theory'}
       </h1>
       {block.description && (
-        <p className="mt-2 text-slate-500">{block.description}</p>
+        <p className="mt-2 text-muted-foreground">{block.description}</p>
       )}
 
       <Separator className="my-6" />
@@ -31,11 +31,11 @@ export function TheoryPane({ block }: TheoryPaneProps) {
           if (item.type === 'theory') {
             return (
               <section key={index} className="space-y-3">
-                <h2 className="text-sm font-bold text-slate-900">
+                <h2 className="text-sm font-bold text-foreground">
                   {index + 1}. What is it?
                 </h2>
 
-                <div className="rounded-lg border-l-4 border-blue-600 bg-blue-50 p-4 text-sm text-blue-700">
+                <div className="rounded-lg border-l-4 borderprimary bg-blue-50 p-4 text-sm text-primary">
                   {item.data.text}
                 </div>
               </section>
@@ -45,17 +45,16 @@ export function TheoryPane({ block }: TheoryPaneProps) {
           if (item.type === 'code') {
             return (
               <section key={index} className="space-y-3">
-                <h2 className="text-sm font-bold text-slate-900">
+                <h2 className="text-sm font-bold text-foreground">
                   {index + 1}. Example
                 </h2>
 
                 {item.data.explanation && (
-                  <p className="text-sm leading-6 text-slate-600">
+                  <p className="text-sm leading-6 text-muted-foreground">
                     {item.data.explanation}
                   </p>
                 )}
 
-                {/* Replaced hardcoded UI block with the shared component */}
                 <CodeEditor language="cpp" code={item.data.code} />
               </section>
             );

@@ -1,19 +1,19 @@
 import { useState, useEffect } from 'react';
-import { DragDropPane } from './DragDropPane';
-import { FillBlankPane } from './FillBlankPane';
+import { DragDropPane } from '../practice/DragDropPane';
+import { FillBlankPane } from '../practice/FillBlankPane';
 import type {
   DragDropExercise,
   FillBlankExercise,
   PracticeExercise,
-} from './types/practice.types';
-import type { ExplanationStatus } from './types/async.types';
+} from '../practice/types/practice.types';
+import type { ExplanationStatus } from '../practice/types/async.types';
 import type {
   SubmitAnswerResponse,
   HintResponse,
   ExplainAnswerResponse,
 } from '@/lib/axios';
 import { getExerciseHistory } from '@/lib/axios';
-import { prepareAnswerForSubmission } from './utils/exercise.converter';
+import { prepareAnswerForSubmission } from '../practice/utils/exercise.converter';
 
 interface PracticePanelProps {
   exercise: PracticeExercise;
