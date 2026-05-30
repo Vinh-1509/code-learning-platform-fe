@@ -5,5 +5,12 @@ import { LoginPage } from '../features/auth/LoginPage';
 
 export const Route = createLazyFileRoute('/login')({
   component: () =>
-    getAccessToken() ? <Navigate to="/dashboard" /> : <LoginPage />,
+    getAccessToken() ? (
+      // User is already authenticated, redirect to
+      // language selection(have guard to redirect to dashboard
+      // if user has already selected language)
+      <Navigate to="/languageselection" />
+    ) : (
+      <LoginPage />
+    ),
 });
