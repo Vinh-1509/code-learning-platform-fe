@@ -2,6 +2,7 @@ import { LayoutDashboard, Grid3x3, SquareTerminal } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
 
 interface AppSidebarProps {
   variant?: 'dashboard' | 'lesson';
@@ -53,12 +54,7 @@ export function AppSidebar({
               </div>
             </div>
 
-            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted">
-              <div
-                className="h-full rounded-full bg-primary"
-                style={{ width: `${progressPercent}%` }}
-              />
-            </div>
+            <Progress value={progressPercent} className="mt-3 h-1.5" />
           </div>
         </div>
 

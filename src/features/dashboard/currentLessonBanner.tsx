@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 
 interface CurrentLessonBannerProps {
   lessonId: string;
@@ -62,12 +63,7 @@ export function CurrentLessonBanner({
           </div>
         </div>
         <div className="mt-6">
-          <div className="h-2.5 bg-muted rounded-full overflow-hidden">
-            <div
-              className="h-full bg-primary rounded-full transition-all duration-500"
-              style={{ width: `${progress.toFixed(0)}%` }}
-            />
-          </div>
+          <Progress value={progress} className="h-2.5" />
           <div className="flex items-center justify-between mt-4">
             <span className="text-sm text-muted-foreground">
               {progress.toFixed(0)}% Completed
