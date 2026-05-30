@@ -70,7 +70,7 @@ export async function fetchLanguages(): Promise<LanguageOption[]> {
     challenges: item.challenges,
     useCases: item.useCases,
     color: {
-      background: item.language === 'C++' ? 'bg-[#3730a3]' : 'bg-[#c2410c]',
+      background: item.language === 'C++' ? 'bg-purple-cpp' : 'bg-orange-jv',
       main: 'bg-accent',
     },
   }));

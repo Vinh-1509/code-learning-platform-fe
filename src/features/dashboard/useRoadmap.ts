@@ -25,6 +25,13 @@ export interface CurrentLessonInfo {
   progress: number;
 }
 
+/**
+ * getCurrentLesson searches through the course curriculum modules to find the first in-progress/active lesson.
+ * Used to display the shortcut resume banner on the dashboard.
+ *
+ * @param {Module[]} modules - List of modules containing lesson items.
+ * @returns {CurrentLessonInfo | null} Information about the current active lesson, or null if none is in progress.
+ */
 export function getCurrentLesson(modules: Module[]): CurrentLessonInfo | null {
   for (const module of modules) {
     const currentLesson = module.lessons.find((l) => l.status === 'active');
@@ -40,6 +47,18 @@ export function getCurrentLesson(modules: Module[]): CurrentLessonInfo | null {
   return null;
 }
 
+/**
+ * useRoadmap is a custom React hook that manages data fetching and expansion state for the dashboard learning roadmap.
+ * Handles fetching milestones and their lessons from the API and sorting them to construct modules.
+ *
+ * @returns {Object} State and handler functions:
+ *   - modules: Array of sorted module data structures.
+ *   - expandedModules: List of expanded module IDs.
+ *   - toggleModule: Function to toggle a module's accordion expansion state.
+ *   - handleStartLesson: Callback trigger when starting/resuming a lesson.
+ *   - currentLesson: Shortcut info of the user's active lesson.
+ *   - loading: Boolean indicating if fetch queries are active.
+ */
 export function useRoadmap() {
   const [modules, setModules] = useState<Module[]>([]);
   const [expandedModules, setExpandedModules] = useState<string[]>([]);

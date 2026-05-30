@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 
 interface CurrentLessonBannerProps {
   lessonId: string;
@@ -10,6 +11,18 @@ interface CurrentLessonBannerProps {
   onStartLesson: (lessonId: string) => void;
 }
 
+/**
+ * CurrentLessonBanner displays a prominent card representing the user's active/in-progress lesson.
+ * Includes lesson details (title, module), a progress bar, navigation arrows, and a button to resume.
+ *
+ * @param {CurrentLessonBannerProps} props - The component properties.
+ * @param {string} props.lessonId - Unique ID of the current lesson.
+ * @param {string} props.lessonName - Name/title of the current lesson.
+ * @param {string} props.moduleName - Name of the parent module this lesson belongs to.
+ * @param {number} props.progress - Numeric percentage (0-100) indicating current completion progress.
+ * @param {Function} props.onStartLesson - Callback to redirect or launch the lesson content.
+ * @returns {JSX.Element} The rendered CurrentLessonBanner card component.
+ */
 export function CurrentLessonBanner({
   lessonId,
   lessonName,
@@ -50,12 +63,7 @@ export function CurrentLessonBanner({
           </div>
         </div>
         <div className="mt-6">
-          <div className="h-2.5 bg-muted rounded-full overflow-hidden">
-            <div
-              className="h-full bg-primary rounded-full transition-all duration-500"
-              style={{ width: `${progress.toFixed(0)}%` }}
-            />
-          </div>
+          <Progress value={progress} className="h-2.5" />
           <div className="flex items-center justify-between mt-4">
             <span className="text-sm text-muted-foreground">
               {progress.toFixed(0)}% Completed

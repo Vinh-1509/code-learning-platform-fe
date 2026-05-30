@@ -4,6 +4,12 @@ import { useLanguageSelection } from './useLanguageSelection';
 import { LanguageCard } from './LanguageCard';
 import { SkeletonCard } from './SkeletonCard';
 
+/**
+ * LanguageSelectionPage provides the UI container for selecting the user's primary programming language.
+ * Fetches available language configurations and maps selection flow via useLanguageSelection hook.
+ *
+ * @returns {JSX.Element} The rendered LanguageSelectionPage page component.
+ */
 export function LanguageSelectionPage() {
   const { languages, fetching, selected, setSelected, saving, handleConfirm } =
     useLanguageSelection();
