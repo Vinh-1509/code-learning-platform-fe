@@ -3,11 +3,21 @@ import { Link } from '@tanstack/react-router';
 import { useAuth } from '@/features/auth/useAuth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
 
 interface NavbarProps {
   variant?: 'dashboard' | 'lesson';
 }
 
+/**
+ * Navbar component renders the fixed global header navigation.
+ * Displays brand name, lesson redirection triggers, and user profile/sign-out actions.
+ * Styled with shadcn Avatar, Separator, and Button components.
+ *
+ * @param {NavbarProps} props - The component properties.
+ * @param {string} [props.variant='dashboard'] - Active header layout ('dashboard' or 'lesson').
+ * @returns {JSX.Element} The rendered Navbar component.
+ */
 const Navbar = ({ variant = 'dashboard' }: NavbarProps) => {
   const { logout } = useAuth();
 
@@ -19,25 +29,27 @@ const Navbar = ({ variant = 'dashboard' }: NavbarProps) => {
 
       {variant === 'lesson' && (
         <Link to="/dashboard">
-          <button
+          <Button
             type="button"
-            className="flex items-center gap-1 rounded-lg px-4 h-9 text-sm font-semibold bg-muted text-foreground hover:bg-accent transition-colors"
+            variant="secondary"
+            className="flex items-center gap-1 rounded-lg px-4 h-9 text-sm font-semibold hover:bg-accent transition-colors"
           >
             <ChevronLeft className="w-4 h-4" />
             Back to Dashboard
-          </button>
+          </Button>
         </Link>
       )}
 
       {variant === 'dashboard' && (
         <div className="flex items-center gap-3">
-          <button
+          <Button
             type="button"
+            variant="ghost"
             onClick={logout}
-            className="text-sm font-medium text-foreground hover:text-muted-foreground transition-colors cursor-pointer"
+            className="text-sm font-medium text-foreground hover:text-muted-foreground transition-colors cursor-pointer h-auto p-0 hover:bg-transparent shadow-none"
           >
             Sign Out
-          </button>
+          </Button>
 
           <Separator orientation="vertical" className="h-4 bg-slate-300" />
 

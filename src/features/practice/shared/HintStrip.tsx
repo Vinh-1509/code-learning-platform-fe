@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button';
 import { Lightbulb, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface HintStripProps {
@@ -45,13 +46,13 @@ export function HintStrip({
             ))}
         </div>
 
-        <button
+        <Button
           type="button"
           onClick={handleButtonClick}
           className="bg-amber-500 hover:bg-amber-600 text-white text-[11px] font-bold px-3 h-7 rounded-lg transition-colors shadow-sm"
         >
           {isOpen ? 'Hide Hint' : hints.length > 0 ? 'Next Hint' : 'Get Hint'}
-        </button>
+        </Button>
       </div>
 
       {/* Hint list */}
