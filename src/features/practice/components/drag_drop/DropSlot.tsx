@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { DraggableBlock } from '../../types/practice.types';
 
@@ -58,12 +59,14 @@ export function DropSlot({
             {block.code}
           </span>
 
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => onRemove(slotIndex)}
-            className="text-slate-400 hover:text-slate-600 font-bold text-xs p-1"
+            className="text-slate-400 hover:text-slate-600 font-bold text-xs size-6 p-0 hover:bg-transparent shadow-none"
           >
             ✕
-          </button>
+          </Button>
         </div>
       ) : (
         <div className="flex items-center justify-between w-full text-slate-400 text-xs">

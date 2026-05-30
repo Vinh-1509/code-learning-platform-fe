@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 
 interface AppSidebarProps {
   variant?: 'dashboard' | 'lesson';
@@ -58,31 +59,33 @@ export function AppSidebar({
           </div>
 
           <nav className="flex-1 px-4">
-            <button
+            <Button
+              variant="ghost"
               onClick={() => onTabChange?.('dashboard')}
               className={cn(
-                'flex w-full items-center gap-3 rounded-l-lg rounded-r-none px-4 py-2.5 text-left text-sm font-medium transition-colors',
+                'flex w-full items-center gap-3 rounded-l-lg rounded-r-none px-4 py-2.5 text-left text-sm font-medium transition-colors justify-start h-auto shadow-none',
                 activeTab === 'dashboard'
-                  ? 'bg-[#EAEFFF] text-primary border-r-4 border-r-primary'
+                  ? 'bg-[#EAEFFF] text-primary border-r-4 border-r-primary hover:bg-[#EAEFFF] hover:text-primary'
                   : 'border-r-4 border-r-transparent text-muted-foreground hover:bg-muted hover:text-foreground'
               )}
             >
               <LayoutDashboard className="size-5" />
               Dashboard
-            </button>
+            </Button>
 
-            <button
+            <Button
+              variant="ghost"
               onClick={() => onTabChange?.('practice')}
               className={cn(
-                'mt-1 flex w-full items-center gap-3 rounded-l-lg rounded-r-none px-4 py-2.5 text-left text-sm font-medium transition-colors',
+                'mt-1 flex w-full items-center gap-3 rounded-l-lg rounded-r-none px-4 py-2.5 text-left text-sm font-medium transition-colors justify-start h-auto shadow-none',
                 activeTab === 'practice'
-                  ? 'bg-[#EAEFFF] text-primary border-r-4 border-r-primary'
+                  ? 'bg-[#EAEFFF] text-primary border-r-4 border-r-primary hover:bg-[#EAEFFF] hover:text-primary'
                   : 'border-r-4 border-r-transparent text-muted-foreground hover:bg-muted hover:text-foreground'
               )}
             >
               <Grid3x3 className="size-5" />
               Practice
-            </button>
+            </Button>
           </nav>
         </>
       ) : (
@@ -103,13 +106,16 @@ export function AppSidebar({
             </div>
           </div>
 
-          <Link
-            to="/dashboard"
-            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+          <Button
+            asChild
+            variant="outline"
+            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 h-auto shadow-none"
           >
-            <ChevronLeft className="size-4" />
-            Back to Dashboard
-          </Link>
+            <Link to="/dashboard">
+              <ChevronLeft className="size-4" />
+              Back to Dashboard
+            </Link>
+          </Button>
         </div>
       )}
     </aside>

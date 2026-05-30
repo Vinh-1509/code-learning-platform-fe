@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { ExplainAnswerResponse } from '@/lib/axios';
 import type { ExplanationStatus } from '../types/async.types';
@@ -38,12 +39,13 @@ export function ResultBanner({
         </span>
 
         {showResult === 'wrong' && submitted && (
-          <button
+          <Button
+            size="sm"
             onClick={onReset}
-            className="bg-rose-200 text-rose-900 hover:bg-rose-300 h-7 px-3 text-xs font-bold rounded-lg transition-all"
+            className="bg-rose-200 text-rose-900 hover:bg-rose-300 h-7 px-3 text-xs font-bold rounded-lg transition-all shadow-none border-none"
           >
             Reset
-          </button>
+          </Button>
         )}
       </div>
 
