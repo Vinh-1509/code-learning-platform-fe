@@ -168,8 +168,8 @@ export function SignUpForm({ onSubmit, loading, error }: SignUpFormProps) {
 
 function Badge({ text }: { text: string }) {
   return (
-    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#dcfce7] text-[#15803d] text-xs font-medium rounded-full border border-[#bbf7d0]">
-      <Check className="h-3 w-3 text-[#16a34a]" />
+    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-mint text-green-foreground text-xs font-medium rounded-full">
+      <Check className="h-3 w-3 text-green-foreground" />
       {text}
     </span>
   );
