@@ -10,6 +10,13 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import type { Module, Lesson } from './useRoadmap';
 
+/**
+ * LessonIcon displays a visual state indicator (checkmark, play button, lock) based on the lesson's status.
+ *
+ * @param {Object} props - The component properties.
+ * @param {string} props.status - The status of the lesson ('completed', 'active', or 'locked').
+ * @returns {JSX.Element} The status icon.
+ */
 function LessonIcon({ status }: { status: string }) {
   if (status === 'completed')
     return <CheckCircle2 className="size-5 text-green-500" />;
@@ -27,6 +34,15 @@ interface LessonItemProps {
   onStart: () => void;
 }
 
+/**
+ * LessonItem renders a single lesson block row within a module.
+ * Displays the lesson name, status icon, and an action button (Start/Continue) if unlocked.
+ *
+ * @param {LessonItemProps} props - The component properties.
+ * @param {Lesson} props.lesson - The lesson metadata.
+ * @param {Function} props.onStart - Callback function to initiate or resume the lesson.
+ * @returns {JSX.Element} The rendered LessonItem.
+ */
 function LessonItem({ lesson, onStart }: LessonItemProps) {
   const showStartButton = lesson.status !== 'locked';
   const startButtonLabel = lesson.status === 'completed' ? 'Continue' : 'Start';
@@ -69,6 +85,19 @@ interface ModuleItemProps {
   isLast: boolean;
 }
 
+/**
+ * ModuleItem represents an expandable milestone/module container.
+ * Displays the module title, progress bar, status, and nesting list of child lessons.
+ *
+ * @param {ModuleItemProps} props - The component properties.
+ * @param {Module} props.module - The module data structure containing lessons and completion status.
+ * @param {number} props.index - The numerical order of the module.
+ * @param {boolean} props.isExpanded - Toggle state indicating if nested lessons are visible.
+ * @param {Function} props.onToggle - Callback to toggle expansion state.
+ * @param {Function} props.onLessonStart - Callback to start a nested lesson.
+ * @param {boolean} props.isLast - Check if this is the final module to adjust timeline connection lines.
+ * @returns {JSX.Element} The rendered ModuleItem.
+ */
 function ModuleItem({
   module,
   index,
@@ -164,6 +193,18 @@ interface LearningRoadmapProps {
   loading: boolean;
 }
 
+/**
+ * LearningRoadmap renders the entire curriculum structure.
+ * Consists of sequentially ordered modules/milestones, handling loading states and rendering child ModuleItems.
+ *
+ * @param {LearningRoadmapProps} props - The component properties.
+ * @param {Module[]} props.modules - List of modules loaded from the API.
+ * @param {string[]} props.expandedModules - IDs of modules that are currently expanded.
+ * @param {Function} props.toggleModule - Callback to toggle expansion of a specific module.
+ * @param {Function} props.handleStartLesson - Callback triggered when clicking start/continue on any lesson.
+ * @param {boolean} props.loading - Loading state indicator.
+ * @returns {JSX.Element} The rendered LearningRoadmap dashboard view.
+ */
 export function LearningRoadmap({
   modules,
   expandedModules,

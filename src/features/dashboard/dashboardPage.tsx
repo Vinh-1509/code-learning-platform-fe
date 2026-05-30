@@ -7,6 +7,12 @@ import { useRoadmap } from './useRoadmap';
 import { useStartLesson } from './useStartLesson';
 import Navbar from '@/components/sidebar/Navbar';
 
+/**
+ * DashboardPage is the main entrance component for the authenticated user's workspace dashboard.
+ * Coordinates page layout including Navbar, AppSidebar, stats cards, active lesson banners, and LearningRoadmap.
+ *
+ * @returns {JSX.Element} The rendered DashboardPage view container.
+ */
 export function DashboardPage() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'practice'>(
     'dashboard'

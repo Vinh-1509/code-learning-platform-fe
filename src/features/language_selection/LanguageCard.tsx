@@ -6,6 +6,16 @@ interface LanguageCardProps {
   onSelect: () => void;
 }
 
+/**
+ * LanguageCard displays key information for a single language option (e.g. C++ or Java).
+ * Demonstrates specialized Figma colors (purple-cpp / orange-jv) for tags, badges, buttons and selected borders.
+ *
+ * @param {LanguageCardProps} props - The component properties.
+ * @param {LanguageOption} props.lang - The language data object (id, tagline, strengths, challenges, etc.).
+ * @param {boolean} props.isSelected - Indicates if this language is currently active/selected.
+ * @param {Function} props.onSelect - Callback function triggered when card is clicked.
+ * @returns {JSX.Element} The rendered LanguageCard component.
+ */
 export function LanguageCard({
   lang,
   isSelected,
