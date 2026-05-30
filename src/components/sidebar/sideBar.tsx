@@ -65,7 +65,7 @@ export function AppSidebar({
               className={cn(
                 'flex w-full items-center gap-3 rounded-l-lg rounded-r-none px-4 py-2.5 text-left text-sm font-medium transition-colors justify-start h-auto shadow-none',
                 activeTab === 'dashboard'
-                  ? 'bg-[#EAEFFF] text-primary border-r-4 border-r-primary hover:bg-[#EAEFFF] hover:text-primary'
+                  ? 'bg-primary-second text-primary border-r-4 border-r-primary hover:bg-primary-second hover:text-primary'
                   : 'border-r-4 border-r-transparent text-muted-foreground hover:bg-muted hover:text-foreground'
               )}
             >
@@ -79,7 +79,7 @@ export function AppSidebar({
               className={cn(
                 'mt-1 flex w-full items-center gap-3 rounded-l-lg rounded-r-none px-4 py-2.5 text-left text-sm font-medium transition-colors justify-start h-auto shadow-none',
                 activeTab === 'practice'
-                  ? 'bg-[#EAEFFF] text-primary border-r-4 border-r-primary hover:bg-[#EAEFFF] hover:text-primary'
+                  ? 'bg-primary-second text-primary border-r-4 border-r-primary hover:bg-primary-second hover:text-primary'
                   : 'border-r-4 border-r-transparent text-muted-foreground hover:bg-muted hover:text-foreground'
               )}
             >
