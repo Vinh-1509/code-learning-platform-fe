@@ -1,5 +1,5 @@
 import { getRouteApi } from '@tanstack/react-router';
-import { useBlockLessons } from './useBLockLessons';
+import { useBlockLessons } from './useBlockLessons';
 import { LessonSidebar } from './lessonSidebar';
 import { TheoryPanel } from './theoryPanel';
 import { useState, useEffect } from 'react';
