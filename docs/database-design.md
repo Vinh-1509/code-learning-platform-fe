@@ -79,11 +79,14 @@ Stores hashed refresh tokens. MongoDB TTL Index on `expiresAt` auto-deletes expi
 
 Static content describing each supported programming language.
 
-| Field      | Type     | Constraints | Note |
-| ---------- | -------- | ----------- | ---- |
-| `_id`      | ObjectId | PK          |      |
-| `language` | string   |             |      |
-| `info`     | text     |             |      |
+| Field        | Type     | Constraints | Note                        |
+| ------------ | -------- | ----------- | --------------------------- |
+| `_id`        | ObjectId | PK          |                             |
+| `language`   | string   |             |                             |
+| `info`       | text     |             |                             |
+| `strengths`  | string[] |             | e.g. ["Performance", ...]   |
+| `challenges` | string[] |             | e.g. ["Manual Memory", ...] |
+| `useCases`   | string[] |             | e.g. ["Game Engines", ...]  |
 
 ---
 
@@ -134,13 +137,15 @@ An individual lesson belonging to a milestone, made up of an ordered array of bl
 
 Atomic content unit inside a lesson. Supports mixed content types and Feynman questioning.
 
-| Field             | Type     | Constraints                 | Note                |
-| ----------------- | -------- | --------------------------- | ------------------- |
-| `_id`             | ObjectId | PK                          |                     |
-| `lessonId`        | ObjectId | ref: `lessons._id` (1-to-1) |                     |
-| `content`         | json     |                             | See structure below |
-| `feynmanQuestion` | text     |                             | Câu hỏi sẽ hỏi      |
-| `feynmanPrompt`   | text     |                             | Prompt cho AI       |
+| Field             | Type     | Constraints                                  | Note                |
+| ----------------- | -------- | -------------------------------------------- | ------------------- |
+| `_id`             | ObjectId | PK                                           |                     |
+| `lessonId`        | ObjectId | ref: `lessons._id` (many blocks-to-1 lesson) |                     |
+| `title`           | string   |                                              | Display title       |
+| `description`     | string   |                                              | Optional summary    |
+| `content`         | json     |                                              | See structure below |
+| `feynmanQuestion` | text     |                                              | Câu hỏi sẽ hỏi      |
+| `feynmanPrompt`   | text     |                                              | Prompt cho AI       |
 
 **`content` structure:**
 
@@ -164,13 +169,14 @@ Atomic content unit inside a lesson. Supports mixed content types and Feynman qu
 
 ### 3.1 `user_lesson_progress`
 
-Tracks a user's progress through each individual lesson, including per-block state and Feynman chat history.
+Tracks a user's progress through each individual lesson, including lesson/block status and Feynman chat history.
 
 | Field                  | Type      | Constraints        | Note                                                         |
 | ---------------------- | --------- | ------------------ | ------------------------------------------------------------ |
 | `_id`                  | ObjectId  | PK                 |                                                              |
 | `userId`               | ObjectId  | ref: `users._id`   |                                                              |
 | `lessonId`             | ObjectId  | ref: `lessons._id` |                                                              |
+| `status`               | string    | default: `locked`  | `locked` / `active` / `completed`                            |
 | `blockProgress`        | json[]    |                    | See structure below                                          |
 | `chatHistory`          | json      |                    | See structure below                                          |
 | `completionPercentage` | double    |                    | Tính bằng: (số block isFeynmanPassed / tổng số block) \* 100 |
@@ -183,7 +189,7 @@ Tracks a user's progress through each individual lesson, including per-block sta
 {
   "blockId": "ObjectId",
   "isFeynmanPassed": false,
-  "state": "locked | active | completed"
+  "status": "locked | active | completed"
 }
 ```
 
@@ -207,7 +213,7 @@ Tracks a user's overall progress through each milestone (large learning unit).
 | `userId`               | ObjectId  | ref: `users._id`     |                                   |
 | `milestoneId`          | ObjectId  | ref: `milestone._id` |                                   |
 | `completionPercentage` | double    | default: `0`         | Tỉ lệ % hoàn thành                |
-| `status`               | string    |                      | `Locked` / `Active` / `Completed` |
+| `status`               | string    |                      | `locked` / `active` / `completed` |
 | `updatedAt`            | timestamp |                      |                                   |
 
 ---
@@ -264,7 +270,7 @@ Stores exercise definitions. `lessonId` is null for standalone free-practice exe
 
 ### 4.3 `exercise_attempt`
 
-Records every submission a user makes for an exercise, including Feynman chat history per attempt.
+Records last submission a user makes for an exercise.
 
 | Field             | Type      | Constraints          | Note                                                                     |
 | ----------------- | --------- | -------------------- | ------------------------------------------------------------------------ |

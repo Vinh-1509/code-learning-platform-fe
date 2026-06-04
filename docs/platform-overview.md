@@ -31,7 +31,7 @@ It currently supports **C++** and **Java**, chosen to build strong foundations i
 
 ### Block-based Learning System
 
-A split-screen interface that delivers curriculum content through sequential **Learning Blocks**. Each block has a status (Locked → Active → Completed) and auto-unlocks after the previous block is finished.
+A split-screen interface that delivers curriculum content through sequential **Learning Blocks**. Each block has a status (`locked` -> `active` -> `completed`) and auto-unlocks after the previous block is finished.
 
 - **Left pane:** Markdown-rendered theory, sample code, and code flow visualizations
 - **Right pane:** Interactive tasks (drag-and-drop or fill-in-the-blank) tied directly to the adjacent theory
