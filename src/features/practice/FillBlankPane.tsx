@@ -18,13 +18,12 @@ interface FillBlankPaneProps {
   isHintOpen: boolean;
   userAnswers: Record<string, string>;
   showResult: 'correct' | 'wrong' | null;
-  submitted: boolean;
   isSubmitting: boolean;
+  canResubmit: boolean;
   explanation?: ExplainAnswerResponse | null;
   explanationStatus: ExplanationStatus;
   onAnswerChange: (partId: string, value: string) => void;
   onSubmit: () => void;
-  onReset: () => void;
   onToggleHint: () => void;
   onRequestHint: () => void;
 }
@@ -36,13 +35,12 @@ export function FillBlankPane({
   hints,
   isHintOpen,
   showResult,
-  submitted,
   isSubmitting,
+  canResubmit,
   explanation,
   explanationStatus,
   onAnswerChange,
   onSubmit,
-  onReset,
   onToggleHint,
   onRequestHint,
 }: FillBlankPaneProps) {
@@ -67,8 +65,6 @@ export function FillBlankPane({
 
         <ResultBanner
           showResult={showResult}
-          submitted={submitted}
-          onReset={onReset}
           explanation={explanation}
           explanationStatus={explanationStatus}
         />
@@ -103,7 +99,6 @@ export function FillBlankPane({
                         key={part.id}
                         partId={part.id}
                         answer={answer}
-                        submitted={submitted}
                         onAnswerChange={onAnswerChange}
                       />
                     );
@@ -130,8 +125,8 @@ export function FillBlankPane({
 
       <SubmitBar
         allFilled={allFilled}
-        submitted={submitted}
         isSubmitting={isSubmitting}
+        canResubmit={canResubmit}
         onSubmit={onSubmit}
       />
     </div>
