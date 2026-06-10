@@ -1,7 +1,7 @@
 import { getRouteApi, useNavigate } from '@tanstack/react-router';
 import { useBlockLessons } from './useBlockLessons';
-import { LessonSidebar } from './lessonSidebar';
-import { TheoryPanel } from './theoryPanel';
+import { LessonSidebar } from './LessonSidebar';
+import { TheoryPanel } from './TheoryPanel';
 import { useState, useEffect } from 'react';
 import type { Block } from '@/lib/axios';
 import { PracticePanel } from './PracticePanel';

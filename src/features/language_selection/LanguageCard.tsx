@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import type { LanguageOption } from '@/types/language_selection';
+import type { LanguageOption } from '@/types/languageSelection';
 
 interface LanguageCardProps {
   lang: LanguageOption;
