@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { AIMessage, UserMessage, FeedbackBadge } from './MessageBubbles';
-import type { FeynmanMessage, FeynmanInterviewProps } from './feynman.types';
+import type { FeynmanMessage, FeynmanInterviewProps } from './feynmanTypes';
 import { Loader2, ArrowRight } from 'lucide-react';
 
 export function FeynmanInterviewPane({

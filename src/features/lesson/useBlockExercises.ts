@@ -7,7 +7,7 @@ import {
   completeBlock,
 } from '@/lib/axios';
 import { convertExerciseResponse } from '@/features/practice/utils/exercise.converter';
-import type { PracticeExercise } from '@/features/practice/types/practice.types';
+import type { PracticeExercise } from '../practice/types/practiceTypes';
 import type {
   SubmitAnswerResponse,
   HintResponse,

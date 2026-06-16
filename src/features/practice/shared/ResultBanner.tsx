@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
 import type { ExplainAnswerResponse } from '@/lib/axios';
-import type { ExplanationStatus } from '../types/async.types';
+import type { ExplanationStatus } from '../types/asyncTypes';
 interface ResultBannerProps {
   showResult: 'correct' | 'wrong' | null;
   explanation?: ExplainAnswerResponse | null;

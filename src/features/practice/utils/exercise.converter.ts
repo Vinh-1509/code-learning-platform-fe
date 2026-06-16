@@ -4,7 +4,8 @@ import type {
   PracticeExercise,
   BlankLine,
   BlankPart,
-} from '../types/practice.types';
+} from '../types/practiceTypes';
+
 import type {
   DragDropExerciseResponse,
   FillBlankExerciseResponse,

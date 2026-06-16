@@ -1,8 +1,8 @@
 import type { ExplainAnswerResponse } from '@/lib/axios';
 import { CodeEditor } from '@/components/ui/CodeEditor';
 
-import type { BlankLine } from './types/practice.types';
-import type { ExplanationStatus } from './types/async.types';
+import type { BlankLine } from './types/practiceTypes';
+import type { ExplanationStatus } from './types/asyncTypes';
 
 import { ResultBanner } from './shared/ResultBanner';
 import { HintStrip } from './shared/HintStrip';

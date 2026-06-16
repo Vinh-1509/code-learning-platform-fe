@@ -1,7 +1,7 @@
 import type { ExplainAnswerResponse } from '@/lib/axios';
 
-import type { DraggableBlock } from './types/practice.types';
-import type { ExplanationStatus } from './types/async.types';
+import type { DraggableBlock } from './types/practiceTypes';
+import type { ExplanationStatus } from './types/asyncTypes';
 
 import { ResultBanner } from './shared/ResultBanner';
 import { HintStrip } from './shared/HintStrip';
