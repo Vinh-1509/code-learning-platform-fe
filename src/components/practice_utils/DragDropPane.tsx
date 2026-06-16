@@ -33,8 +33,36 @@ interface DragDropPaneProps {
   onToggleHint: () => void;
   onRequestHint: () => void;
   onNext?: () => void;
+  onSelectBlock?: (blockId: string) => void;
 }
 
+/**
+ * DragDropPane component renders the interactive drag-and-drop workspace layout.
+ * Supports HTML5 draggable actions on desktop and touch tap-to-place fallback actions on mobile.
+ *
+ * @param {DragDropPaneProps} props - The component properties.
+ * @param {string} props.description - The instructions/task description for the exercise.
+ * @param {DraggableBlock[]} props.availableBlocks - Code blocks available for selection.
+ * @param {(string | null)[]} props.droppedBlocks - List of block IDs dropped/placed in active slots.
+ * @param {number | null} props.overSlot - Index of the slot currently hovered over during drag.
+ * @param {string[]} props.hints - Array of unlocked hint strings.
+ * @param {boolean} props.isHintOpen - Flag to show/hide the hint strip.
+ * @param {'correct' | 'wrong' | null} props.showResult - Submission evaluation state.
+ * @param {boolean} props.isSubmitting - Submission async loading state flag.
+ * @param {boolean} props.canResubmit - Flag indicating if modifications allow resubmitting.
+ * @param {ExplainAnswerResponse | null} [props.explanation] - AI response/explanation data.
+ * @param {ExplanationStatus} props.explanationStatus - Request status of the AI feedback explanation.
+ * @param {Function} props.onDragStart - Drag start trigger callback.
+ * @param {Function} props.onDragOver - Drag over hover trigger callback.
+ * @param {Function} props.onDragLeave - Drag exit hover trigger callback.
+ * @param {Function} props.onDrop - Drop action execution callback.
+ * @param {Function} props.onRemove - Slot block deletion trigger callback.
+ * @param {Function} props.onSubmit - Answer submission handler.
+ * @param {Function} props.onToggleHint - Toggle action for hint accordion.
+ * @param {Function} props.onRequestHint - Fetch request for standard hints.
+ * @param {Function} [props.onSelectBlock] - Tap selection fallback callback to drop blocks on mobile.
+ * @returns {JSX.Element} The rendered DragDropPane view.
+ */
 export function DragDropPane({
   description,
   availableBlocks,
@@ -56,6 +84,7 @@ export function DragDropPane({
   onSubmit,
   onToggleHint,
   onRequestHint,
+  onSelectBlock,
   onNext,
 }: DragDropPaneProps) {
   const usedIds = getUsedIds(droppedBlocks);
@@ -73,10 +102,16 @@ export function DragDropPane({
                 'Task: Drag and drop the code blocks to form a correct solution'}
             </p>
 
-            <p className="text-xs text-blue-500/90 mt-0.5">
-              Read the code carefully and drag the blocks into the correct order
-              in the drop zone below.
-            </p>
+            <div className="text-xs text-blue-500/90 mt-1 flex flex-col gap-1">
+              <span>
+                Read the code carefully and drag the blocks into the correct
+                order in the drop zone below.
+              </span>
+              <span className="lg:hidden text-[10px] font-semibold text-emerald-600 bg-emerald-50 border border-emerald-100/80 px-2.5 py-1 rounded-md mt-1 w-fit">
+                💡 Tip: You can also tap a block to place it in the first empty
+                slot!
+              </span>
+            </div>
           </div>
         )}
 
@@ -101,6 +136,9 @@ export function DragDropPane({
               block={block}
               isUsed={usedIds.has(block.id)}
               onDragStart={(id) => onDragStart(id)}
+              onClick={() =>
+                !usedIds.has(block.id) && onSelectBlock?.(block.id)
+              }
             />
           ))}
         </div>

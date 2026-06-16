@@ -12,11 +12,21 @@ import { ExerciseTabBar } from './ExerciseTabBar';
 
 const lessonRouteApi = getRouteApi('/lesson/$lessonId');
 
+/**
+ * LessonPage component manages the workspace layout and state for a single lesson.
+ * Coordinates sidebar navigation, displays theory and code walkthroughs, and handles
+ * interactive practice exercises or Feynman mock interviews.
+ * Supports toggleable tabs switcher control on mobile viewports.
+ *
+ * @returns {JSX.Element} The rendered LessonPage component.
+ */
 export function LessonPage() {
   const navigate = useNavigate();
   const { lessonId } = lessonRouteApi.useParams();
   const { currentLesson, refetchLesson } = useBlockLessons({ lessonId });
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<'theory' | 'practice'>('theory');
 
   const activeBlockId =
     selectedBlockId ??
@@ -44,11 +54,17 @@ export function LessonPage() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setActiveExerciseIndex(0);
+    setActiveTab('theory');
   }, [activeBlockId]);
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-card">
-      <Navbar variant="lesson" />
+      <Navbar
+        variant="lesson"
+        onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+        activeTab={activeTab}
+        onChangeTab={setActiveTab}
+      />
 
       <div className="flex flex-1 pt-14 overflow-hidden">
         <LessonSidebar
@@ -56,6 +72,8 @@ export function LessonPage() {
           lessonTitle={currentLesson?.title}
           selectedBlockId={activeBlockId}
           onSelectBlock={setSelectedBlockId}
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
         />
 
         <div className="flex-1 overflow-y-auto bg-card">

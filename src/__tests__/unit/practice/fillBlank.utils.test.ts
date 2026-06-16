@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   getInputWidth,
   getBlankInputClass,
-} from '@/features/practice/utils/fillBlank.utils';
+} from '@/features/practice_utils/utils/fillBlank.utils';
 
 describe('getInputWidth()', () => {
   const CHAR_WIDTH = 8.4;
