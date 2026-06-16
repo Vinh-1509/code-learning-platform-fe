@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   getUsedIds,
   isAllFilled,
-} from '@/features/practice/utils/dragDrop.utils';
+} from '@/features/practice_utils/utils/dragDrop.utils';
 
 describe('getUsedIds()', () => {
   it('should return an empty Set when the array is empty', () => {
@@ -34,7 +34,7 @@ describe('getUsedIds()', () => {
     // '' is a valid string — filter only drops `null`
     const result = getUsedIds(['block-1', null]);
     expect(result.has('block-1')).toBe(true);
-    expect(result.has(null)).toBe(false);
+    expect(result.has(null as unknown as string)).toBe(false);
   });
 });
 

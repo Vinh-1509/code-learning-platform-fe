@@ -4,7 +4,7 @@ import {
   convertFillBlankExercise,
   convertExerciseResponse,
   prepareAnswerForSubmission,
-} from '@/features/practice/utils/exercise.converter';
+} from '@/features/practice_utils/utils/exercise.converter';
 import type {
   DragDropExerciseResponse,
   FillBlankExerciseResponse,
@@ -226,7 +226,9 @@ describe('prepareAnswerForSubmission()', () => {
 
     it('should convert non-string block values to strings', () => {
       // Defensive: if a block id is a number (runtime edge case)
-      const result = prepareAnswerForSubmission('dragdrop', [42]);
+      const result = prepareAnswerForSubmission('dragdrop', [
+        42 as unknown as string,
+      ]);
       expect(result['1']).toBe('42');
     });
   });
