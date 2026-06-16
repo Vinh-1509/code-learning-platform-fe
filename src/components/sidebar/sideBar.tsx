@@ -1,8 +1,11 @@
+import { useNavigate } from '@tanstack/react-router';
 import { LayoutDashboard, Grid3x3, SquareTerminal } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+
+import { useSidebarLanguage } from './useSidebarLanguage';
 
 interface AppSidebarProps {
   variant?: 'dashboard' | 'lesson';
@@ -12,26 +15,23 @@ interface AppSidebarProps {
   totalLessons?: number;
 }
 
-/**
- * AppSidebar component renders the main navigation sidebar for the dashboard.
- * Displays user progress statistics and navigation buttons (Dashboard and Practice)
- * styled with shadcn Buttons and custom theme colors.
- *
- * @param {AppSidebarProps} props - The component properties.
- * @param {string} [props.activeTab] - The currently active tab identifier.
- * @param {Function} [props.onTabChange] - Callback to handle switching between tabs.
- * @param {number} [props.completedLessons] - Number of lessons completed.
- * @param {number} [props.totalLessons] - Total lessons in the course.
- * @returns {JSX.Element} The rendered sidebar component.
- */
+/** Sidebar with navigation and learning progress. */
 export function AppSidebar({
   activeTab,
   onTabChange,
   completedLessons = 12,
   totalLessons = 45,
 }: AppSidebarProps) {
+  const navigate = useNavigate();
+  const { languageLabel } = useSidebarLanguage();
+
   const progressPercent =
     totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+
+  const navItems = [
+    { id: 'dashboard' as const, label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'practice' as const, label: 'Practice', icon: Grid3x3 },
+  ];
 
   return (
     <aside className="fixed top-14 left-0 bottom-0 w-64 border-r bg-white">
@@ -45,7 +45,7 @@ export function AppSidebar({
 
               <div className="min-w-0 flex-1">
                 <h3 className="text-sm font-semibold text-foreground">
-                  C++ Mastery
+                  {languageLabel} Mastery
                 </h3>
 
                 <p className="text-xs text-muted-foreground">
@@ -59,33 +59,36 @@ export function AppSidebar({
         </div>
 
         <nav className="flex-1 px-4">
-          <Button
-            variant="ghost"
-            onClick={() => onTabChange?.('dashboard')}
-            className={cn(
-              'flex w-full items-center gap-3 rounded-l-lg rounded-r-none px-4 py-2.5 text-left text-sm font-medium transition-colors justify-start h-auto shadow-none',
-              activeTab === 'dashboard'
-                ? 'bg-primary-second text-primary border-r-4 border-r-primary hover:bg-primary-second hover:text-primary'
-                : 'border-r-4 border-r-transparent text-muted-foreground hover:bg-muted hover:text-foreground'
-            )}
-          >
-            <LayoutDashboard className="size-5" />
-            Dashboard
-          </Button>
+          <p className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+            Navigate
+          </p>
 
-          <Button
-            variant="ghost"
-            onClick={() => onTabChange?.('practice')}
-            className={cn(
-              'mt-1 flex w-full items-center gap-3 rounded-l-lg rounded-r-none px-4 py-2.5 text-left text-sm font-medium transition-colors justify-start h-auto shadow-none',
-              activeTab === 'practice'
-                ? 'bg-primary-second text-primary border-r-4 border-r-primary hover:bg-primary-second hover:text-primary'
-                : 'border-r-4 border-r-transparent text-muted-foreground hover:bg-muted hover:text-foreground'
-            )}
-          >
-            <Grid3x3 className="size-5" />
-            Practice
-          </Button>
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+
+            return (
+              <Button
+                key={item.id}
+                variant="ghost"
+                onClick={() => {
+                  onTabChange?.(item.id);
+                  void navigate({
+                    to: item.id === 'dashboard' ? '/dashboard' : '/practice',
+                  });
+                }}
+                className={cn(
+                  'mt-1 flex w-full items-center justify-start gap-3 rounded-l-lg rounded-r-none px-4 py-2.5 text-left text-sm font-medium shadow-none transition-colors h-auto',
+                  isActive
+                    ? 'bg-primary-second text-primary border-r-4 border-r-primary hover:bg-primary-second hover:text-primary'
+                    : 'border-r-4 border-r-transparent text-muted-foreground hover:bg-muted hover:text-foreground'
+                )}
+              >
+                <Icon className="size-5" />
+                {item.label}
+              </Button>
+            );
+          })}
         </nav>
       </>
     </aside>

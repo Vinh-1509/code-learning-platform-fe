@@ -1,11 +1,11 @@
 import { getRouteApi } from '@tanstack/react-router';
 import { useBlockLessons } from './useBlockLessons';
-import { LessonSidebar } from './lessonSidebar';
-import { TheoryPanel } from './theoryPanel';
+import { LessonSidebar } from './LessonSidebar';
+import { TheoryPanel } from './TheoryPanel';
 import { useState, useEffect } from 'react';
 import type { Block } from '@/lib/axios';
-import { PracticePanel } from './PracticePanel';
-import Navbar from '@/components/sidebar/Navbar';
+import { PracticePanel } from '../practice_utils/PracticePanel';
+import Navbar from '@/components/navbar/Navbar';
 import { useBlockExercises } from './useBlockExercises';
 import { ExerciseTabBar } from './ExerciseTabBar';
 

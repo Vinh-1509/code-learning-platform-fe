@@ -315,3 +315,41 @@ export async function completeBlock(
   );
   return data;
 }
+
+//Practice Page
+export type Difficulty = 'easy' | 'medium' | 'hard';
+export interface Exercise {
+  _id: string;
+  title: string;
+  instruction: string;
+  language: string;
+  type: ExerciseType;
+  level: Difficulty;
+  order: number;
+  status?: 'completed' | 'not_started' | 'locked';
+}
+export interface ExercisePageResponse {
+  total: number;
+  page: number;
+  limit: number;
+  data: Exercise[];
+}
+export interface FetchExercisesParams {
+  q?: string;
+  difficulty?: string; // 'easy' | 'medium' | 'hard'
+  language?: string; // 'C++' | 'Java'
+  page?: number;
+  limit?: number;
+}
+
+export async function fetchExercises(
+  params?: FetchExercisesParams
+): Promise<ExercisePageResponse> {
+  const { data } = await api.get<ExercisePageResponse>(
+    '/api/practice/exercises',
+    {
+      params,
+    }
+  );
+  return data;
+}

@@ -23,6 +23,7 @@ interface DragDropPaneProps {
   isSubmitting: boolean;
   explanation?: ExplainAnswerResponse | null;
   explanationStatus: ExplanationStatus;
+  showDescription?: boolean;
   onDragStart: (id: string, fromSlot?: number) => void;
   onDragOver: (e: React.DragEvent, slotIndex: number) => void;
   onDragLeave: () => void;
@@ -46,6 +47,7 @@ export function DragDropPane({
   isSubmitting,
   explanation,
   explanationStatus,
+  showDescription = true,
   onDragStart,
   onDragOver,
   onDragLeave,
@@ -64,13 +66,19 @@ export function DragDropPane({
     <div className="min-h-full bg-white p-6 flex flex-col justify-between">
       <div>
         {/* Task Description */}
-        <div className="rounded-xl p-4 bg-blue-50/80 border border-blue-100/70 text-sm text-blue-600 mb-5">
-          <p className="font-bold text-[13px]">{description}</p>
+        {showDescription && description && (
+          <div className="rounded-xl p-4 bg-blue-50/80 border border-blue-100/70 text-sm text-blue-600 mb-5">
+            <p className="font-bold text-[13px]">
+              {description ||
+                'Task: Drag and drop the code blocks to form a correct solution'}
+            </p>
 
-          <p className="text-xs text-blue-500/90 mt-0.5">
-            Drag the code blocks into the correct order in the drop zone below.
-          </p>
-        </div>
+            <p className="text-xs text-blue-500/90 mt-0.5">
+              Read the code carefully and drag the blocks into the correct order
+              in the drop zone below.
+            </p>
+          </div>
+        )}
 
         {/* Result Banner */}
         <ResultBanner

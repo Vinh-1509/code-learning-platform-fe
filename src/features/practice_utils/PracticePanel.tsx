@@ -1,23 +1,23 @@
 import { useState, useEffect } from 'react';
-import { DragDropPane } from '../practice/DragDropPane';
-import { FillBlankPane } from '../practice/FillBlankPane';
+import { DragDropPane } from './DragDropPane';
+import { FillBlankPane } from './FillBlankPane';
 import type {
   DragDropExercise,
   FillBlankExercise,
   PracticeExercise,
-} from '../practice/types/practice.types';
-import type { ExplanationStatus } from '../practice/types/async.types';
+} from './types/practice.types';
+import type { ExplanationStatus } from './types/async.types';
 import type {
   SubmitAnswerResponse,
   HintResponse,
   ExplainAnswerResponse,
 } from '@/lib/axios';
 import { getExerciseHistory } from '@/lib/axios';
-import { prepareAnswerForSubmission } from '../practice/utils/exercise.converter';
+import { prepareAnswerForSubmission } from '../practice_utils/utils/exercise.converter';
 
 interface PracticePanelProps {
   exercise: PracticeExercise;
-
+  showDescription?: boolean;
   onSubmit: (
     exerciseId: string,
     answer: unknown
@@ -35,6 +35,7 @@ export function PracticePanel({
   exercise,
   onSubmit,
   onGetHint,
+  showDescription = true,
   onExplain,
 }: PracticePanelProps) {
   const [showResult, setShowResult] = useState<'correct' | 'wrong' | null>(
@@ -215,6 +216,7 @@ export function PracticePanel({
         key={exercise.id}
         exercise={exercise}
         isSubmitting={isSubmitting}
+        showDescription={showDescription}
         onSubmit={handleSubmit}
         onReset={handleReset}
         onToggleHint={handleToggleHint}
@@ -232,6 +234,7 @@ export function PracticePanel({
       exercise={exercise}
       isSubmitting={isSubmitting}
       onSubmit={handleSubmit}
+      showDescription={showDescription}
       onReset={handleReset}
       onToggleHint={handleToggleHint}
       onRequestHint={handleRequestHint}
@@ -258,6 +261,7 @@ interface DragDropWrapperProps extends SharedResultProps {
   isSubmitting: boolean;
   onSubmit: (answer: unknown) => Promise<void>;
   onReset: () => void;
+  showDescription?: boolean;
   onToggleHint: () => void;
   onRequestHint: () => void;
   hints: string[];
@@ -270,6 +274,7 @@ function DragDropPaneWrapper({
   submitted,
   isSubmitting,
   explanation,
+  showDescription = true,
   explanationStatus,
   onSubmit,
   onReset,
@@ -301,6 +306,7 @@ function DragDropPaneWrapper({
       description={exercise.description}
       availableBlocks={exercise.blocks}
       droppedBlocks={droppedBlocks}
+      showDescription={showDescription}
       overSlot={overSlot}
       showResult={showResult}
       submitted={submitted}
@@ -358,6 +364,7 @@ function DragDropPaneWrapper({
 interface FillBlankWrapperProps extends SharedResultProps {
   exercise: FillBlankExercise;
   isSubmitting: boolean;
+  showDescription?: boolean;
   onSubmit: (answer: unknown) => Promise<void>;
   onReset: () => void;
   onToggleHint: () => void;
@@ -373,6 +380,7 @@ function FillBlankPaneWrapper({
   isSubmitting,
   explanation,
   explanationStatus,
+  showDescription = true,
   onSubmit,
   onReset,
   onToggleHint,
@@ -388,6 +396,7 @@ function FillBlankPaneWrapper({
       lines={exercise.lines}
       userAnswers={userAnswers}
       showResult={showResult}
+      showDescription={showDescription}
       submitted={submitted}
       isSubmitting={isSubmitting}
       onSubmit={() => {
