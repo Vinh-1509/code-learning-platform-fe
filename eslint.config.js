@@ -7,7 +7,7 @@ import { defineConfig, globalIgnores } from 'eslint/config';
 import eslintConfigPrettier from 'eslint-config-prettier';
 
 export default defineConfig([
-  globalIgnores(['dist', 'node_modules', 'vite.config.*', 'eslint.config.*']),
+  globalIgnores(['dist', 'node_modules', 'vite.config.*', 'vitest.config.*', 'eslint.config.*']),
 
   {
     files: ['**/*.{ts,tsx}'],
@@ -55,6 +55,17 @@ export default defineConfig([
     files: ['src/routes/**/*.tsx'],
     rules: {
       'react-refresh/only-export-components': 'off',
+    },
+  },
+
+  {
+    files: ['src/__tests__/**/*.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
     },
   },
 ]);
