@@ -7,7 +7,7 @@ import {
   submitExerciseAnswer,
 } from '@/lib/axios';
 import { convertExerciseResponse } from '@/features/practice_utils/utils/exercise.converter';
-import type { PracticeExercise } from '@/features/practice_utils/types/practice.types';
+import type { PracticeExercise } from '@/features/practice_utils/types/practiceTypes';
 
 // Hook cho trang /practicededicated/:exerciseId — load 1 bài + submit/hint/explain
 export function useDedicatedPractice(exerciseId: string) {

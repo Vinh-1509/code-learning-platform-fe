@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import type { PracticeExercise } from '@/features/practice_utils/types/practice.types';
+import type { PracticeExercise } from '@/features/practice_utils/types/practiceTypes';
 
 interface ExerciseTabBarProps {
   loading: boolean;

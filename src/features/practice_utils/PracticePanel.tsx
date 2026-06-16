@@ -5,8 +5,8 @@ import type {
   DragDropExercise,
   FillBlankExercise,
   PracticeExercise,
-} from './types/practice.types';
-import type { ExplanationStatus } from './types/async.types';
+} from './types/practiceTypes';
+import type { ExplanationStatus } from './types/asyncTypes';
 import type {
   SubmitAnswerResponse,
   HintResponse,
