@@ -25,7 +25,7 @@
 | POST   | `/api/auth/register`        | No     | HIGH     |
 | POST   | `/api/auth/login`           | No     | HIGH     |
 | POST   | `/api/auth/logout`          | Yes    | HIGH     |
-| POST   | `/api/auth/refresh`         | No     | HIGH     |
+| POST   | `/api/auth/refresh`         | No     | LOW      |
 | GET    | `/api/auth/me`              | Yes    | LOW      |
 | POST   | `/api/auth/forgot-password` | No     | LOW      |
 | POST   | `/api/auth/reset-password`  | No     | LOW      |
@@ -41,17 +41,25 @@ Create a new user. Email must be unique. Password is hashed before storing.
 
 ```json
 {
-  "email": "string",
-  "password": "string"
+  "email": "alice@example.com",
+  "password": "Secret123!"
 }
 ```
 
-**Response:**
+**Response `201`:**
 
 ```json
 {
-  "message": "string"
+  "message": "User registered successfully"
 }
+```
+
+**Error responses:**
+
+```json
+{ "message": "Email and password are required" }   // 400
+{ "message": "Email already registered" }          // 409
+{ "message": "Internal server error" }             // 500
 ```
 
 ---
@@ -64,30 +72,46 @@ Check if email exists in DB, check hashed password, return tokens to user if all
 
 ```json
 {
-  "email": "string",
-  "password": "string"
+  "email": "alice@example.com",
+  "password": "Secret123!"
 }
 ```
 
-**Response:**
+**Response `200`:**
 
 ```json
 {
-  "access_token": "string"
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
+```
+
+**Error responses:**
+
+```json
+{ "message": "Email and password are required" }  // 400
+{ "message": "Invalid credentials" }              // 401
 ```
 
 ---
 
 ### POST `/api/auth/logout`
 
-Log user out. Client deletes token or server invalidates it (if implemented).
+Log user out. Server deletes the refresh token from DB.
 
-**Response:**
+**Request Body:**
 
 ```json
 {
-  "message": "string"
+  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+**Response `200`:**
+
+```json
+{
+  "message": "Logged out successfully"
 }
 ```
 
@@ -101,16 +125,22 @@ Generate a new access token using a valid refresh token.
 
 ```json
 {
-  "refresh_token": "string"
+  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
 ```
 
-**Response:**
+**Response `200`:**
 
 ```json
 {
-  "access_token": "string"
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
+```
+
+**Error responses:**
+
+```json
+{ "message": "Invalid refresh token" } // 401
 ```
 
 ---
@@ -119,12 +149,16 @@ Generate a new access token using a valid refresh token.
 
 Get current authenticated user info.
 
-**Response:**
+**Response `200`:**
 
 ```json
 {
-  "id": "string",
-  "email": "string"
+  "_id": "64f1a2b3c4d5e6f7a8b9c0d1",
+  "email": "alice@example.com",
+  "username": "alice",
+  "fullName": "Alice Nguyen",
+  "selectedLanguage": ["C++"],
+  "createdAt": "2024-01-15T08:30:00.000Z"
 }
 ```
 
@@ -132,21 +166,21 @@ Get current authenticated user info.
 
 ### POST `/api/auth/forgot-password`
 
-Generate a reset token and send it via email. Always returns the same message for security (prevent email enumeration).
+Generate a reset token and send it via email. Always returns the same message for security (prevents email enumeration).
 
 **Request Body:**
 
 ```json
 {
-  "email": "string"
+  "email": "alice@example.com"
 }
 ```
 
-**Response:**
+**Response `200`:**
 
 ```json
 {
-  "message": "string"
+  "message": "If that email exists, a reset link has been sent"
 }
 ```
 
@@ -160,17 +194,23 @@ Validate the reset token and update the password (hashed).
 
 ```json
 {
-  "reset_pw_token": "string",
-  "new_password": "string"
+  "reset_pw_token": "a1b2c3d4e5f6...",
+  "new_password": "NewSecret456!"
 }
 ```
 
-**Response:**
+**Response `200`:**
 
 ```json
 {
-  "message": "string"
+  "message": "Password reset successfully"
 }
+```
+
+**Error responses:**
+
+```json
+{ "message": "Invalid or expired token" } // 400
 ```
 
 ---
@@ -183,16 +223,22 @@ Verify user email using the token sent during registration.
 
 ```json
 {
-  "verify_token": "string"
+  "verify_token": "a1b2c3d4e5f6..."
 }
 ```
 
-**Response:**
+**Response `200`:**
 
 ```json
 {
-  "message": "string"
+  "message": "Email verified successfully"
 }
+```
+
+**Error responses:**
+
+```json
+{ "message": "Invalid or expired token" } // 400
 ```
 
 ---
@@ -215,40 +261,120 @@ Get a list of exercises. Supports searching, filtering, and pagination via query
 
 **Query Parameters:**
 
-| Parameter    | Type   | Description                                   |
-| ------------ | ------ | --------------------------------------------- |
-| `q`          | string | Keyword search                                |
-| `topic`      | string | Filter by tag/topic (e.g. `hashing`)          |
-| `difficulty` | string | Filter by level: `easy` \| `medium` \| `hard` |
-| `language`   | string | Filter by language: `c++` \| `java`           |
-| `page`       | int    | Page number (pagination)                      |
-| `limit`      | int    | Results per page                              |
+| Parameter    | Type   | Description                             |
+| ------------ | ------ | --------------------------------------- |
+| `q`          | string | Keyword search                          |
+| `difficulty` | string | `easy` \| `medium` \| `hard`            |
+| `language`   | string | `C++` \| `Java`                         |
+| `page`       | int    | Page number (default: 1)                |
+| `limit`      | int    | Results per page (default: 15, max: 50) |
+
+**Response `200`:**
+
+```json
+{
+  "total": 2,
+  "page": 1,
+  "limit": 15,
+  "data": [
+    {
+      "_id": "6a146d34425b3586bbec641e",
+      "title": "Declare Student Variables",
+      "instruction": "Khai báo các biến để lưu thông tin của một sinh viên: tên (string), tuổi (int), và điểm (double)",
+      "language": "C++",
+      "type": "fill_blank",
+      "level": "easy",
+      "order": 1
+    },
+    {
+      "_id": "6a146d34425b3586bbec641f",
+      "title": "Output Variable Values",
+      "instruction": "Viết mã để in ra giá trị của các biến: name, age, và score",
+      "language": "C++",
+      "type": "fill_blank",
+      "level": "easy",
+      "order": 2
+    }
+  ]
+}
+```
 
 ---
 
 ### GET `/api/practice/exercises/:exerciseId`
 
-Get details of a specific exercise. **Does NOT include the correct answer.**
+Get details of a specific exercise. **Does NOT include `correctAnswer` or `explanation`.**
+
+**Response `200`:**
+
+```json
+{
+  "_id": "6a146d34425b3586bbec641e",
+  "title": "Declare Student Variables",
+  "instruction": "Khai báo các biến để lưu thông tin của một sinh viên: tên (string), tuổi (int), và điểm (double)",
+  "language": "C++",
+  "type": "fill_blank",
+  "level": "easy",
+  "order": 1,
+  "data": {
+    "template": [
+      "____ ",
+      " name = \"John\";\nint ",
+      " = 20;\ndouble ",
+      " = 95.5;"
+    ],
+    "placeholders": {
+      "input_1": "string",
+      "input_2": "age",
+      "input_3": "score"
+    }
+  },
+  "hints": {
+    "1": "Tên của người dùng nên là một chuỗi ký tự, sử dụng từ khóa gì để khai báo?",
+    "2": "Tuổi là một số nguyên, sử dụng int",
+    "3": "Điểm có thể có phần thập phân, sử dụng double"
+  }
+}
+```
 
 ---
 
 ### POST `/api/practice/exercises/:exerciseId/submit`
 
-Submit an answer and get a result.
+Submit an answer and get the grading result. The system stores only the latest attempt for each user and exercise, while still increasing `attemptNumber`.
 
 **Request Body:**
 
 ```json
 {
-  "answer": "any"
+  "answer": {
+    "input_1": "string",
+    "input_2": "age",
+    "input_3": "score"
+  }
 }
 ```
 
-**Response:**
+**Response `200`:**
 
 ```json
 {
-  "correct": true
+  "correct": true,
+  "items": [
+    {
+      "field": "input_1",
+      "isCorrect": true
+    },
+    {
+      "field": "input_2",
+      "isCorrect": true
+    },
+    {
+      "field": "input_3",
+      "isCorrect": true
+    }
+  ],
+  "attemptNumber": 4
 }
 ```
 
@@ -256,14 +382,14 @@ Submit an answer and get a result.
 
 ### POST `/api/practice/exercises/:exerciseId/hint`
 
-Request a hint. Tracks hint usage level.
+Request a hint. Tracks and increments hint usage level.
 
-**Response:**
+**Response `200`:**
 
 ```json
 {
-  "hintLevel": "int",
-  "hint": "string"
+  "hintLevel": 3,
+  "hint": "Điểm có thể có phần thập phân, sử dụng double"
 }
 ```
 
@@ -271,7 +397,41 @@ Request a hint. Tracks hint usage level.
 
 ### GET `/api/practice/exercises/:exerciseId/history`
 
-Get the user's past attempts and answers for a specific exercise.
+Get the user's latest attempt and answer for a specific exercise. This API returns at most one record because only the latest attempt is stored.
+
+**Response `200`:**
+
+```json
+[
+  {
+    "_id": "6a147424c8468bbce3aff71a",
+    "exerciseId": "6a146d34425b3586bbec641e",
+    "isPassed": true,
+    "items": [
+      {
+        "field": "input_1",
+        "isCorrect": true
+      },
+      {
+        "field": "input_2",
+        "isCorrect": true
+      },
+      {
+        "field": "input_3",
+        "isCorrect": true
+      }
+    ],
+    "hintLevel": 3,
+    "userAnswer": {
+      "input_1": "string",
+      "input_2": "age",
+      "input_3": "score"
+    },
+    "attemptNumber": 4,
+    "attemptedAt": "2026-05-25T16:48:18.345Z"
+  }
+]
+```
 
 ---
 
@@ -294,17 +454,74 @@ Get the user's past attempts and answers for a specific exercise.
 
 Fetch `feynmanQuestion` from the `blocks` table.
 
+**Response `200`:**
+
+```json
+{
+  "blockId": "64f1a2b3c4d5e6f7a8b9c0b1",
+  "feynmanQuestion": "Can you explain what a pointer is as if you were teaching a 10-year-old?"
+}
+```
+
 ---
 
 ### POST `/api/feynman/block/:blockId/chat`
 
 Submit a user message. Backend invokes AI, updates `chatHistory`, and sets `isFeynmanPassed: true` if criteria are met.
 
+**Request Body:**
+
+```json
+{
+  "message": "A pointer is like an address. It stores where a value lives in memory, not the value itself."
+}
+```
+
+**Response `200`:**
+
+```json
+{
+  "reply": "Great analogy! That is exactly right. Can you tell me what happens when you dereference a pointer?",
+  "isFeynmanPassed": false
+}
+```
+
+**Response `200` — when passed:**
+
+```json
+{
+  "reply": "Excellent explanation! You clearly understand this concept.",
+  "isFeynmanPassed": true
+}
+```
+
 ---
 
 ### GET `/api/feynman/block/:blockId/history`
 
-Fetch the specific `chatHistory` array for this block from the user's progress record.
+Fetch the `chatHistory` array for this block from the user's progress record.
+
+**Response `200`:**
+
+```json
+{
+  "blockId": "64f1a2b3c4d5e6f7a8b9c0b1",
+  "chatHistory": [
+    {
+      "role": "assistant",
+      "content": "Can you explain what a pointer is as if you were teaching a 10-year-old?"
+    },
+    {
+      "role": "user",
+      "content": "A pointer stores a memory address, not a value."
+    },
+    {
+      "role": "assistant",
+      "content": "Correct! What happens when you dereference it?"
+    }
+  ]
+}
+```
 
 ---
 
@@ -312,11 +529,29 @@ Fetch the specific `chatHistory` array for this block from the user's progress r
 
 Check `isFeynmanPassed` in `user_lesson_progress` for the current user.
 
+**Response `200`:**
+
+```json
+{
+  "blockId": "64f1a2b3c4d5e6f7a8b9c0b1",
+  "isFeynmanPassed": true
+}
+```
+
 ---
 
 ### GET `/api/feynman/exercise/:exerciseId/question`
 
 Fetch `feynmanQuestion` from the `exercises` table.
+
+**Response `200`:**
+
+```json
+{
+  "exerciseId": "64f1a2b3c4d5e6f7a8b9c0d2",
+  "feynmanQuestion": "Why do we declare a variable type in C++ before using it?"
+}
+```
 
 ---
 
@@ -324,17 +559,62 @@ Fetch `feynmanQuestion` from the `exercises` table.
 
 Submit a user message. Backend invokes AI, updates `chatHistory`, and sets `isFeynmanPassed: true` if criteria are met.
 
+**Request Body:**
+
+```json
+{
+  "message": "Because C++ needs to know how much memory to allocate for the variable."
+}
+```
+
+**Response `200`:**
+
+```json
+{
+  "reply": "Exactly right! Memory allocation is the key reason. Can you give an example?",
+  "isFeynmanPassed": false
+}
+```
+
 ---
 
 ### GET `/api/feynman/exercise/:exerciseId/history`
 
-Fetch the specific `chatHistory` array for this exercise from the user's progress record.
+Fetch the `chatHistory` for this exercise from `exercise_attempt`.
+
+**Response `200`:**
+
+```json
+{
+  "exerciseId": "64f1a2b3c4d5e6f7a8b9c0d2",
+  "chatHistory": [
+    {
+      "role": "assistant",
+      "content": "Why do we declare a variable type in C++?"
+    },
+    {
+      "role": "user",
+      "content": "So the compiler knows how much memory to allocate."
+    },
+    { "role": "assistant", "content": "Perfect! That is exactly correct." }
+  ]
+}
+```
 
 ---
 
 ### GET `/api/feynman/exercise/:exerciseId/stats`
 
 Check `isFeynmanPassed` in `exercise_attempt` for the current user.
+
+**Response `200`:**
+
+```json
+{
+  "exerciseId": "64f1a2b3c4d5e6f7a8b9c0d2",
+  "isFeynmanPassed": false
+}
+```
 
 ---
 
@@ -349,13 +629,48 @@ Check `isFeynmanPassed` in `exercise_attempt` for the current user.
 
 ### GET `/api/repetition/daily-tasks`
 
-Fetch exercises where `nextReviewDate <= now()`. Also returns a count of total tasks, number of tasks in Learning status, and number in Reviewing status.
+Fetch exercises where `nextReviewDate <= now()`. Returns count breakdown by status.
+
+**Response `200`:**
+
+```json
+{
+  "summary": {
+    "total": 8,
+    "learning": 3,
+    "reviewing": 5
+  },
+  "tasks": [
+    {
+      "_id": "64f1a2b3c4d5e6f7a8b9c0d2",
+      "title": "Fill in the variable type",
+      "language": "C++",
+      "level": "easy",
+      "type": "fill_blank",
+      "status": "Learning",
+      "nextReviewDate": "2024-03-05T00:00:00.000Z"
+    }
+  ]
+}
+```
 
 ---
 
 ### GET `/api/repetition/:exerciseId/stats`
 
-Retrieve the Spaced Repetition status (`Mastered`, `Reviewing`, or `Learning`) and the scheduled next review date for a specific exercise.
+Retrieve the Spaced Repetition status and next review date for a specific exercise.
+
+**Response `200`:**
+
+```json
+{
+  "exerciseId": "64f1a2b3c4d5e6f7a8b9c0d2",
+  "status": "Reviewing",
+  "interval": 4,
+  "nextReviewDate": "2024-03-09T00:00:00.000Z",
+  "passReviewDate": "2024-03-05T00:00:00.000Z"
+}
+```
 
 ---
 
@@ -371,19 +686,71 @@ Retrieve the Spaced Repetition status (`Mastered`, `Reviewing`, or `Learning`) a
 
 ### GET `/api/tags/weakness`
 
-Retrieve all tags where `isWeak: true`, along with `failAttempts` and `totalAttempts`.
+Retrieve all tags where `isWeak: true`, with attempt stats.
+
+**Response `200`:**
+
+```json
+[
+  {
+    "_id": "64f1a2b3c4d5e6f7a8b9c0e1",
+    "name": "pointers",
+    "description": "Memory address and pointer operations",
+    "totalAttempts": 10,
+    "failAttempts": 7,
+    "failureRate": 70
+  }
+]
+```
 
 ---
 
 ### GET `/api/tags/:tagId/info`
 
-Provide a deep dive into a specific tag. Calculates the failure rate and returns the latest performance metrics.
+Deep dive into a specific tag with failure rate and performance metrics.
+
+**Response `200`:**
+
+```json
+{
+  "_id": "64f1a2b3c4d5e6f7a8b9c0e1",
+  "name": "pointers",
+  "description": "Memory address and pointer operations",
+  "totalAttempts": 10,
+  "failAttempts": 7,
+  "failureRate": 70,
+  "isWeak": true,
+  "updatedAt": "2024-03-05T10:00:00.000Z"
+}
+```
 
 ---
 
 ### GET `/api/tags/:tagId/exercises`
 
-Retrieve a list of exercises associated with a specific tag. Supports query parameters for limiting results and custom sorting.
+Retrieve exercises for a tag. Supports limiting and sorting.
+
+**Query Parameters:**
+
+| Parameter | Type   | Description               |
+| --------- | ------ | ------------------------- |
+| `limit`   | int    | Max results (default: 10) |
+| `sort`    | string | `level` \| `order`        |
+
+**Response `200`:**
+
+```json
+[
+  {
+    "_id": "64f1a2b3c4d5e6f7a8b9c0d2",
+    "title": "Fill in the variable type",
+    "language": "C++",
+    "type": "fill_blank",
+    "level": "easy",
+    "instruction": "Fill in the correct data type."
+  }
+]
+```
 
 ---
 
@@ -401,54 +768,254 @@ Retrieve a list of exercises associated with a specific tag. Supports query para
 
 ### GET `/api/learning/milestones`
 
-Get list of milestones.
+Get list of milestones with user progress attached.
+
+**Response `200`:**
+
+```json
+[
+  {
+    "_id": "64f1a2b3c4d5e6f7a8b9c0a1",
+    "title": "C++ Fundamentals",
+    "description": "Variables, types, control flow and functions.",
+    "order": 1,
+    "progress": {
+      "status": "active",
+      "completionPercentage": 45
+    }
+  },
+  {
+    "_id": "64f1a2b3c4d5e6f7a8b9c0a2",
+    "title": "Object Oriented Programming",
+    "description": "Classes, inheritance, polymorphism.",
+    "order": 2,
+    "progress": {
+      "status": "locked",
+      "completionPercentage": 0
+    }
+  }
+]
+```
 
 ---
 
 ### GET `/api/learning/milestones/:milestoneId`
 
-Get details of a specific milestone.
+Get details of a specific milestone with user progress.
+
+**Response `200`:**
+
+```json
+{
+  "_id": "64f1a2b3c4d5e6f7a8b9c0a1",
+  "title": "C++ Fundamentals",
+  "description": "Variables, types, control flow and functions.",
+  "order": 1,
+  "progress": {
+    "status": "active",
+    "completionPercentage": 45,
+    "updatedAt": "2024-03-04T14:00:00.000Z"
+  }
+}
+```
 
 ---
 
 ### GET `/api/learning/milestones/:milestoneId/lessons`
 
-Get all lessons belonging to the specified milestone.
+Get all lessons belonging to the milestone with progress status.
+
+**Response `200`:**
+
+```json
+[
+  {
+    "_id": "64f1a2b3c4d5e6f7a8b9c0c1",
+    "title": "Variables and Data Types",
+    "order": 1,
+    "progress": {
+      "status": "completed",
+      "isCompleted": true,
+      "completionPercentage": 100
+    }
+  },
+  {
+    "_id": "64f1a2b3c4d5e6f7a8b9c0c2",
+    "title": "Control Flow",
+    "order": 2,
+    "progress": {
+      "status": "active",
+      "isCompleted": false,
+      "completionPercentage": 50
+    }
+  }
+]
+```
+
+> `status` is one of `"completed"` | `"active"` | `"locked"`. A lesson is `active` when the milestone is active and all preceding lessons are completed. It is `locked` when the milestone itself is locked or the previous lesson is not yet completed.
 
 ---
 
 ### GET `/api/learning/lessons/:lessonId`
 
-Get full lesson content (all blocks of content).
+Get full lesson content with all blocks embedded. Block status reflects current user progress.
+
+**Response `200`:**
+
+```json
+{
+  "_id": "64f1a2b3c4d5e6f7a8b9c0c1",
+  "title": "Variables and Data Types",
+  "order": 1,
+  "blocks": [
+    {
+      "_id": "64f1a2b3c4d5e6f7a8b9c0b1",
+      "title": "What is a Variable?",
+      "description": "Data storage and types",
+      "content": [
+        {
+          "type": "theory",
+          "data": {
+            "order": 1,
+            "text": "A variable is a named memory location that stores a value.",
+            "image": "https://cdn.example.com/images/variables.png"
+          }
+        },
+        {
+          "type": "code",
+          "data": {
+            "order": 2,
+            "code": "int a = 10;\ncout << a;",
+            "explanation": "Here we declare an integer variable and print it."
+          }
+        },
+        {
+          "type": "practice",
+          "data": {
+            "order": 3,
+            "exerciseId": "64f1a2b3c4d5e6f7a8b9c0d2",
+            "required": true
+          }
+        }
+      ],
+      "feynmanQuestion": "Can you explain what a variable is in your own words?",
+      "status": "completed",
+      "isFeynmanPassed": true
+    },
+    {
+      "_id": "64f1a2b3c4d5e6f7a8b9c0b2",
+      "title": "Variable Types and Memory",
+      "description": "Understanding data types",
+      "content": [
+        {
+          "type": "theory",
+          "data": {
+            "order": 1,
+            "text": "C++ supports several data types: int, float, double, char, bool.",
+            "image": null
+          }
+        }
+      ],
+      "feynmanQuestion": "What is the difference between int and float?",
+      "status": "active",
+      "isFeynmanPassed": false
+    }
+  ],
+  "progress": {
+    "status": "active",
+    "completionPercentage": 50,
+    "isCompleted": false,
+    "lastAccessed": "2024-03-05T09:00:00.000Z"
+  }
+}
+```
 
 ---
 
 ### POST `/api/learning/blocks/:blockId/complete`
 
-Mark a specific block as completed.
+Mark a block as completed and update lesson/milestone progress percentages.
+
+**Response `200`:**
+
+```json
+{
+  "message": "Block marked as completed",
+  "lessonProgress": {
+    "status": "completed",
+    "completionPercentage": 100,
+    "isCompleted": true
+  }
+}
+```
 
 ---
 
 ## 7. Other
 
-| Method | Endpoint                     | isAuth | Priority |
-| ------ | ---------------------------- | ------ | -------- |
-| GET    | `/api/languages`             | Yes    | HIGH     |
-| GET    | `/api/languages/:languageId` | Yes    | HIGH     |
-| POST   | `/api/languages/select`      | Yes    | HIGH     |
-| GET    | `/api/dashboard`             | Yes    | HIGH     |
+| Method | Endpoint                             | isAuth | Priority |
+| ------ | ------------------------------------ | ------ | -------- |
+| GET    | `/api/languages`                     | No     | HIGH     |
+| GET    | `/api/languages/:languageId`         | No     | HIGH     |
+| POST   | `/api/languages/select`              | Yes    | HIGH     |
+| POST   | `/api/exercises/:exerciseId/explain` | Yes    | HIGH     |
+| GET    | `/api/dashboard`                     | Yes    | HIGH     |
 
 ---
 
 ### GET `/api/languages`
 
-Get all available languages.
+Get all available languages with full details.
+
+**Response `200`:**
+
+```json
+[
+  {
+    "_id": "64f1a2b3c4d5e6f7a8b9c0d9",
+    "language": "C++",
+    "info": "C++ is a general-purpose programming language created by Bjarne Stroustrup. It supports object-oriented, procedural, and generic programming styles.",
+    "strengths": ["Performance", "Memory Control", "Hardware Access"],
+    "challenges": ["Manual Memory", "Complex Syntax"],
+    "useCases": ["Game Engines", "Operating Systems", "Embedded Systems"]
+  },
+  {
+    "_id": "64f1a2b3c4d5e6f7a8b9c0da",
+    "language": "Java",
+    "info": "Java is a class-based, object-oriented language designed for portability across platforms.",
+    "strengths": [
+      "Platform Independence",
+      "Strong Ecosystem",
+      "Garbage Collection"
+    ],
+    "challenges": ["Verbose Syntax", "Slower Startup"],
+    "useCases": [
+      "Enterprise Applications",
+      "Android Development",
+      "Web Backends"
+    ]
+  }
+]
+```
 
 ---
 
 ### GET `/api/languages/:languageId`
 
-Get language info for `c-plus-plus` or `java`.
+Get full info for a specific language including strengths, challenges, and use cases.
+
+**Response `200`:**
+
+```json
+{
+  "_id": "64f1a2b3c4d5e6f7a8b9c0d9",
+  "language": "C++",
+  "info": "C++ is a general-purpose programming language created by Bjarne Stroustrup. It supports object-oriented, procedural, and generic programming styles.",
+  "strengths": ["Performance", "Memory Control", "Hardware Access"],
+  "challenges": ["Manual Memory", "Complex Syntax"],
+  "useCases": ["Game Engines", "Operating Systems", "Embedded Systems"]
+}
+```
 
 ---
 
@@ -456,8 +1023,111 @@ Get language info for `c-plus-plus` or `java`.
 
 Set the primary learning language for the authenticated user's profile.
 
+**Request Body:**
+
+```json
+{
+  "language": "C++"
+}
+```
+
+**Response `200`:**
+
+```json
+{
+  "message": "Language updated successfully",
+  "selectedLanguage": ["C++"]
+}
+```
+
+---
+
+### POST `/api/exercises/:exerciseId/explain`
+
+Analyze a user's answer for an exercise with AI. The backend grades each placeholder first, then sends the exercise context and grading result to AI to generate feedback.
+
+**Request Body:**
+
+```json
+{
+  "answer": {
+    "input_1": "string",
+    "input_2": "age",
+    "input_3": "score"
+  }
+}
+```
+
+**Response `200`:**
+
+```json
+{
+  "exerciseId": "6a146d34425b3586bbec641e",
+  "isCorrect": true,
+  "feedback": "Chào bạn! Bạn đã hoàn thành bài tập này rất tốt. Tất cả các phần khai báo biến của bạn đều chính xác.",
+  "items": [
+    {
+      "field": "input_1",
+      "isCorrect": true,
+      "explanation": "Bạn đã sử dụng kiểu dữ liệu \"string\" một cách chính xác để lưu trữ tên. Kiểu \"string\" rất phù hợp cho các chuỗi ký tự như tên người."
+    },
+    {
+      "field": "input_2",
+      "isCorrect": true,
+      "explanation": "Tên biến \"age\" (tuổi) mà bạn chọn rất rõ ràng và dễ hiểu cho một biến kiểu số nguyên. Nó giúp người đọc dễ dàng nhận biết mục đích của biến."
+    },
+    {
+      "field": "input_3",
+      "isCorrect": true,
+      "explanation": "Việc đặt tên biến là \"score\" (điểm) là rất hợp lý và dễ đọc. Tên biến này giúp bạn và người khác hiểu ngay biến này dùng để làm gì."
+    }
+  ],
+  "suggestion": "Hãy tiếp tục phát huy những kiến thức bạn đã học nhé!"
+}
+```
+
 ---
 
 ### GET `/api/dashboard`
 
-Get general dashboard info including roadmap, progress, `totalLearnedLessons`, `totalCompletedExercises`, and more.
+Get general dashboard summary for the authenticated user.
+
+**Response `200`:**
+
+```json
+{
+  "user": {
+    "_id": "64f1a2b3c4d5e6f7a8b9c0d1",
+    "username": "alice",
+    "selectedLanguage": ["C++"]
+  },
+  "roadmap": {
+    "_id": "64f1a2b3c4d5e6f7a8b9c099",
+    "title": "Lo trinh C++",
+    "language": "C++"
+  },
+  "stats": {
+    "totalLearnedLessons": 5,
+    "totalCompletedExercises": 18,
+    "overallProgress": 32,
+    "weakTagsCount": 2
+  },
+  "milestones": [
+    {
+      "_id": "64f1a2b3c4d5e6f7a8b9c0a1",
+      "title": "C++ Fundamentals",
+      "status": "active",
+      "completionPercentage": 45
+    },
+    {
+      "_id": "64f1a2b3c4d5e6f7a8b9c0a2",
+      "title": "Object Oriented Programming",
+      "status": "locked",
+      "completionPercentage": 0
+    }
+  ],
+  "dailyReview": {
+    "pendingCount": 8
+  }
+}
+```

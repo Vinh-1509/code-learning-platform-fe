@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { DragDropPane } from './DragDropPane';
 import { FillBlankPane } from './FillBlankPane';
 import type {
@@ -41,10 +41,11 @@ export function PracticePanel({
   const [showResult, setShowResult] = useState<'correct' | 'wrong' | null>(
     null
   );
-  const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [canResubmit, setCanResubmit] = useState(true);
   const [hints, setHints] = useState<string[]>([]);
   const [isHintOpen, setIsHintOpen] = useState(false);
+
   // AI explanation state
   const [explanation, setExplanation] = useState<ExplainAnswerResponse | null>(
     null
@@ -54,6 +55,8 @@ export function PracticePanel({
       status: 'idle',
     }
   );
+  // Tracks the current explanation request so stale ones can be ignored
+  const explanationRequestId = useRef(0);
 
   // Sync previously unlocked hints
   useEffect(() => {
@@ -96,66 +99,61 @@ export function PracticePanel({
     };
   }, [exercise.id, exercise.hints]);
 
-  const handleReset = () => {
-    setShowResult(null);
-    setSubmitted(false);
-    setHints([]);
-    setIsHintOpen(false);
-    setExplanation(null);
-    setExplanationStatus({
-      status: 'idle',
-    });
-  };
-
   const handleSubmit = async (answer: unknown) => {
     setIsSubmitting(true);
+
+    // Reset explanation states ONLY when a fresh submission action explicitly begins
     setExplanation(null);
     setExplanationStatus({
       status: 'idle',
     });
+
+    // Bump the request counter so any previous in-flight explanation callback is permanently ignored
+    explanationRequestId.current += 1;
+    const thisRequestId = explanationRequestId.current;
 
     try {
       const result = await onSubmit(exercise.id, answer);
       const isCorrect = result.correct;
 
       setShowResult(isCorrect ? 'correct' : 'wrong');
-      setSubmitted(true);
 
-      // Generate AI explanation for wrong answers
-      if (!isCorrect && onExplain) {
-        setExplanationStatus({
-          status: 'loading',
-        });
+      if (!isCorrect) {
+        // Block re-submit until the user modifies their answer
+        setCanResubmit(false);
 
-        onExplain(exercise.id, answer)
-          .then((exp) => {
-            if (!exp) {
-              setExplanationStatus({
-                status: 'error',
-              });
-
-              return;
-            }
-
-            setExplanation(exp);
-
-            setExplanationStatus({
-              status: 'success',
-            });
-          })
-          .catch((err) => {
-            console.error('Failed to fetch explanation:', err);
-
-            setExplanationStatus({
-              status: 'error',
-            });
+        // Generate AI explanation for wrong answers
+        if (onExplain) {
+          setExplanationStatus({
+            status: 'loading',
           });
+
+          onExplain(exercise.id, answer)
+            .then((exp) => {
+              // Discard if a newer submission sequence has already taken over
+              if (thisRequestId !== explanationRequestId.current) return;
+
+              if (!exp) {
+                setExplanationStatus({ status: 'error' });
+                return;
+              }
+
+              setExplanation(exp);
+              setExplanationStatus({ status: 'success' });
+            })
+            .catch((err) => {
+              if (thisRequestId !== explanationRequestId.current) return;
+
+              console.error('Failed to fetch explanation:', err);
+              setExplanationStatus({ status: 'error' });
+            });
+        }
       }
     } catch (err) {
       console.error('Failed submitting answer:', err);
 
       setShowResult('wrong');
-      setSubmitted(true);
+      setCanResubmit(false);
     } finally {
       setIsSubmitting(false);
     }
@@ -205,9 +203,18 @@ export function PracticePanel({
 
   const sharedResultProps = {
     showResult,
-    submitted,
+    canResubmit,
     explanation,
     explanationStatus,
+  };
+
+  // Called immediately when the user changes inputs or alters drop slots
+  const handleAnswerModified = () => {
+    // Enable the submission button again
+    setCanResubmit(true);
+
+    // Crucial: DO NOT clear 'showResult', or 'explanation' states here.
+    // This allows the ResultBanner and AI panel to remain mounted and visible while typing.
   };
 
   if (exercise.type === 'dragdrop') {
@@ -218,7 +225,7 @@ export function PracticePanel({
         isSubmitting={isSubmitting}
         showDescription={showDescription}
         onSubmit={handleSubmit}
-        onReset={handleReset}
+        onAnswerModified={handleAnswerModified}
         onToggleHint={handleToggleHint}
         onRequestHint={handleRequestHint}
         hints={hints}
@@ -235,7 +242,7 @@ export function PracticePanel({
       isSubmitting={isSubmitting}
       onSubmit={handleSubmit}
       showDescription={showDescription}
-      onReset={handleReset}
+      onAnswerModified={handleAnswerModified}
       onToggleHint={handleToggleHint}
       onRequestHint={handleRequestHint}
       hints={hints}
@@ -251,7 +258,7 @@ export function PracticePanel({
 
 interface SharedResultProps {
   showResult: 'correct' | 'wrong' | null;
-  submitted: boolean;
+  canResubmit: boolean;
   explanation: ExplainAnswerResponse | null;
   explanationStatus: ExplanationStatus;
 }
@@ -260,7 +267,7 @@ interface DragDropWrapperProps extends SharedResultProps {
   exercise: DragDropExercise;
   isSubmitting: boolean;
   onSubmit: (answer: unknown) => Promise<void>;
-  onReset: () => void;
+  onAnswerModified: () => void;
   showDescription?: boolean;
   onToggleHint: () => void;
   onRequestHint: () => void;
@@ -271,13 +278,13 @@ interface DragDropWrapperProps extends SharedResultProps {
 function DragDropPaneWrapper({
   exercise,
   showResult,
-  submitted,
+  canResubmit,
   isSubmitting,
   explanation,
   showDescription = true,
   explanationStatus,
   onSubmit,
-  onReset,
+  onAnswerModified,
   onToggleHint,
   onRequestHint,
   hints,
@@ -309,8 +316,8 @@ function DragDropPaneWrapper({
       showDescription={showDescription}
       overSlot={overSlot}
       showResult={showResult}
-      submitted={submitted}
       isSubmitting={isSubmitting}
+      canResubmit={canResubmit}
       onSubmit={() => {
         const formatted = prepareAnswerForSubmission('dragdrop', droppedBlocks);
         void onSubmit(formatted);
@@ -344,6 +351,7 @@ function DragDropPaneWrapper({
         setDroppedBlocks(newDropped);
         setOverSlot(null);
         setDraggedFrom(null);
+        onAnswerModified();
       }}
       onRemove={(slotIndex) => {
         const newDropped = [...droppedBlocks];
@@ -351,8 +359,8 @@ function DragDropPaneWrapper({
         newDropped[slotIndex] = null;
 
         setDroppedBlocks(newDropped);
+        onAnswerModified();
       }}
-      onReset={onReset}
       onToggleHint={onToggleHint}
       onRequestHint={onRequestHint}
       hints={hints}
@@ -366,9 +374,10 @@ interface FillBlankWrapperProps extends SharedResultProps {
   isSubmitting: boolean;
   showDescription?: boolean;
   onSubmit: (answer: unknown) => Promise<void>;
-  onReset: () => void;
+  onAnswerModified: () => void;
   onToggleHint: () => void;
   onRequestHint: () => void;
+  onReset?: () => void;
   hints: string[];
   isHintOpen: boolean;
 }
@@ -376,13 +385,13 @@ interface FillBlankWrapperProps extends SharedResultProps {
 function FillBlankPaneWrapper({
   exercise,
   showResult,
-  submitted,
+  canResubmit,
   isSubmitting,
   explanation,
   explanationStatus,
   showDescription = true,
   onSubmit,
-  onReset,
+  onAnswerModified,
   onToggleHint,
   onRequestHint,
   hints,
@@ -397,8 +406,8 @@ function FillBlankPaneWrapper({
       userAnswers={userAnswers}
       showResult={showResult}
       showDescription={showDescription}
-      submitted={submitted}
       isSubmitting={isSubmitting}
+      canResubmit={canResubmit}
       onSubmit={() => {
         const formatted = prepareAnswerForSubmission('fillblank', userAnswers);
         void onSubmit(formatted);
@@ -410,11 +419,7 @@ function FillBlankPaneWrapper({
           ...prev,
           [partId]: value,
         }));
-      }}
-      onReset={() => {
-        setUserAnswers({});
-
-        onReset();
+        onAnswerModified();
       }}
       onToggleHint={onToggleHint}
       onRequestHint={onRequestHint}

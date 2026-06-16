@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { AppSidebar } from '../../components/sidebar/sideBar';
-import { CurrentLessonBanner } from './currentLessonBanner';
-import { StatsGrid } from './statsGrid';
-import { LearningRoadmap } from './learningRoadmap';
+import { AppSidebar } from '../../components/sidebar/Sidebar';
+import { CurrentLessonBanner } from './CurrentLessonBanner';
+import { StatsGrid } from './StatsGrid';
+import { LearningRoadmap } from './LearningRoadmap';
 import { useRoadmap } from './useRoadmap';
 import { useStartLesson } from './useStartLesson';
 import Navbar from '@/components/navbar/Navbar';

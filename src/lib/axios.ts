@@ -48,7 +48,7 @@ export async function getMe(): Promise<AuthUserResponse> {
 
 // Language Selection API
 
-import type { LanguageOption, Language } from '@/types/language_selection';
+import type { LanguageOption, Language } from '@/types/languageSelection';
 
 interface LanguageDetailResponse {
   _id: string;

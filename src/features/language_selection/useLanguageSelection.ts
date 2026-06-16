@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { fetchLanguages, saveLanguage } from '@/lib/axios';
-import type { LanguageOption } from '@/types/language_selection';
+import type { LanguageOption } from '@/types/languageSelection';
 
 /**
  * useLanguageSelection is a custom React hook managing the state and flow of language selection.

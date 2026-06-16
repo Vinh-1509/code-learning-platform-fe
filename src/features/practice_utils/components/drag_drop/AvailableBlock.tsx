@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import type { DraggableBlock } from '../../types/practice.types';
+import type { DraggableBlock } from '../../types/practiceTypes';
 
 interface AvailableBlockProps {
   block: DraggableBlock;

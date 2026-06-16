@@ -1,7 +1,7 @@
 import type { ExplainAnswerResponse } from '@/lib/axios';
 
-import type { DraggableBlock } from './types/practice.types';
-import type { ExplanationStatus } from './types/async.types';
+import type { DraggableBlock } from './types/practiceTypes';
+import type { ExplanationStatus } from './types/asyncTypes';
 
 import { ResultBanner } from './shared/ResultBanner';
 import { HintStrip } from './shared/HintStrip';
@@ -19,8 +19,8 @@ interface DragDropPaneProps {
   hints: string[];
   isHintOpen: boolean;
   showResult: 'correct' | 'wrong' | null;
-  submitted: boolean;
   isSubmitting: boolean;
+  canResubmit: boolean;
   explanation?: ExplainAnswerResponse | null;
   explanationStatus: ExplanationStatus;
   showDescription?: boolean;
@@ -30,7 +30,6 @@ interface DragDropPaneProps {
   onDrop: (slotIndex: number) => void;
   onRemove: (slotIndex: number) => void;
   onSubmit: () => void;
-  onReset: () => void;
   onToggleHint: () => void;
   onRequestHint: () => void;
 }
@@ -43,8 +42,8 @@ export function DragDropPane({
   hints,
   isHintOpen,
   showResult,
-  submitted,
   isSubmitting,
+  canResubmit,
   explanation,
   explanationStatus,
   showDescription = true,
@@ -54,7 +53,6 @@ export function DragDropPane({
   onDrop,
   onRemove,
   onSubmit,
-  onReset,
   onToggleHint,
   onRequestHint,
 }: DragDropPaneProps) {
@@ -83,8 +81,6 @@ export function DragDropPane({
         {/* Result Banner */}
         <ResultBanner
           showResult={showResult}
-          submitted={submitted}
-          onReset={onReset}
           explanation={explanation}
           explanationStatus={explanationStatus}
         />
@@ -144,8 +140,8 @@ export function DragDropPane({
       {/* Submit Bar */}
       <SubmitBar
         allFilled={allFilled}
-        submitted={submitted}
         isSubmitting={isSubmitting}
+        canResubmit={canResubmit}
         onSubmit={onSubmit}
       />
     </div>
