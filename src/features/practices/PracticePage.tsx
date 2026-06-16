@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { AppSidebar } from '../../components/sidebar/sideBar';
+import { AppSidebar } from '../../components/sidebar/Sidebar';
 import Navbar from '@/components/navbar/Navbar';
 
 import { PracticeLibrary } from './PracticeLibrary';
