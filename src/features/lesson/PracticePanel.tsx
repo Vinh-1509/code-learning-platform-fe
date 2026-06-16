@@ -31,6 +31,17 @@ interface PracticePanelProps {
   ) => Promise<ExplainAnswerResponse>;
 }
 
+/**
+ * PracticePanel component determines the exercise type (drag-and-drop or fill-in-the-blank)
+ * and renders the corresponding component view, coordinating submission and hints tracking.
+ *
+ * @param {PracticePanelProps} props - The component properties.
+ * @param {PracticeExercise} props.exercise - The active exercise data.
+ * @param {Function} props.onSubmit - Submission verification request trigger.
+ * @param {Function} props.onGetHint - Fetch hint request trigger.
+ * @param {Function} [props.onExplain] - Optional request to get explanation from AI for wrong answers.
+ * @returns {JSX.Element} The rendered PracticePanel wrapper view.
+ */
 export function PracticePanel({
   exercise,
   onSubmit,
@@ -354,6 +365,15 @@ function DragDropPaneWrapper({
 
         setDroppedBlocks(newDropped);
         onAnswerModified();
+      }}
+      onSelectBlock={(blockId) => {
+        const firstEmptyIndex = droppedBlocks.findIndex((b) => b === null);
+        if (firstEmptyIndex !== -1) {
+          const newDropped = [...droppedBlocks];
+          newDropped[firstEmptyIndex] = blockId;
+          setDroppedBlocks(newDropped);
+          onAnswerModified();
+        }
       }}
       onToggleHint={onToggleHint}
       onRequestHint={onRequestHint}

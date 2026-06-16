@@ -6,6 +6,14 @@ interface TheoryPaneProps {
   block: Block | undefined;
 }
 
+/**
+ * TheoryPanel component renders the sorted content blocks (theory explanations and code examples)
+ * associated with a single lesson block.
+ *
+ * @param {TheoryPaneProps} props - The component properties.
+ * @param {Block} [props.block] - The block object containing content array to render.
+ * @returns {JSX.Element | null} The rendered TheoryPanel component, or null if no block data.
+ */
 export function TheoryPanel({ block }: TheoryPaneProps) {
   if (!block) {
     return null;
@@ -35,7 +43,7 @@ export function TheoryPanel({ block }: TheoryPaneProps) {
                   {index + 1}. What is it?
                 </h2>
 
-                <div className="rounded-lg border-l-4 borderprimary bg-blue-50 p-4 text-sm text-primary">
+                <div className="rounded-lg border-l-4 border-primary bg-blue-50 p-4 text-sm text-primary">
                   {item.data.text}
                 </div>
               </section>
