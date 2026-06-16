@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   getUsedIds,
   isAllFilled,
-} from '@/features/practice/utils/dragDrop.utils';
+} from '@/features/practice_utils/utils/dragDrop.utils';
 
 describe('getUsedIds()', () => {
   it('should return an empty Set when the array is empty', () => {

@@ -5,7 +5,7 @@ import { StatsGrid } from './StatsGrid';
 import { LearningRoadmap } from './LearningRoadmap';
 import { useRoadmap } from './useRoadmap';
 import { useStartLesson } from './useStartLesson';
-import Navbar from '@/components/sidebar/Navbar';
+import Navbar from '@/components/navbar/Navbar';
 
 /**
  * DashboardPage is the main entrance component for the authenticated user's workspace dashboard.
@@ -37,7 +37,7 @@ export function DashboardPage() {
     />
   ) : null;
 
-  // Sử dụng mock data cho số lượng bài học theo yêu cầu của bạn
+  //mocked data
   const totalLessons = 45;
   const completedLessons = 12;
 

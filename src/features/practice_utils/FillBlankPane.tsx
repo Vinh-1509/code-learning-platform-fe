@@ -22,6 +22,7 @@ interface FillBlankPaneProps {
   canResubmit: boolean;
   explanation?: ExplainAnswerResponse | null;
   explanationStatus: ExplanationStatus;
+  showDescription?: boolean;
   onAnswerChange: (partId: string, value: string) => void;
   onSubmit: () => void;
   onToggleHint: () => void;
@@ -39,6 +40,7 @@ export function FillBlankPane({
   canResubmit,
   explanation,
   explanationStatus,
+  showDescription = true,
   onAnswerChange,
   onSubmit,
   onToggleHint,
@@ -52,17 +54,18 @@ export function FillBlankPane({
     <div className="min-h-full bg-white p-6 flex flex-col justify-between">
       <div>
         {/* Task Description */}
-        <div className="rounded-xl p-4 bg-blue-50/80 border border-blue-100/70 text-sm text-blue-600 mb-5">
-          <p className="font-bold text-[13px]">
-            {description || 'Task: Fill in the missing code snippets'}
-          </p>
+        {showDescription && description && (
+          <div className="rounded-xl p-4 bg-blue-50/80 border border-blue-100/70 text-sm text-blue-600 mb-5">
+            <p className="font-bold text-[13px]">
+              {description || 'Task: Fill in the missing code snippets'}
+            </p>
 
-          <p className="text-xs text-blue-500/90 mt-0.5">
-            Read the code carefully and fill in the blank fields to complete the
-            program.
-          </p>
-        </div>
-
+            <p className="text-xs text-blue-500/90 mt-0.5">
+              Read the code carefully and fill in the blank fields to complete
+              the program.
+            </p>
+          </div>
+        )}
         <ResultBanner
           showResult={showResult}
           explanation={explanation}
