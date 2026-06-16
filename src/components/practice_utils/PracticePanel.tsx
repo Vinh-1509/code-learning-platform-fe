@@ -29,6 +29,7 @@ interface PracticePanelProps {
     exerciseId: string,
     answer: unknown
   ) => Promise<ExplainAnswerResponse>;
+  onNext?: () => void;
 }
 
 export function PracticePanel({
@@ -37,6 +38,7 @@ export function PracticePanel({
   onGetHint,
   showDescription = true,
   onExplain,
+  onNext,
 }: PracticePanelProps) {
   const [showResult, setShowResult] = useState<'correct' | 'wrong' | null>(
     null
@@ -200,12 +202,13 @@ export function PracticePanel({
       }
     })();
   };
-
   const sharedResultProps = {
     showResult,
     canResubmit,
     explanation,
     explanationStatus,
+    showDescription,
+    onNext,
   };
 
   // Called immediately when the user changes inputs or alters drop slots
@@ -223,7 +226,6 @@ export function PracticePanel({
         key={exercise.id}
         exercise={exercise}
         isSubmitting={isSubmitting}
-        showDescription={showDescription}
         onSubmit={handleSubmit}
         onAnswerModified={handleAnswerModified}
         onToggleHint={handleToggleHint}
@@ -241,7 +243,6 @@ export function PracticePanel({
       exercise={exercise}
       isSubmitting={isSubmitting}
       onSubmit={handleSubmit}
-      showDescription={showDescription}
       onAnswerModified={handleAnswerModified}
       onToggleHint={handleToggleHint}
       onRequestHint={handleRequestHint}
@@ -261,6 +262,8 @@ interface SharedResultProps {
   canResubmit: boolean;
   explanation: ExplainAnswerResponse | null;
   explanationStatus: ExplanationStatus;
+  showDescription?: boolean;
+  onNext?: () => void;
 }
 
 interface DragDropWrapperProps extends SharedResultProps {
@@ -268,7 +271,7 @@ interface DragDropWrapperProps extends SharedResultProps {
   isSubmitting: boolean;
   onSubmit: (answer: unknown) => Promise<void>;
   onAnswerModified: () => void;
-  showDescription?: boolean;
+
   onToggleHint: () => void;
   onRequestHint: () => void;
   hints: string[];
@@ -287,6 +290,7 @@ function DragDropPaneWrapper({
   onAnswerModified,
   onToggleHint,
   onRequestHint,
+  onNext,
   hints,
   isHintOpen,
 }: DragDropWrapperProps) {
@@ -365,6 +369,7 @@ function DragDropPaneWrapper({
       onRequestHint={onRequestHint}
       hints={hints}
       isHintOpen={isHintOpen}
+      onNext={onNext}
     />
   );
 }
@@ -396,6 +401,7 @@ function FillBlankPaneWrapper({
   onRequestHint,
   hints,
   isHintOpen,
+  onNext,
 }: FillBlankWrapperProps) {
   const [userAnswers, setUserAnswers] = useState<Record<string, string>>({});
 
@@ -406,6 +412,7 @@ function FillBlankPaneWrapper({
       userAnswers={userAnswers}
       showResult={showResult}
       showDescription={showDescription}
+      onNext={onNext}
       isSubmitting={isSubmitting}
       canResubmit={canResubmit}
       onSubmit={() => {

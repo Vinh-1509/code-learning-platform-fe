@@ -5,16 +5,27 @@ interface ResultBannerProps {
   showResult: 'correct' | 'wrong' | null;
   explanation?: ExplainAnswerResponse | null;
   explanationStatus: ExplanationStatus;
+  showDescription?: boolean;
+  onNext?: () => void;
 }
 
 export function ResultBanner({
   showResult,
   explanation,
   explanationStatus,
+  showDescription = true,
+  onNext,
 }: ResultBannerProps) {
   if (!showResult) {
     return null;
   }
+  console.log('Rendering Next', {
+    showResult,
+    explanation,
+    explanationStatus,
+    showDescription,
+    onNext,
+  });
 
   return (
     <div className="mb-4 space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
@@ -32,6 +43,15 @@ export function ResultBanner({
             ? '✓ Correct Answer!'
             : '✗ Incorrect. Try again.'}
         </span>
+        {showResult === 'correct' && !showDescription && onNext && (
+          <button
+            type="button"
+            className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition-all shadow-sm cursor-pointer ml-auto"
+            onClick={onNext}
+          >
+            Next Exercise →
+          </button>
+        )}
       </div>
 
       {/* AI Explanation Panel */}

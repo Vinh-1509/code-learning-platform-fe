@@ -6,7 +6,7 @@ import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 
 interface NavbarProps {
-  variant?: 'dashboard' | 'lesson';
+  variant?: 'dashboard' | 'lesson' | 'practice';
 }
 
 /**
@@ -23,19 +23,35 @@ const Navbar = ({ variant = 'dashboard' }: NavbarProps) => {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 h-14 bg-card border-b border-border select-none">
-      <span className="text-xl font-black text-primary tracking-tight">
+      <Link
+        to="/"
+        className="text-xl font-black text-primary tracking-tight hover:opacity-80 active:scale-95 transition-all duration-200 ease-in-out cursor-pointer"
+      >
         CodeStep
-      </span>
+      </Link>
 
       {variant === 'lesson' && (
         <Link to="/dashboard">
           <Button
             type="button"
             variant="secondary"
-            className="flex items-center gap-1 rounded-lg px-4 h-9 text-sm font-semibold hover:bg-accent transition-colors"
+            className="flex items-center gap-1 bg-trueaccent text-primary rounded-lg px-4 h-9 text-sm font-semibold hover:bg-accent transition-colors"
           >
             <ChevronLeft className="w-4 h-4" />
             Back to Dashboard
+          </Button>
+        </Link>
+      )}
+
+      {variant === 'practice' && (
+        <Link to="/practice">
+          <Button
+            type="button"
+            variant="secondary"
+            className="flex items-center gap-1 bg-trueaccent text-primary rounded-lg px-4 h-9 text-sm font-semibold hover:bg-accent transition-colors"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            Back to Practice
           </Button>
         </Link>
       )}

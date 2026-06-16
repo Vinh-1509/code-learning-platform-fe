@@ -7,10 +7,8 @@ import { PracticeFilters } from './PracticeFilters';
 import { PracticeHero } from './PracticeHero';
 
 export function PracticeLibrary() {
-  // State bộ lọc — đổi filter thì reset về trang 1
   const [search, setSearch] = useState('');
   const [diffFilter, setDiffFilter] = useState('All Levels');
-  const [langFilter, setLangFilter] = useState('All Languages');
   const [page, setPage] = useState(1);
 
   const handleSearchChange = (value: string) => {
@@ -23,23 +21,18 @@ export function PracticeLibrary() {
     setPage(1);
   };
 
-  const handleLanguageChange = (value: string) => {
-    setLangFilter(value);
-    setPage(1);
-  };
-
   const { exercises, loading, error } = usePractice({
     q: search,
     difficulty: diffFilter,
-    language: langFilter,
     page,
     limit: 15,
   });
 
   const showLoading = loading;
   const showError = !loading && error;
-  const showEmpty = !loading && !error && exercises.length === 0;
-  const showList = !loading && !error && exercises.length > 0;
+  const showEmpty =
+    !loading && !error && (!exercises || exercises.length === 0);
+  const showList = !loading && !error && exercises && exercises.length > 0;
 
   let exerciseContent = null;
 
@@ -69,13 +62,11 @@ export function PracticeLibrary() {
   }
 
   if (showList) {
-    const cards = exercises.map((exercise) => (
-      <ExerciseCard key={exercise._id} exercise={exercise} />
-    ));
-
     exerciseContent = (
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {cards}
+        {exercises.map((exercise) => (
+          <ExerciseCard key={exercise._id} exercise={exercise} />
+        ))}
       </div>
     );
   }
@@ -83,9 +74,7 @@ export function PracticeLibrary() {
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-8">
       <PracticeFilters
-        langFilter={langFilter}
         diffFilter={diffFilter}
-        onLangChange={handleLanguageChange}
         onDiffChange={handleDifficultyChange}
         onSearchChange={handleSearchChange}
         search={search}

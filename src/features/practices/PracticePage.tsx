@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { AppSidebar } from '../../components/sidebar/sideBar';
+import { AppSidebar } from '../../components/sidebar/SideBar';
 import Navbar from '@/components/navbar/Navbar';
 
 import { PracticeLibrary } from './PracticeLibrary';
@@ -10,7 +10,6 @@ export function PracticePage() {
     'practice'
   );
 
-  // TODO(api): thay bằng progress thật từ backend khi có endpoint
   const completedLessons = 12;
   const totalLessons = 45;
 

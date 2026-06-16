@@ -4,7 +4,7 @@ import { LessonSidebar } from './LessonSidebar';
 import { TheoryPanel } from './TheoryPanel';
 import { useState, useEffect } from 'react';
 import type { Block } from '@/lib/axios';
-import { PracticePanel } from '../practice_utils/PracticePanel';
+import { PracticePanel } from '@/components/practice_utils/PracticePanel';
 import { FeynmanInterviewPane } from '../interview/FeynmanInterviewPane';
 import Navbar from '@/components/navbar/Navbar';
 import { useBlockExercises } from './useBlockExercises';
@@ -58,11 +58,11 @@ export function LessonPage() {
           onSelectBlock={setSelectedBlockId}
         />
 
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto bg-card">
           <TheoryPanel block={currentBlock} />
         </div>
 
-        <div className="flex-1 overflow-y-auto flex flex-col">
+        <div className="flex-1 min-h-0 z-10 flex flex-col shadow-[-10px_0_15px_-5px_rgba(0,0,0,0.06)] bg-card">
           <ExerciseTabBar
             loading={loading}
             error={error}
@@ -73,7 +73,7 @@ export function LessonPage() {
             blockCompleted={blockCompleted}
           />
 
-          <div className="flex-1 overflow-y-auto p-4">
+          <div className="flex-1 overflow-y-auto p-4 h-full ">
             {blockCompleted &&
             currentBlock?.status === 'active' &&
             activeBlockId ? (

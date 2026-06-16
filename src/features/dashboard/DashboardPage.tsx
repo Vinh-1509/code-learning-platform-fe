@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AppSidebar } from '../../components/sidebar/Sidebar';
+import { AppSidebar } from '../../components/sidebar/SideBar';
 import { CurrentLessonBanner } from './CurrentLessonBanner';
 import { StatsGrid } from './StatsGrid';
 import { LearningRoadmap } from './LearningRoadmap';
