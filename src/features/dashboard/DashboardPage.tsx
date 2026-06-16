@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { AppSidebar } from '../../components/sidebar/sideBar';
-import { CurrentLessonBanner } from './currentLessonBanner';
-import { StatsGrid } from './statsGrid';
-import { LearningRoadmap } from './learningRoadmap';
+import { AppSidebar } from '../../components/sidebar/Sidebar';
+import { CurrentLessonBanner } from './CurrentLessonBanner';
+import { StatsGrid } from './StatsGrid';
+import { LearningRoadmap } from './LearningRoadmap';
 import { useRoadmap } from './useRoadmap';
 import { useStartLesson } from './useStartLesson';
-import Navbar from '@/components/sidebar/Navbar';
+import Navbar from '@/components/navbar/Navbar';
 
 /**
  * DashboardPage is the main entrance component for the authenticated user's workspace dashboard.
@@ -38,7 +38,7 @@ export function DashboardPage() {
     />
   ) : null;
 
-  // Sử dụng mock data cho số lượng bài học theo yêu cầu của bạn
+  //mocked data
   const totalLessons = 45;
   const completedLessons = 12;
 
@@ -50,7 +50,7 @@ export function DashboardPage() {
       {/* SIDEBAR */}
       <AppSidebar
         activeTab={activeTab}
-        onTabChange={(tab) => {
+        onTabChange={(tab: 'dashboard' | 'practice') => {
           setActiveTab(tab);
           setIsSidebarOpen(false);
         }}
