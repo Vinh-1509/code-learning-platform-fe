@@ -16,11 +16,19 @@ export function LessonPage() {
   const navigate = useNavigate();
   const { lessonId } = lessonRouteApi.useParams();
   const { currentLesson, refetchLesson } = useBlockLessons({ lessonId });
+
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
+  const [justPassedFeynmanBlockId, setJustPassedFeynmanBlockId] = useState<
+    string | null
+  >(null);
 
   const activeBlockId =
     selectedBlockId ??
-    currentLesson?.blocks.find((b: Block) => b.status === 'active')?._id ??
+    currentLesson?.blocks.find(
+      (b: Block) =>
+        b.status === 'active' ||
+        (b.status === 'completed' && !b.isFeynmanPassed)
+    )?._id ??
     currentLesson?.blocks[0]?._id ??
     null;
 
@@ -55,7 +63,13 @@ export function LessonPage() {
           blocks={currentLesson?.blocks || []}
           lessonTitle={currentLesson?.title}
           selectedBlockId={activeBlockId}
-          onSelectBlock={setSelectedBlockId}
+          onSelectBlock={(id) => {
+            // Clear the "just passed" state so the user can revisit exercises on previously passed blocks
+            if (id !== activeBlockId) {
+              setJustPassedFeynmanBlockId(null);
+            }
+            setSelectedBlockId(id);
+          }}
         />
 
         <div className="flex-1 overflow-y-auto">
@@ -74,34 +88,37 @@ export function LessonPage() {
           />
 
           <div className="flex-1 overflow-y-auto p-4">
-            {blockCompleted &&
-            currentBlock?.status === 'active' &&
-            activeBlockId ? (
-              (() => {
-                const currentBlockIndex =
-                  currentLesson?.blocks.findIndex(
-                    (b: Block) => b._id === activeBlockId
-                  ) ?? 0;
-                const nextBlockExists =
-                  (currentLesson?.blocks.length ?? 0) > currentBlockIndex + 1;
+            {(() => {
+              const currentBlockIndex =
+                currentLesson?.blocks.findIndex(
+                  (b: Block) => b._id === activeBlockId
+                ) ?? 0;
+              const nextBlockExists =
+                (currentLesson?.blocks.length ?? 0) > currentBlockIndex + 1;
 
+              const shouldShowFeynman =
+                blockCompleted &&
+                activeBlockId &&
+                (!currentBlock?.isFeynmanPassed ||
+                  justPassedFeynmanBlockId === activeBlockId);
+
+              if (shouldShowFeynman) {
                 return (
                   <FeynmanInterviewPane
                     lessonBlockId={activeBlockId}
                     onComplete={() => {
-                      // Handle completion - refetch lesson to unlock next block
+                      if (activeBlockId) {
+                        setSelectedBlockId(activeBlockId);
+                      }
+                      setJustPassedFeynmanBlockId(activeBlockId);
                       void refetchLesson?.();
                     }}
                     onNextBlock={() => {
-                      // Move to next block and refetch lesson
                       void refetchLesson?.().then(() => {
-                        const nextBlockIndex =
-                          currentLesson?.blocks.findIndex(
-                            (b: Block) => b._id === activeBlockId
-                          ) ?? 0;
                         const nextBlock =
-                          currentLesson?.blocks[nextBlockIndex + 1];
+                          currentLesson?.blocks[currentBlockIndex + 1];
                         if (nextBlock) {
+                          setJustPassedFeynmanBlockId(null);
                           setSelectedBlockId(nextBlock._id);
                         }
                       });
@@ -112,16 +129,22 @@ export function LessonPage() {
                     hasNextBlock={nextBlockExists}
                   />
                 );
-              })()
-            ) : exercises.length > 0 && exercises[activeExerciseIndex] ? (
-              <PracticePanel
-                key={exercises[activeExerciseIndex].id}
-                exercise={exercises[activeExerciseIndex]}
-                onSubmit={submitAnswer}
-                onGetHint={getHint}
-                onExplain={explainAnswer}
-              />
-            ) : null}
+              }
+
+              if (exercises.length > 0 && exercises[activeExerciseIndex]) {
+                return (
+                  <PracticePanel
+                    key={exercises[activeExerciseIndex].id}
+                    exercise={exercises[activeExerciseIndex]}
+                    onSubmit={submitAnswer}
+                    onGetHint={getHint}
+                    onExplain={explainAnswer}
+                  />
+                );
+              }
+
+              return null;
+            })()}
           </div>
         </div>
       </div>

@@ -9,22 +9,32 @@ interface LessonSidebarProps {
   onSelectBlock: (id: string) => void;
 }
 
-function BlockIcon({ status }: { status: Block['status'] }) {
-  if (status === 'completed')
+function BlockIcon({
+  isLocked,
+  status,
+  isFeynmanPassed,
+}: {
+  isLocked: boolean;
+  status: Block['status'];
+  isFeynmanPassed: boolean;
+}) {
+  if (isLocked) {
+    return (
+      <div className="size-5 rounded-full flex items-center justify-center bg-dark-gray text-muted-foreground text-[10px] shrink-0">
+        🔒
+      </div>
+    );
+  }
+  if (status === 'completed' && isFeynmanPassed) {
     return (
       <div className="size-5 rounded-full flex items-center justify-center bg-bluelight text-primary-foreground text-[10px] font-bold shrink-0">
         ✓
       </div>
     );
-  if (status === 'active')
-    return (
-      <div className="size-5 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-[10px] font-bold shrink-0">
-        ●
-      </div>
-    );
+  }
   return (
-    <div className="size-5 rounded-full flex items-center justify-center bg-dark-gray text-muted-foreground text-[10px] shrink-0">
-      🔒
+    <div className="size-5 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-[10px] font-bold shrink-0">
+      ●
     </div>
   );
 }
@@ -36,7 +46,7 @@ export function LessonSidebar({
   onSelectBlock,
 }: LessonSidebarProps) {
   return (
-    <aside className="w-64 flex flex-col bg-background  overflow-y-auto">
+    <aside className="w-64 flex flex-col bg-background overflow-y-auto">
       <div className="px-4 pt-5 pb-2">
         <p className="text-[10px] font-bold mb-2 text-muted-foreground tracking-wider">
           LESSON BLOCKS
@@ -45,7 +55,12 @@ export function LessonSidebar({
       </div>
       <div className="flex flex-col">
         {blocks.map((block, index) => {
-          const isLocked = block.status === 'locked';
+          const prevBlock = index > 0 ? blocks[index - 1] : null;
+
+          // Enforce lock from the frontend until the previous block has fully passed Feynman
+          const isLocked =
+            block.status === 'locked' ||
+            (prevBlock !== null && !prevBlock.isFeynmanPassed);
 
           const isSelected = block._id === selectedBlockId;
 
@@ -69,7 +84,11 @@ export function LessonSidebar({
                 <div className="absolute left-0 top-0 w-0.75 h-full bg-primary" />
               )}
 
-              <BlockIcon status={block.status} />
+              <BlockIcon
+                isLocked={isLocked}
+                status={block.status}
+                isFeynmanPassed={block.isFeynmanPassed}
+              />
 
               <div className="flex flex-col min-w-0 flex-1 justify-center gap-0.5">
                 <span
