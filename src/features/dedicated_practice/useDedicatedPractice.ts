@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-
 import {
   explainExerciseAnswer,
   fetchExerciseById,
@@ -10,7 +9,9 @@ import {
 import { convertExerciseResponse } from '@/components/practice_utils/utils/exercise.converter';
 import type { PracticeExercise } from '@/components/practice_utils/types/practiceTypes';
 
-// Hook cho trang /practicededicated/:exerciseId — load 1 bài + submit/hint/explain
+/**
+ * useDedicatedPractice resolves single-challenge interactions (loading, code submission, hints, metrics)
+ */
 export function useDedicatedPractice(exerciseId: string) {
   const [exercise, setExercise] = useState<PracticeExercise | null>(null);
   const [rawResponse, setRawResponse] = useState<ExerciseResponse | null>(null);
@@ -38,9 +39,7 @@ export function useDedicatedPractice(exerciseId: string) {
           err instanceof Error ? err.message : 'Failed to load exercise'
         );
       } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
+        if (isMounted) setLoading(false);
       }
     }
 
@@ -51,6 +50,7 @@ export function useDedicatedPractice(exerciseId: string) {
     };
   }, [exerciseId]);
 
+  // Transmit answer block payloads payload evaluating user verification state
   const submitAnswer = async (id: string, answer: unknown) => {
     const res = await submitExerciseAnswer(id, answer);
     setLastSubmitCorrect(Boolean(res.correct));

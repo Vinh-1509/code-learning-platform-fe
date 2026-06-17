@@ -1,24 +1,28 @@
 import { useEffect, useState } from 'react';
-import { useAuth } from '@/features/auth/useAuth'; // Hook lấy thông tin user authMe của bạn
+import { useAuth } from '@/features/auth/useAuth';
 import {
   fetchExercises,
   type Exercise,
   type FetchExercisesParams,
 } from '@/lib/axios';
 
+/**
+ * usePractice safely syncs queries with debounce protection mechanisms
+ */
 export function usePractice(filters: Omit<FetchExercisesParams, 'language'>) {
   const { user } = useAuth();
-
   const userLanguage = user?.selectedLanguage?.[0];
+
   const [exercises, setExercises] = useState<Exercise[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!userLanguage) {
-      return;
-    }
+    if (!userLanguage) return;
 
+    let isMounted = true;
+
+    // Standard debounced timeout tracker evaluating keystroke entry cycles
     const timer = setTimeout(async () => {
       try {
         setLoading(true);
@@ -29,8 +33,8 @@ export function usePractice(filters: Omit<FetchExercisesParams, 'language'>) {
           language: userLanguage,
         };
 
-        if (filters.q) {
-          params.q = filters.q;
+        if (filters.q?.trim()) {
+          params.q = filters.q.trim();
         }
 
         if (filters.difficulty && filters.difficulty !== 'All Levels') {
@@ -39,17 +43,27 @@ export function usePractice(filters: Omit<FetchExercisesParams, 'language'>) {
 
         const response = await fetchExercises(params);
 
-        setExercises(response.data);
-        setError(null);
+        // [FIXED BUG]: Safeguard checks preventing updates to unmounted component pipelines
+        if (isMounted) {
+          setExercises(response.data || []);
+          setError(null);
+        }
       } catch (err) {
         console.error('Error fetching exercises:', err);
-        setError('Error when fetching exercises');
+        if (isMounted) {
+          setError('Error when fetching exercises');
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     }, 400);
 
-    return () => clearTimeout(timer);
+    return () => {
+      isMounted = false;
+      clearTimeout(timer);
+    };
   }, [
     filters.q,
     filters.difficulty,
