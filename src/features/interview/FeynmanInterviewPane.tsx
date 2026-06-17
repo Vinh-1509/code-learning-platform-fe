@@ -1,139 +1,173 @@
 import { useState, useRef, useEffect } from 'react';
+import axios from 'axios';
 import { Button } from '@/components/ui/button';
-import { AIMessage, UserMessage, FeedbackBadge } from './MessageBubbles';
+import { AIMessage, UserMessage } from './MessageBubbles';
 import type { FeynmanMessage, FeynmanInterviewProps } from './feynmanTypes';
 import { Loader2, ArrowRight } from 'lucide-react';
+import {
+  fetchFeynmanQuestion,
+  fetchFeynmanHistory,
+  sendFeynmanMessage,
+  type FeynmanChatMessage,
+} from '@/lib/axios';
 
+// ---------------------------------------------------------------------------
+// Map backend chat history → FeynmanMessage[]
+// ---------------------------------------------------------------------------
+function historyToMessages(history: FeynmanChatMessage[]): FeynmanMessage[] {
+  return history.map((h, i) => ({
+    id: `history-${i}`,
+    role: h.role === 'assistant' ? 'ai' : 'user',
+    content: h.content,
+  }));
+}
+
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
 export function FeynmanInterviewPane({
-  // _lessonBlockId,
+  lessonBlockId,
   onComplete,
   onNextBlock,
   hasNextBlock,
 }: FeynmanInterviewProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [messages, setMessages] = useState<FeynmanMessage[]>([
-    {
-      id: '1',
-      role: 'ai',
-      content:
-        "Excellent! You completed all the exercises. Now, let me check if you truly understand the concept by asking you some questions. Let's start! 🎯",
-    },
-    {
-      id: '2',
-      role: 'ai',
-      content:
-        "You used a for loop here. Why did you choose a for loop instead of a while loop? What's the key difference that led to your choice?",
-      isCorrect: undefined,
-    },
-  ]);
 
+  const [messages, setMessages] = useState<FeynmanMessage[]>([]);
   const [userInput, setUserInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [currentQuestion, setCurrentQuestion] = useState(1);
+  const [isInitializing, setIsInitializing] = useState(true);
   const [isBlockComplete, setIsBlockComplete] = useState(false);
-  const [feedbackMessage, setFeedbackMessage] = useState<{
-    isCorrect: boolean;
-    message: string;
-  } | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  // Auto-scroll to bottom
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
+  // -------------------------------------------------------------------------
+  // On mount: restore session or start fresh
+  // -------------------------------------------------------------------------
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    let cancelled = false;
 
-  const handleSubmitResponse = () => {
-    if (!userInput.trim()) return;
+    async function init() {
+      try {
+        setError(null);
+        const { chatHistory, isFeynmanPassed } =
+          await fetchFeynmanHistory(lessonBlockId);
 
-    // Add user message
+        if (cancelled) return;
+
+        if (chatHistory.length > 0) {
+          setMessages(historyToMessages(chatHistory));
+          if (isFeynmanPassed) {
+            setIsBlockComplete(true);
+          }
+        } else {
+          const introMessage: FeynmanMessage = {
+            id: 'intro',
+            role: 'ai',
+            content:
+              'Excellent! You completed all the exercises. Now let me check if you truly understand the concept. 🎯',
+          };
+
+          const question = await fetchFeynmanQuestion(lessonBlockId);
+          if (cancelled) return;
+
+          const questionMessage: FeynmanMessage = {
+            id: 'q1',
+            role: 'ai',
+            content: question,
+          };
+
+          setMessages([introMessage, questionMessage]);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          if (axios.isAxiosError<{ message?: string }>(err)) {
+            if (err.response?.status === 403) {
+              setError(
+                err.response.data?.message ||
+                  'Feynman is available only after the block is completed.'
+              );
+            } else {
+              setError('Failed to load Feynman session. Please try again.');
+            }
+          } else {
+            setError('Failed to load Feynman session. Please try again.');
+          }
+          console.error(err);
+        }
+      } finally {
+        if (!cancelled) setIsInitializing(false);
+      }
+    }
+
+    void init();
+    return () => {
+      cancelled = true;
+    };
+  }, [lessonBlockId]);
+
+  // -------------------------------------------------------------------------
+  // Auto-scroll
+  // -------------------------------------------------------------------------
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isLoading]);
+
+  // -------------------------------------------------------------------------
+  // Send message
+  // -------------------------------------------------------------------------
+  const handleSubmitResponse = async () => {
+    const text = userInput.trim();
+    if (!text || isLoading) return;
+
     const userMessage: FeynmanMessage = {
       id: `msg-${Date.now()}`,
       role: 'user',
-      content: userInput,
+      content: text,
       timestamp: new Date(),
     };
 
     setMessages((prev) => [...prev, userMessage]);
     setUserInput('');
     setIsLoading(true);
+    setError(null);
 
-    // Simulate AI evaluation (replace with actual API call)
-    setTimeout(() => {
-      // For demo: first answer is wrong, subsequent answers are correct
-      const isCorrect = currentQuestion > 1 ? true : false;
+    try {
+      const result = await sendFeynmanMessage(lessonBlockId, text);
 
-      if (isCorrect) {
-        setFeedbackMessage({
-          isCorrect: true,
-          message: 'Your reasoning is spot on! That shows great understanding.',
-        });
+      const aiReply: FeynmanMessage = {
+        id: `msg-${Date.now() + 1}`,
+        role: 'ai',
+        content: result.reply,
+      };
 
-        // After correct answer, show next question or completion
-        setTimeout(() => {
-          if (currentQuestion < 3) {
-            // Add next question
-            const nextAIMessage: FeynmanMessage = {
-              id: `msg-${Date.now()}`,
-              role: 'ai',
-              content:
-                currentQuestion === 1
-                  ? 'Great! Now, can you explain when you would use a while loop instead?'
-                  : "Wonderful! You've demonstrated a strong understanding of loops. You're ready to move forward! 🚀",
-            };
+      setMessages((prev) => [...prev, aiReply]);
 
-            setMessages((prev) => [...prev, nextAIMessage]);
-            setCurrentQuestion((prev) => prev + 1);
-
-            if (currentQuestion === 2) {
-              setIsBlockComplete(true);
-            }
-          }
-
-          setFeedbackMessage(null);
-          setIsLoading(false);
-        }, 1500);
-      } else {
-        // Show explanation for incorrect answer
-        const explanation =
-          currentQuestion === 1
-            ? 'Actually, a for loop is typically used when you know the number of iterations beforehand, while a while loop is used when the number of iterations is unknown. Both could work here, but think about whether you knew exactly how many times to loop before you started.'
-            : "Not quite. A while loop is used when you need to repeat code while a condition is true, but you don't know how many times it will execute upfront.";
-
-        const feedbackAIMessage: FeynmanMessage = {
-          id: `msg-${Date.now()}`,
-          role: 'ai',
-          content: explanation,
-          isCorrect: false,
-        };
-
-        setMessages((prev) => [...prev, feedbackAIMessage]);
-
-        setFeedbackMessage({
-          isCorrect: false,
-          message: explanation,
-        });
-
-        setTimeout(() => {
-          const retryMessage: FeynmanMessage = {
-            id: `msg-${Date.now()}`,
-            role: 'ai',
-            content:
-              'Give it another try. Think about the key difference between knowing vs. not knowing the iteration count.',
-          };
-
-          setMessages((prev) => [...prev, retryMessage]);
-          setFeedbackMessage(null);
-          setIsLoading(false);
-        }, 1000);
-
-        setCurrentQuestion((prev) => prev + 1);
+      if (result.isPassed) {
+        setIsBlockComplete(true);
+        onComplete();
       }
-    }, 1500);
+    } catch (err) {
+      if (axios.isAxiosError<{ message?: string }>(err)) {
+        if (err.response?.status === 403) {
+          setError(
+            err.response.data?.message ||
+              'Feynman is available only after the block is completed.'
+          );
+        } else {
+          setError('Something went wrong. Please try again.');
+        }
+      } else {
+        setError('Something went wrong. Please try again.');
+      }
+      console.error('Feynman chat error', err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
+  // -------------------------------------------------------------------------
+  // Render
+  // -------------------------------------------------------------------------
   return (
     <div className="flex flex-col h-full bg-white rounded-lg border border-slate-200 overflow-hidden">
       {/* Header */}
@@ -142,62 +176,73 @@ export function FeynmanInterviewPane({
           <span className="text-xs font-bold text-white">🤖</span>
         </div>
         <span className="text-sm font-bold text-white">Feynman AI</span>
-        <span className="ml-auto text-xs text-slate-400">
-          Question {currentQuestion}/3
-        </span>
+        {isBlockComplete && (
+          <span className="ml-auto text-xs text-emerald-400 font-medium">
+            ✓ Passed
+          </span>
+        )}
       </div>
 
-      {/* Success Banner */}
-      {messages.length === 2 && (
-        <div className="mx-4 mt-4 p-3 bg-emerald-50 border border-emerald-300 rounded-lg">
-          <p className="text-sm font-semibold text-emerald-800">
-            ✓ All exercises complete!
-          </p>
-          <p className="text-xs text-emerald-700 mt-1">
-            Now explain your reasoning to unlock the next block.
-          </p>
-        </div>
-      )}
-
-      {/* Messages Container */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-2">
-        {messages.map((message) => (
-          <div key={message.id}>
-            {message.role === 'ai' ? (
-              <AIMessage
-                content={message.content}
-                isQuestion={!message.isCorrect}
-                isFeedback={message.isCorrect === false}
-              />
-            ) : (
-              <UserMessage content={message.content} />
-            )}
+      {/* Success Banner (top) */}
+      {!isInitializing &&
+        messages.length <= 2 &&
+        !isBlockComplete &&
+        !error && (
+          <div className="mx-4 mt-4 p-3 bg-emerald-50 border border-emerald-300 rounded-lg">
+            <p className="text-sm font-semibold text-emerald-800">
+              ✓ All exercises complete!
+            </p>
+            <p className="text-xs text-emerald-700 mt-1">
+              Now explain your reasoning to unlock the next block.
+            </p>
           </div>
-        ))}
-
-        {/* Feedback Badge */}
-        {feedbackMessage && (
-          <FeedbackBadge
-            isCorrect={feedbackMessage.isCorrect}
-            message={feedbackMessage.message}
-          />
         )}
 
-        {/* Loading State */}
-        {isLoading && (
-          <div className="flex gap-3 mb-4">
-            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center">
-              <span className="text-xs font-bold text-white">🤖</span>
-            </div>
-            <div className="flex-1">
-              <div className="rounded-xl p-3.5 bg-slate-100 border border-slate-200 inline-flex items-center gap-2">
-                <Loader2 className="w-4 h-4 animate-spin text-slate-600" />
-                <span className="text-sm text-slate-600">
-                  AI is thinking...
-                </span>
-              </div>
-            </div>
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-2">
+        {isInitializing ? (
+          <div className="flex items-center justify-center h-full text-slate-400 gap-2">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            <span className="text-sm">Loading session…</span>
           </div>
+        ) : (
+          <>
+            {messages.map((message) =>
+              message.role === 'ai' ? (
+                <AIMessage
+                  key={message.id}
+                  content={message.content}
+                  isQuestion
+                />
+              ) : (
+                <UserMessage key={message.id} content={message.content} />
+              )
+            )}
+
+            {/* Loading indicator */}
+            {isLoading && (
+              <div className="flex gap-3 mb-4">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center">
+                  <span className="text-xs font-bold text-white">🤖</span>
+                </div>
+                <div className="flex-1">
+                  <div className="rounded-xl p-3.5 bg-slate-100 border border-slate-200 inline-flex items-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin text-slate-600" />
+                    <span className="text-sm text-slate-600">
+                      AI is thinking…
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Inline error */}
+            {error && (
+              <div className="rounded-lg p-3 bg-rose-50 border border-rose-200">
+                <p className="text-sm text-rose-700">{error}</p>
+              </div>
+            )}
+          </>
         )}
 
         <div ref={messagesEndRef} />
@@ -219,10 +264,7 @@ export function FeynmanInterviewPane({
             </div>
             {hasNextBlock && (
               <Button
-                onClick={() => {
-                  onComplete();
-                  onNextBlock();
-                }}
+                onClick={onNextBlock}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white h-9 px-3 text-sm font-semibold flex items-center justify-center gap-1.5"
               >
                 Next Block
@@ -233,8 +275,8 @@ export function FeynmanInterviewPane({
         </div>
       )}
 
-      {/* Input Area */}
-      {!isBlockComplete && (
+      {/* Input */}
+      {!isBlockComplete && !isInitializing && !error && (
         <div className="px-4 py-3 border-t border-slate-200 bg-slate-50">
           <div className="flex gap-2">
             <input
@@ -246,7 +288,7 @@ export function FeynmanInterviewPane({
                   void handleSubmitResponse();
                 }
               }}
-              placeholder="Type your explanation..."
+              placeholder="Type your explanation…"
               disabled={isLoading}
               className="flex-1 px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-slate-100 disabled:text-slate-500"
             />
