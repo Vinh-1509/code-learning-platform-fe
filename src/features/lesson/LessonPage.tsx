@@ -78,6 +78,7 @@ export function LessonPage() {
         <LessonSidebar
           blocks={currentLesson?.blocks || []}
           lessonTitle={currentLesson?.title}
+          selectedBlockId={activeBlockId}
           onSelectBlock={(id) => {
             // Clear the "just passed" state so the user can revisit exercises on previously passed blocks
             if (id !== activeBlockId) {
