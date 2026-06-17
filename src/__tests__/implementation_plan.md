@@ -1,4 +1,6 @@
-# Phase 1: Testing Strategy — Code Learning Platform FE
+# Testing Strategy — Code Learning Platform FE
+
+---
 
 ## Tech Stack Findings
 
@@ -42,7 +44,7 @@
 
 - **`@types/node`** — Already installed ✓
 
-### Install Command (for Phase 2 approval)
+### Install Command
 
 ```bash
 yarn add -D vitest @testing-library/react @testing-library/user-event @testing-library/jest-dom jsdom msw
@@ -50,99 +52,11 @@ yarn add -D vitest @testing-library/react @testing-library/user-event @testing-l
 
 ---
 
-## Critical Files Identified
+## Vitest Configuration
 
-### Pure Utility Functions (Highest Priority — Phase 2)
-
-These are pure/near-pure functions with zero React dependencies — easiest to test, highest ROI:
-
-| File                                                                                                                                                                                                                     | Functions                                                                                                              | Why Critical                                                                                        |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| [`src/lib/syntax.ts`](file:///c:/Users/ADMIN/OneDrive%20-%20RMIT%20University/MyCodingSpace/DevCamp/project/code-learning-platform-fe/src/lib/syntax.ts)                                                                 | `tokenize()`                                                                                                           | Core syntax highlighter — many regex branches, edge cases (empty string, unknown chars, multi-line) |
-| [`src/lib/utils.ts`](file:///c:/Users/ADMIN/OneDrive%20-%20RMIT%20University/MyCodingSpace/DevCamp/project/code-learning-platform-fe/src/lib/utils.ts)                                                                   | `cn()`                                                                                                                 | Used everywhere; test class merging and conditional logic                                           |
-| [`src/features/practice/utils/dragDrop.utils.ts`](file:///c:/Users/ADMIN/OneDrive%20-%20RMIT%20University/MyCodingSpace/DevCamp/project/code-learning-platform-fe/src/features/practice/utils/dragDrop.utils.ts)         | `getUsedIds()`, `isAllFilled()`                                                                                        | Drive submit-button enable/disable logic — correctness is critical                                  |
-| [`src/features/practice/utils/fillBlank.utils.ts`](file:///c:/Users/ADMIN/OneDrive%20-%20RMIT%20University/MyCodingSpace/DevCamp/project/code-learning-platform-fe/src/features/practice/utils/fillBlank.utils.ts)       | `getInputWidth()`, `getBlankInputClass()`                                                                              | Controls UI sizing and styling of blank inputs                                                      |
-| [`src/features/practice/utils/exercise.converter.ts`](file:///c:/Users/ADMIN/OneDrive%20-%20RMIT%20University/MyCodingSpace/DevCamp/project/code-learning-platform-fe/src/features/practice/utils/exercise.converter.ts) | `convertDragDropExercise()`, `convertFillBlankExercise()`, `convertExerciseResponse()`, `prepareAnswerForSubmission()` | API-to-UI data transformation — wrong mapping = broken exercises                                    |
-| [`src/features/dashboard/useRoadmap.ts`](file:///c:/Users/ADMIN/OneDrive%20-%20RMIT%20University/MyCodingSpace/DevCamp/project/code-learning-platform-fe/src/features/dashboard/useRoadmap.ts)                           | `getCurrentLesson()`                                                                                                   | Pure function; finds active lesson from module tree                                                 |
-
-### Components / Hooks (Phase 3)
-
-| File                                                                                                                                                                                                             | What to Test                                            |
-| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| [`src/features/auth/LoginForm.tsx`](file:///c:/Users/ADMIN/OneDrive%20-%20RMIT%20University/MyCodingSpace/DevCamp/project/code-learning-platform-fe/src/features/auth/LoginForm.tsx)                             | Form validation, submit handler, loading state          |
-| [`src/features/auth/SignUpForm.tsx`](file:///c:/Users/ADMIN/OneDrive%20-%20RMIT%20University/MyCodingSpace/DevCamp/project/code-learning-platform-fe/src/features/auth/SignUpForm.tsx)                           | Password mismatch guard, form validation, error display |
-| [`src/features/auth/AuthContextProvider.tsx`](file:///c:/Users/ADMIN/OneDrive%20-%20RMIT%20University/MyCodingSpace/DevCamp/project/code-learning-platform-fe/src/features/auth/AuthContextProvider.tsx)         | login/register/logout flows + error handling            |
-| [`src/features/practice/shared/SubmitBar.tsx`](file:///c:/Users/ADMIN/OneDrive%20-%20RMIT%20University/MyCodingSpace/DevCamp/project/code-learning-platform-fe/src/features/practice/shared/SubmitBar.tsx)       | Button enabled/disabled states, submit callback         |
-| [`src/features/practice/shared/ResultBanner.tsx`](file:///c:/Users/ADMIN/OneDrive%20-%20RMIT%20University/MyCodingSpace/DevCamp/project/code-learning-platform-fe/src/features/practice/shared/ResultBanner.tsx) | Correct/wrong/null states, AI explanation states        |
-| [`src/features/dashboard/LearningRoadmap.tsx`](file:///c:/Users/ADMIN/OneDrive%20-%20RMIT%20University/MyCodingSpace/DevCamp/project/code-learning-platform-fe/src/features/dashboard/LearningRoadmap.tsx)       | Loading skeleton, module expansion, lesson start        |
-
----
-
-## User Workflows to Test (Phase 3 Integration)
-
-1. **Login Flow** — User fills email + password → clicks "Sign in" → loading state shown → on success, auth token persisted → redirect; on error, error message shown
-2. **Sign Up Flow** — User fills all fields → password mismatch check prevents submit → on match, submits → on API success, redirects
-3. **Dashboard Roadmap** — Modules load from API → loading state renders → modules are listed → user clicks module to expand → clicks "Start" on a lesson → navigation is triggered
-4. **Submit Bar (Practice)** — Submit disabled when blanks unfilled → enabled when all filled → shows "Verifying..." while submitting → disabled again after correct answer (`canResubmit=false`)
-5. **Result Banner** — Hidden when `showResult=null` → shows correct banner → shows wrong banner with AI explanation panel in loading/error/success states
-
----
-
-## Known Testability Concerns (Pre-identified)
-
-> [!WARNING]
-> **`AuthContextProvider` uses `useNavigate` from TanStack Router.** Tests will need a `RouterContext` wrapper or a TanStack Router test helper to avoid `useNavigate` throwing outside-context errors.
-
-> [!WARNING]
-> **`src/lib/auth.ts` — `requireAuth` and `checkLanguageSelection`** use `throw redirect(...)` from TanStack Router. These are router-lifecycle functions, not component-level. Testing them in isolation requires mocking both `getMe` (from axios) and `redirect`. We'll mock at the module level.
-
-> [!NOTE]
-> **`src/lib/axios.ts`** directly accesses `localStorage` and `window.location.href` in interceptors. MSW will intercept axios network calls at the network level cleanly. No source code changes needed.
-
-> [!NOTE]
-> **`DashboardPage.tsx` uses hardcoded mock data** (`totalLessons = 45`, `completedLessons = 12`). These are noted as intentional — tests will reflect the current behavior, not flag them as bugs.
-
----
-
-## Proposed File Structure
-
-```
-src/
-└── __tests__/
-    ├── setup.ts                          # Global test setup (jest-dom matchers)
-    ├── unit/
-    │   ├── lib/
-    │   │   ├── syntax.test.ts            # tokenize() — all token types + edge cases
-    │   │   ├── utils.test.ts             # cn() — merging, conditionals, conflicts
-    │   │   └── auth.test.ts              # requireAuth, checkLanguageSelection
-    │   ├── practice/
-    │   │   ├── dragDrop.utils.test.ts    # getUsedIds, isAllFilled
-    │   │   ├── fillBlank.utils.test.ts   # getInputWidth, getBlankInputClass
-    │   │   └── exercise.converter.test.ts # all 4 converter functions
-    │   └── dashboard/
-    │       └── useRoadmap.utils.test.ts  # getCurrentLesson pure function
-    └── integration/
-        ├── mocks/
-        │   ├── handlers.ts               # MSW route handlers
-        │   └── server.ts                 # MSW node server setup
-        ├── auth/
-        │   ├── LoginForm.test.tsx         # Login form integration
-        │   └── SignUpForm.test.tsx        # Sign up form integration
-        ├── practice/
-        │   ├── SubmitBar.test.tsx         # Submit bar states
-        │   └── ResultBanner.test.tsx      # Result banner states
-        └── dashboard/
-            └── LearningRoadmap.test.tsx   # Roadmap rendering + interactions
-```
-
----
-
-## Vitest Configuration Plan
-
-`vitest.config.ts` (separate from vite.config.ts to keep dev server proxy unaffected):
+`vitest.config.ts` (separate from `vite.config.ts` to keep dev server proxy unaffected):
 
 ```ts
-// vitest.config.ts
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -170,18 +84,338 @@ export default defineConfig({
 
 ---
 
+## Known Testability Concerns
+
+> [!WARNING]
+> **`AuthContextProvider` uses `useNavigate` from TanStack Router.** Tests will need a `RouterContext` wrapper or a TanStack Router test helper to avoid `useNavigate` throwing outside-context errors. **Resolved:** use `createMemoryHistory` + `RouterProvider` wrapper. No source changes needed.
+
+> [!WARNING]
+> **`src/lib/auth.ts` — `requireAuth` and `checkLanguageSelection`** use `throw redirect(...)` from TanStack Router. These are router-lifecycle functions, not component-level. Testing them in isolation requires mocking both `getMe` (from axios) and `redirect`. We'll mock at the module level.
+
+> [!NOTE]
+> **`src/lib/axios.ts`** directly accesses `localStorage` and `window.location.href` in interceptors. MSW will intercept axios network calls at the network level cleanly. No source code changes needed.
+
+> [!NOTE]
+> **`DashboardPage.tsx` uses hardcoded mock data** (`totalLessons = 45`, `completedLessons = 12`). These are noted as intentional — tests will reflect the current behavior, not flag them as bugs.
+
+---
+
+## Decisions
+
+1. **TanStack Router context in tests:** Use the wrapper approach with `createMemoryHistory` + `RouterProvider`. Do not mock `<Link>` directly.
+2. **Coverage threshold:** Collect and display coverage reports, but do not set a strict minimum threshold yet. Establish a baseline first.
+3. **Phase 3 scope:** `PracticePanel.tsx` and `FillBlankPane.tsx` deferred to Phase 4. Focus Phase 3 on smaller, simpler feature components.
+
+---
+
+## Critical Files — Phase Map
+
+> [!WARNING]
+> **PATH CORRECTION (original plan had wrong paths).** The practice utils live at
+> `src/components/practice_utils/utils/` — **not** `src/features/practice/utils/`.
+> All written test files already use the correct path. The table below reflects the real locations.
+
+| File                                                                    | Phase        | Functions / What to Test                                                                                               | Status                 |
+| ----------------------------------------------------------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------- | ---------------------- |
+| `src/lib/syntax.ts`                                                     | 2            | `tokenize()`                                                                                                           | ✅ Done                |
+| `src/lib/utils.ts`                                                      | 2            | `cn()`                                                                                                                 | ✅ Done                |
+| `src/lib/auth.ts`                                                       | 2            | `requireAuth`, `checkLanguageSelection`                                                                                | ❌ Needs cases written |
+| `src/components/practice_utils/utils/dragDrop.utils.ts`                 | 2            | `getUsedIds()`, `isAllFilled()`                                                                                        | ✅ Done                |
+| `src/components/practice_utils/utils/fillBlank.utils.ts`                | 2            | `getInputWidth()`, `getBlankInputClass()`                                                                              | ✅ Done                |
+| `src/components/practice_utils/utils/exercise.converter.ts`             | 2            | `convertDragDropExercise()`, `convertFillBlankExercise()`, `convertExerciseResponse()`, `prepareAnswerForSubmission()` | ✅ Done                |
+| `src/features/dashboard/useRoadmap.ts`                                  | 2            | `getCurrentLesson()`                                                                                                   | ✅ Done                |
+| `src/features/auth/LoginForm.tsx`                                       | 3            | Form validation, submit handler, loading state                                                                         | ❌ To write            |
+| `src/features/auth/SignUpForm.tsx`                                      | 3            | Password mismatch guard, form validation, error display                                                                | ❌ To write            |
+| `src/features/auth/AuthContextProvider.tsx`                             | 3            | login/register/logout flows + error handling                                                                           | ❌ To write            |
+| `src/components/practice_utils/shared/SubmitBar.tsx`                    | 3            | Button enabled/disabled states, submit callback                                                                        | ❌ To write            |
+| `src/components/practice_utils/shared/ResultBanner.tsx`                 | 3            | Correct/wrong/null states, AI explanation states                                                                       | ❌ To write            |
+| `src/features/dashboard/LearningRoadmap.tsx`                            | 3            | Loading skeleton, module expansion, lesson start                                                                       | ❌ To write            |
+| `src/components/practice_utils/shared/HintStrip.tsx`                    | 3 🆕         | Button label cycling, hint visibility, callback routing                                                                | ❌ To write            |
+| `src/features/lesson/ExerciseTabBar.tsx`                                | 3 🆕         | Tab pass state, block-complete badge, tab click                                                                        | ❌ To write            |
+| `src/components/practice_utils/components/drag_drop/AvailableBlock.tsx` | 3 🆕         | Drag state, click handler, used/unused styling                                                                         | ❌ To write            |
+| `src/features/lesson/useBlockExercises.ts`                              | 4 🆕         | Block completion, pass map, Feynman gate                                                                               | ❌ Deferred            |
+| `src/features/practices/usePractice.ts`                                 | 4 🆕         | Debounce, language guard, difficulty filtering                                                                         | ❌ Deferred            |
+| `src/components/practice_utils/PracticePanel.tsx`                       | 4 (deferred) | —                                                                                                                      | ❌ Deferred            |
+| `src/components/practice_utils/FillBlankPane.tsx`                       | 4 (deferred) | —                                                                                                                      | ❌ Deferred            |
+
+---
+
+## File Structure
+
+```
+src/
+└── __tests__/
+    ├── setup.ts
+    ├── unit/
+    │   ├── lib/
+    │   │   ├── syntax.test.ts              ✅
+    │   │   ├── utils.test.ts               ✅
+    │   │   └── auth.test.ts                ✅
+    │   ├── practice/
+    │   │   ├── dragDrop.utils.test.ts      ✅
+    │   │   ├── fillBlank.utils.test.ts     ✅
+    │   │   └── exercise.converter.test.ts  ✅
+    │   └── dashboard/
+    │       └── getCurrentLesson.test.ts    ✅
+    └── integration/
+        ├── mocks/
+        │   ├── handlers.ts                 ❌ needs 3 new handlers (explain, history, complete)
+        │   └── server.ts
+        ├── auth/
+        │   ├── LoginForm.test.tsx          ❌ Phase 3
+        │   ├── SignUpForm.test.tsx         ❌ Phase 3
+        │   └── AuthContextProvider.test.tsx ✅
+        ├── practice/
+        │   ├── SubmitBar.test.tsx          ❌ Phase 3
+        │   ├── ResultBanner.test.tsx       ❌ Phase 3
+        │   ├── HintStrip.test.tsx          ✅
+        │   └── AvailableBlock.test.tsx     ✅
+        ├── lesson/
+        │   └── ExerciseTabBar.test.tsx     ✅
+        ├── hooks/
+        │   ├── useBlockExercises.test.ts   ❌ Phase 4 🆕
+        │   └── usePractice.test.ts         ❌ Phase 4 🆕
+        └── dashboard/
+            └── LearningRoadmap.test.tsx    ❌ Phase 3
+```
+
+---
+
+## User Workflows to Test (Phase 3 Integration)
+
+1. **Login Flow** — User fills email + password → clicks "Sign in" → loading state shown → on success, auth token persisted → redirect; on error, error message shown
+2. **Sign Up Flow** — User fills all fields → password mismatch check prevents submit → on match, submits → on API success, redirects
+3. **Dashboard Roadmap** — Modules load from API → loading state renders → modules are listed → user clicks module to expand → clicks "Start" on a lesson → navigation is triggered
+4. **Submit Bar (Practice)** — Submit disabled when blanks unfilled → enabled when all filled → shows "Verifying..." while submitting → disabled again after correct answer (`canResubmit=false`)
+5. **Result Banner** — Hidden when `showResult=null` → shows correct banner → shows wrong banner with AI explanation panel in loading/error/success states
+6. **Hint Strip** 🆕 — Button label cycles through Get/Next/Hide → hints revealed on open → `onRequestHint` vs `onToggleHint` called correctly
+7. **Exercise Tab Bar** 🆕 — Tabs reflect pass state → block-complete badge appears → tab click fires index setter
+8. **Block Completion (`useBlockExercises`)** 🆕 — All exercises passed → `blockCompleted` fires → `/blocks/:id/complete` is called exactly once
+
+---
+
+## Phase 2: Unit Test Cases
+
+### `unit/lib/auth.test.ts` (planned, not yet written)
+
+File: `src/lib/auth.ts` exports `requireAuth` and `checkLanguageSelection`. Both use `throw redirect(...)` from TanStack Router and call `getMe()` from axios.
+
+**Mocking strategy:** mock `@tanstack/react-router` to capture `redirect` calls; mock `@/lib/axios` at the module level for `getMe`.
+
+```ts
+// Skeleton for auth.test.ts
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+// Mock TanStack redirect so it throws a trackable object, not a real navigation
+vi.mock('@tanstack/react-router', () => ({
+  redirect: (opts: { to: string }) => ({ __redirect: true, to: opts.to }),
+}));
+
+// Mock getMe so we control what the "server" returns
+vi.mock('@/lib/axios', () => ({
+  getMe: vi.fn(),
+}));
+
+import { requireAuth, checkLanguageSelection } from '@/lib/auth';
+import { getMe } from '@/lib/axios';
+```
+
+**Test cases for `requireAuth()`:**
+
+| Scenario                                               | Expected                                                     |
+| ------------------------------------------------------ | ------------------------------------------------------------ |
+| No token in localStorage                               | throws redirect to `/login`                                  |
+| Token present, `getMe()` throws (expired)              | clears token from localStorage + throws redirect to `/login` |
+| Token present, user has no `selectedLanguage`          | throws redirect to `/languageselection`                      |
+| Token present, user has empty `selectedLanguage` array | throws redirect to `/languageselection`                      |
+| Token present, user has valid `selectedLanguage`       | resolves without throwing                                    |
+
+**Test cases for `checkLanguageSelection()`:**
+
+| Scenario                                               | Expected                                                |
+| ------------------------------------------------------ | ------------------------------------------------------- |
+| No token in localStorage                               | throws redirect to `/login`                             |
+| Token present, `getMe()` throws                        | clears token + throws redirect to `/login`              |
+| Token present, user has `selectedLanguage` already set | throws redirect to `/dashboard`                         |
+| Token present, user has no `selectedLanguage`          | resolves without throwing (stays on language selection) |
+
+---
+
+## Phase 3: Integration Test Cases
+
+### `integration/auth/AuthContextProvider.test.tsx` (missing from original file structure)
+
+File: `src/features/auth/AuthContextProvider.tsx`
+
+**Test wrapper:** needs `createMemoryHistory` + `RouterProvider` per the agreed TanStack Router approach.
+
+| Scenario                                               | Expected                                              |
+| ------------------------------------------------------ | ----------------------------------------------------- |
+| `login()` success → token stored                       | `localStorage.getItem('token')` equals returned token |
+| `login()` success → navigate called                    | router history moves to `/languageselection`          |
+| `login()` API error with message                       | `error` state is set to the API message string        |
+| `login()` network failure (no message)                 | `error` state is set to fallback string               |
+| `login()` sets `loading` true during call, false after | `loading` transitions correctly                       |
+| `register()` success with token                        | stores token + navigates to `/languageselection`      |
+| `register()` success without token in response         | navigates to `/login` without storing token           |
+| `register()` API error                                 | `error` state set correctly                           |
+| `logout()` clears token from localStorage              | `localStorage.getItem('token')` is null               |
+| `logout()` navigates to `/login`                       | router history moves to `/login`                      |
+| `useAuth()` outside provider                           | throws `"useAuth must be used within AuthProvider"`   |
+
+---
+
+### `integration/practice/HintStrip.test.tsx` (new — not in original plan)
+
+File: `src/components/practice_utils/shared/HintStrip.tsx`
+
+Small, self-contained component — very testable. All props are callbacks or primitives.
+
+| Scenario                                          | Expected                                                      |
+| ------------------------------------------------- | ------------------------------------------------------------- |
+| `hints=[]`, `isOpen=false`                        | button label is "Get Hint"                                    |
+| `hints=['hint1']`, `isOpen=false`                 | button label is "Next Hint"; hint count shows `(1)` in header |
+| `hints=['hint1']`, `isOpen=true`                  | button label is "Hide Hint"; hint text is visible in DOM      |
+| `hints=[]`, `isOpen=false` — button clicked       | calls `onRequestHint`, does NOT call `onToggleHint`           |
+| `hints=['hint1']`, `isOpen=true` — button clicked | calls `onToggleHint` (hide), does NOT call `onRequestHint`    |
+| Header row clicked when `isOpen=false`            | calls `onToggleHint`                                          |
+| Multiple hints visible when `isOpen=true`         | all hint strings are in the document                          |
+
+---
+
+### `integration/lesson/ExerciseTabBar.test.tsx` (new — not in original plan)
+
+File: `src/features/lesson/ExerciseTabBar.tsx`
+
+Drives the tab strip at the top of the practice panel — important for navigation and completion visibility.
+
+| Scenario                                      | Expected                                                 |
+| --------------------------------------------- | -------------------------------------------------------- |
+| `loading=true`                                | renders "Loading exercises..." text                      |
+| `error="some error"`                          | renders "Failed to load exercises" text                  |
+| `exercises=[]`, no loading/error              | renders "No practice available" text                     |
+| Renders one button per exercise               | button count equals `exercises.length`                   |
+| Active exercise button is visually distinct   | active button has blue class; others don't               |
+| Passed exercise shows ✓ prefix                | exercise with `exercisePassMap[id]=true` shows checkmark |
+| Passed + active exercise                      | shows green variant (passed wins over default blue)      |
+| Clicking a tab calls `setActiveExerciseIndex` | callback invoked with correct index                      |
+| `blockCompleted=true`                         | "Block complete!" badge is visible                       |
+| `blockCompleted=false`                        | badge is not in the document                             |
+
+---
+
+### `integration/practice/AvailableBlock.test.tsx` (new — not in original plan)
+
+File: `src/components/practice_utils/components/drag_drop/AvailableBlock.tsx`
+
+| Scenario                    | Expected                                                       |
+| --------------------------- | -------------------------------------------------------------- |
+| `isUsed=false`              | block is draggable; has active border classes                  |
+| `isUsed=true`               | block has `opacity-20` / cursor-not-allowed classes            |
+| `isUsed=false`, user clicks | calls `onClick`                                                |
+| `isUsed=true`, user clicks  | `onDragStart` is NOT called when drag begins (draggable=false) |
+| Block code text is rendered | `block.code` string is visible in DOM                          |
+
+---
+
+### Phase 3 MSW Handler Additions
+
+The original `handlers.ts` plan only covered auth and basic exercise endpoints. Three new API calls in `axios.ts` have no handler coverage:
+
+```ts
+// handlers.ts additions needed
+
+// 1. Exercise explanation (AI)
+http.post('/api/exercises/:exerciseId/explain', () =>
+  HttpResponse.json({
+    exerciseId: 'ex-001',
+    isCorrect: false,
+    feedback: 'Your answer was close but incorrect.',
+    items: [{ field: '1', isCorrect: false, explanation: 'Expected b1 first' }],
+    suggestion: 'Review the for loop structure.',
+  })
+),
+
+// 2. Exercise attempt history
+http.get('/api/practice/exercises/:exerciseId/history', () =>
+  HttpResponse.json([
+    {
+      _id: 'attempt-1',
+      exerciseId: 'ex-001',
+      isPassed: false,
+      items: [],
+      hintLevel: 1,
+      attemptNumber: 1,
+      attemptedAt: '2025-01-01T00:00:00Z',
+    },
+  ])
+),
+
+// 3. Block completion
+http.post('/api/learning/blocks/:blockId/complete', () =>
+  HttpResponse.json({
+    message: 'Block completed',
+    lessonProgress: {
+      status: 'active',
+      completionPercentage: 50,
+      isCompleted: false,
+    },
+  })
+),
+```
+
+---
+
+## Phase 4: Hook Test Cases
+
+### `integration/hooks/useBlockExercises.test.ts`
+
+File: `src/features/lesson/useBlockExercises.ts`
+
+This is the most critical untested hook — it drives block completion, the pass map, and the Feynman interview gate. Requires MSW + `renderHook`.
+
+| Scenario                                               | Expected                                                           |
+| ------------------------------------------------------ | ------------------------------------------------------------------ |
+| `block=undefined`                                      | `exercises` is empty array, `loading` stays false                  |
+| Block has no `practice` content items                  | `exercises` is empty, no API calls made                            |
+| Block has 2 exercise IDs                               | fetches both in parallel; `exercises` has 2 items                  |
+| API fetch throws                                       | `error` state is set; `exercises` is empty                         |
+| `submitAnswer()` correct on first exercise of two      | `exercisePassMap[id]` is true; `blockCompleted` stays false        |
+| `submitAnswer()` correct on last remaining exercise    | `blockCompleted` becomes true                                      |
+| `blockCompleted` triggers `completeBlock()` API call   | MSW `/blocks/:id/complete` handler is called                       |
+| `submitAnswer()` incorrect                             | `exercisePassMap[id]` is NOT set; `blockCompleted` stays false     |
+| Block changes (new `blockId`)                          | `exercisePassMap` resets to `{}`; `blockCompleted` resets to false |
+| `getHint()` delegates to `getExerciseHint`             | MSW hint handler called with correct exercise ID                   |
+| `explainAnswer()` delegates to `explainExerciseAnswer` | MSW explain handler called                                         |
+
+---
+
+### `integration/hooks/usePractice.test.ts`
+
+File: `src/features/practices/usePractice.ts`
+
+Notable behaviors to test beyond the basic fetch: the 400ms debounce on search/filter changes, the language sourced from `useAuth`, and the skip-if-no-language guard.
+
+| Scenario                             | Expected                                                        |
+| ------------------------------------ | --------------------------------------------------------------- |
+| `user.selectedLanguage` is undefined | no API call is made; `exercises` stays empty                    |
+| Normal fetch                         | MSW handler returns exercises; `exercises` is populated         |
+| `q` changes                          | after debounce delay (advance timers by 400ms), new fetch fires |
+| `q` changes twice rapidly            | only ONE fetch fires (second cancels first timer)               |
+| `difficulty='All Levels'`            | `difficulty` param is NOT sent to API                           |
+| `difficulty='Easy'`                  | `difficulty: 'easy'` (lowercase) is sent to API                 |
+| API throws                           | `error` state is set                                            |
+| Unmount during fetch                 | no state update after unmount (no React warning)                |
+
+---
+
 ## Open Questions
 
 > [!IMPORTANT]
 >
-> 1. **TanStack Router context in tests**: `LoginForm` uses `<Link>` from `@tanstack/react-router`. Should I wrap tests with a lightweight `createMemoryHistory` + `RouterProvider` wrapper, or swap `Link` in tests with a mock? I recommend the wrapper approach — no source changes needed.
-> 2. **Coverage threshold**: Do you want to enforce a minimum coverage percentage (e.g., 80%)? I'll add `coverage.thresholds` to config if so.
-> 3. **Phase 3 scope**: The `PracticePanel.tsx` and `FillBlankPane.tsx` components are large and have complex internal state. Should these be included in Phase 3 or deferred to a Phase 4?
-
-## Answers
-
-Great analysis! Let's proceed with the following decisions:
-
-1. **TanStack Router**: Yes, use the wrapper approach with `createMemoryHistory` + `RouterProvider`. Do not mock `<Link>` directly.
-2. **Coverage**: Please configure the testing tool to collect and display coverage reports, but do not set a strict minimum threshold (like 80%) that fails the build yet. We will establish a baseline first.
-3. **Phase 3 Scope**: Let's defer `PracticePanel.tsx` and `FillBlankPane.tsx` to a new Phase 4. Focus Phase 3 entirely on the smaller, simpler feature components to ensure our testing foundation and wrappers work perfectly.
+> 1. **TanStack Router context in tests:** ✅ Resolved — use `createMemoryHistory` + `RouterProvider` wrapper. No source changes needed.
+> 2. **Coverage threshold:** ✅ Resolved — collect and display coverage, no strict minimum yet. Establish baseline first.
+> 3. **Phase 3 scope:** ✅ Resolved — `PracticePanel.tsx` and `FillBlankPane.tsx` deferred to Phase 4.
+> 4. **🆕 `useBlockExercises` timer in `completeBlock`:** The hook calls `completeBlock` inside a `setExercisePassMap` updater via `void`. Tests should use `vi.useFakeTimers()` or `waitFor` to confirm the async POST fires without it being awaited in the assertion path.
+> 5. **🆕 `usePractice` debounce:** Uses `setTimeout(400ms)`. Tests must call `vi.useFakeTimers()` and `vi.advanceTimersByTime(400)` to trigger the fetch without waiting real time.
+> 6. **🆕 `AuthContextProvider` `useEffect` on token change:** The effect calls `getMe()` on mount when a token exists in localStorage. Tests that check the user state should pre-seed localStorage before rendering and use `waitFor` to resolve the effect.
