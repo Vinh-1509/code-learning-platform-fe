@@ -9,6 +9,7 @@ import { FeynmanInterviewPane } from '../interview/FeynmanInterviewPane';
 import Navbar from '@/components/navbar/Navbar';
 import { useBlockExercises } from './useBlockExercises';
 import { ExerciseTabBar } from './ExerciseTabBar';
+import { cn } from '@/lib/utils';
 
 const lessonRouteApi = getRouteApi('/lesson/$lessonId');
 
@@ -90,79 +91,103 @@ export function LessonPage() {
           onClose={() => setIsSidebarOpen(false)}
         />
 
-        <div className="flex-1 overflow-y-auto bg-card">
-          <TheoryPanel block={currentBlock} />
-        </div>
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+          {/* Panels container */}
+          <div className="flex-1 flex flex-col lg:flex-row min-h-0 overflow-hidden">
+            {/* Theory panel */}
+            <div
+              className={cn(
+                'flex-1 overflow-y-auto min-h-0 bg-card',
+                activeTab === 'theory' ? 'block' : 'hidden lg:block'
+              )}
+            >
+              <div className="lg:hidden bg-blue-50/50 text-blue-600 px-6 py-2.5 text-sm font-bold border-b border-blue-100/50 select-none">
+                Theory
+              </div>
+              <TheoryPanel block={currentBlock} />
+            </div>
 
-        <div className="flex-1 min-h-0 z-10 flex flex-col shadow-[-10px_0_15px_-5px_rgba(0,0,0,0.06)] bg-card">
-          <ExerciseTabBar
-            loading={loading}
-            error={error}
-            exercises={exercises}
-            exercisePassMap={exercisePassMap}
-            activeExerciseIndex={activeExerciseIndex}
-            setActiveExerciseIndex={setActiveExerciseIndex}
-            blockCompleted={blockCompleted}
-          />
+            {/* Practice panel */}
+            <div
+              className={cn(
+                'flex-1 min-h-0 z-10 flex flex-col shadow-[-10px_0_15px_-5px_rgba(0,0,0,0.06)] bg-card border-t lg:border-t-0 lg:border-l border-border',
+                activeTab === 'practice' ? 'flex' : 'hidden lg:flex'
+              )}
+            >
+              <div className="lg:hidden bg-blue-50/50 text-blue-600 px-6 py-2.5 text-sm font-bold border-b border-blue-100/50 select-none">
+                Practice
+              </div>
+              <ExerciseTabBar
+                loading={loading}
+                error={error}
+                exercises={exercises}
+                exercisePassMap={exercisePassMap}
+                activeExerciseIndex={activeExerciseIndex}
+                setActiveExerciseIndex={setActiveExerciseIndex}
+                blockCompleted={blockCompleted}
+              />
 
-          <div className="flex-1 overflow-y-auto p-4 h-full">
-            {(() => {
-              const currentBlockIndex =
-                currentLesson?.blocks.findIndex(
-                  (b: Block) => b._id === activeBlockId
-                ) ?? 0;
-              const nextBlockExists =
-                (currentLesson?.blocks.length ?? 0) > currentBlockIndex + 1;
+              <div className="flex-1 overflow-y-auto p-4 h-full">
+                {(() => {
+                  const currentBlockIndex =
+                    currentLesson?.blocks.findIndex(
+                      (b: Block) => b._id === activeBlockId
+                    ) ?? 0;
+                  const nextBlockExists =
+                    (currentLesson?.blocks.length ?? 0) > currentBlockIndex + 1;
 
-              const shouldShowFeynman =
-                blockCompleted &&
-                activeBlockId &&
-                (!currentBlock?.isFeynmanPassed ||
-                  justPassedFeynmanBlockId === activeBlockId);
+                  const shouldShowFeynman =
+                    blockCompleted &&
+                    activeBlockId &&
+                    (!currentBlock?.isFeynmanPassed ||
+                      justPassedFeynmanBlockId === activeBlockId);
 
-              if (shouldShowFeynman) {
-                return (
-                  <FeynmanInterviewPane
-                    lessonBlockId={activeBlockId}
-                    onComplete={() => {
-                      if (activeBlockId) {
-                        setSelectedBlockId(activeBlockId);
-                      }
-                      setJustPassedFeynmanBlockId(activeBlockId);
-                      void refetchLesson?.();
-                    }}
-                    onNextBlock={() => {
-                      void refetchLesson?.().then(() => {
-                        const nextBlock =
-                          currentLesson?.blocks[currentBlockIndex + 1];
-                        if (nextBlock) {
-                          setJustPassedFeynmanBlockId(null);
-                          setSelectedBlockId(nextBlock._id);
-                        }
-                      });
-                    }}
-                    onBackToDashboard={() => {
-                      void navigate({ to: '/dashboard' });
-                    }}
-                    hasNextBlock={nextBlockExists}
-                  />
-                );
-              }
+                  if (shouldShowFeynman) {
+                    return (
+                      <FeynmanInterviewPane
+                        lessonBlockId={activeBlockId}
+                        onComplete={() => {
+                          if (activeBlockId) {
+                            setSelectedBlockId(activeBlockId);
+                          }
+                          setJustPassedFeynmanBlockId(activeBlockId);
+                          void refetchLesson?.();
+                        }}
+                        onNextBlock={() => {
+                          void refetchLesson?.().then(() => {
+                            const nextBlock =
+                              currentLesson?.blocks[currentBlockIndex + 1];
+                            if (nextBlock) {
+                              setJustPassedFeynmanBlockId(null);
+                              setSelectedBlockId(nextBlock._id);
+                            }
+                          });
+                        }}
+                        onBackToDashboard={() => {
+                          void navigate({ to: '/dashboard' });
+                        }}
+                        hasNextBlock={nextBlockExists}
+                      />
+                    );
+                  }
 
-              if (exercises.length > 0 && exercises[activeExerciseIndex]) {
-                return (
-                  <PracticePanel
-                    key={exercises[activeExerciseIndex].id}
-                    exercise={exercises[activeExerciseIndex]}
-                    onSubmit={submitAnswer}
-                    onGetHint={getHint}
-                    onExplain={explainAnswer}
-                  />
-                );
-              }
+                  if (exercises.length > 0 && exercises[activeExerciseIndex]) {
+                    return (
+                      <PracticePanel
+                        key={exercises[activeExerciseIndex].id}
+                        exercise={exercises[activeExerciseIndex]}
+                        onSubmit={submitAnswer}
+                        onGetHint={getHint}
+                        onExplain={explainAnswer}
+                      />
+                    );
+                  }
 
-              return null;
-            })()}
+                  return null;
+                })()}
+              </div>
+            </div>
           </div>
         </div>
       </div>
