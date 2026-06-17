@@ -4,7 +4,7 @@ import { LessonSidebar } from './LessonSidebar';
 import { TheoryPanel } from './TheoryPanel';
 import { useState, useEffect } from 'react';
 import type { Block } from '@/lib/axios';
-import { PracticePanel } from '../practice_utils/PracticePanel';
+import { PracticePanel } from '@/components/practice_utils/PracticePanel';
 import { FeynmanInterviewPane } from '../interview/FeynmanInterviewPane';
 import Navbar from '@/components/navbar/Navbar';
 import { useBlockExercises } from './useBlockExercises';
@@ -12,6 +12,14 @@ import { ExerciseTabBar } from './ExerciseTabBar';
 
 const lessonRouteApi = getRouteApi('/lesson/$lessonId');
 
+/**
+ * LessonPage component manages the workspace layout and state for a single lesson.
+ * Coordinates sidebar navigation, displays theory and code walkthroughs, and handles
+ * interactive practice exercises or Feynman mock interviews.
+ * Supports toggleable tabs switcher control on mobile viewports.
+ *
+ * @returns {JSX.Element} The rendered LessonPage component.
+ */
 export function LessonPage() {
   const navigate = useNavigate();
   const { lessonId } = lessonRouteApi.useParams();
@@ -21,6 +29,8 @@ export function LessonPage() {
   const [justPassedFeynmanBlockId, setJustPassedFeynmanBlockId] = useState<
     string | null
   >(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<'theory' | 'practice'>('theory');
 
   const activeBlockId =
     selectedBlockId ??
@@ -52,17 +62,22 @@ export function LessonPage() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setActiveExerciseIndex(0);
+    setActiveTab('theory');
   }, [activeBlockId]);
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-card">
-      <Navbar variant="lesson" />
+      <Navbar
+        variant="lesson"
+        onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+        activeTab={activeTab}
+        onChangeTab={setActiveTab}
+      />
 
       <div className="flex flex-1 pt-14 overflow-hidden">
         <LessonSidebar
           blocks={currentLesson?.blocks || []}
           lessonTitle={currentLesson?.title}
-          selectedBlockId={activeBlockId}
           onSelectBlock={(id) => {
             // Clear the "just passed" state so the user can revisit exercises on previously passed blocks
             if (id !== activeBlockId) {
@@ -70,13 +85,15 @@ export function LessonPage() {
             }
             setSelectedBlockId(id);
           }}
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
         />
 
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto bg-card">
           <TheoryPanel block={currentBlock} />
         </div>
 
-        <div className="flex-1 overflow-y-auto flex flex-col">
+        <div className="flex-1 min-h-0 z-10 flex flex-col shadow-[-10px_0_15px_-5px_rgba(0,0,0,0.06)] bg-card">
           <ExerciseTabBar
             loading={loading}
             error={error}
@@ -87,7 +104,7 @@ export function LessonPage() {
             blockCompleted={blockCompleted}
           />
 
-          <div className="flex-1 overflow-y-auto p-4">
+          <div className="flex-1 overflow-y-auto p-4 h-full">
             {(() => {
               const currentBlockIndex =
                 currentLesson?.blocks.findIndex(

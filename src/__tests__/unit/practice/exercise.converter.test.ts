@@ -4,7 +4,7 @@ import {
   convertFillBlankExercise,
   convertExerciseResponse,
   prepareAnswerForSubmission,
-} from '@/features/practice_utils/utils/exercise.converter';
+} from '@/components/practice_utils/utils/exercise.converter';
 import type {
   DragDropExerciseResponse,
   FillBlankExerciseResponse,

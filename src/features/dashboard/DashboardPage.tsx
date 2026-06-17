@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AppSidebar } from '../../components/sidebar/Sidebar';
+import { AppSidebar } from '@/components/sidebar/Sidebar';
 import { CurrentLessonBanner } from './CurrentLessonBanner';
 import { StatsGrid } from './StatsGrid';
 import { LearningRoadmap } from './LearningRoadmap';
@@ -17,6 +17,7 @@ export function DashboardPage() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'practice'>(
     'dashboard'
   );
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const {
     modules,
     expandedModules,
@@ -44,20 +45,24 @@ export function DashboardPage() {
   return (
     <div className="h-screen overflow-hidden">
       {/* HEADER */}
-      <Navbar />
+      <Navbar onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
 
       {/* SIDEBAR */}
-
       <AppSidebar
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={(tab: 'dashboard' | 'practice') => {
+          setActiveTab(tab);
+          setIsSidebarOpen(false);
+        }}
         completedLessons={loading ? undefined : completedLessons}
         totalLessons={loading ? undefined : totalLessons}
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
       />
 
       {/* CONTENT */}
-      <main className="ml-64 pt-14 h-screen overflow-y-auto">
-        <div className="p-8 max-w-7xl mx-auto space-y-6">
+      <main className="ml-0 md:ml-64 pt-14 h-screen overflow-y-auto">
+        <div className="p-4 sm:p-8 max-w-7xl mx-auto space-y-6">
           {!loading && currentLessonBanner}
 
           <StatsGrid
