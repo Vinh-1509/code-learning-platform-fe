@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
 interface NavbarProps {
-  variant?: 'dashboard' | 'lesson';
+  variant?: 'dashboard' | 'lesson' | 'practice';
   onToggleSidebar?: () => void;
   activeTab?: 'theory' | 'practice';
   onChangeTab?: (tab: 'theory' | 'practice') => void;
@@ -158,6 +158,19 @@ const Navbar = ({
             )}
           </div>
         </>
+      )}
+
+      {variant === 'practice' && (
+        <Link to="/practice">
+          <Button
+            type="button"
+            variant="secondary"
+            className="flex items-center gap-1 bg-trueaccent text-primary rounded-lg px-4 h-9 text-sm font-semibold hover:bg-accent transition-colors"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            Back to Practice
+          </Button>
+        </Link>
       )}
 
       {variant === 'dashboard' && (

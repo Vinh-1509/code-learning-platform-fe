@@ -10,7 +10,6 @@ export function PracticePage() {
     'practice'
   );
 
-  // TODO(api): thay bằng progress thật từ backend khi có endpoint
   const completedLessons = 12;
   const totalLessons = 45;
 

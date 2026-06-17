@@ -1,19 +1,24 @@
 import { useEffect, useState } from 'react';
-
+import { useAuth } from '@/features/auth/useAuth'; // Hook lấy thông tin user authMe của bạn
 import {
   fetchExercises,
   type Exercise,
   type FetchExercisesParams,
 } from '@/lib/axios';
 
-// Hook gọi GET /api/practice/exercises — dùng ở PracticeLibrary
-export function usePractice(filters: FetchExercisesParams) {
+export function usePractice(filters: Omit<FetchExercisesParams, 'language'>) {
+  const { user } = useAuth();
+
+  const userLanguage = user?.selectedLanguage?.[0];
   const [exercises, setExercises] = useState<Exercise[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Debounce 400ms: user gõ search không bắn API từng ký tự
+    if (!userLanguage) {
+      return;
+    }
+
     const timer = setTimeout(async () => {
       try {
         setLoading(true);
@@ -21,6 +26,7 @@ export function usePractice(filters: FetchExercisesParams) {
         const params: FetchExercisesParams = {
           page: filters.page ?? 1,
           limit: filters.limit ?? 15,
+          language: userLanguage,
         };
 
         if (filters.q) {
@@ -31,17 +37,13 @@ export function usePractice(filters: FetchExercisesParams) {
           params.difficulty = filters.difficulty.toLowerCase();
         }
 
-        if (filters.language && filters.language !== 'All Languages') {
-          params.language = filters.language;
-        }
-
         const response = await fetchExercises(params);
 
         setExercises(response.data);
         setError(null);
       } catch (err) {
         console.error('Error fetching exercises:', err);
-        setError('Không thể tải danh sách bài tập.');
+        setError('Error when fetching exercises');
       } finally {
         setLoading(false);
       }
@@ -51,9 +53,9 @@ export function usePractice(filters: FetchExercisesParams) {
   }, [
     filters.q,
     filters.difficulty,
-    filters.language,
     filters.page,
     filters.limit,
+    userLanguage,
   ]);
 
   return { exercises, loading, error };

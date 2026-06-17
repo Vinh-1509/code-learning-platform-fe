@@ -2,18 +2,14 @@ import { Search } from 'lucide-react';
 
 // UI bộ lọc — chỉ hiển thị + gọi callback, không gọi API trực tiếp
 interface PracticeFiltersProps {
-  langFilter: string;
   diffFilter: string;
-  onLangChange: (value: string) => void;
   onDiffChange: (value: string) => void;
   onSearchChange: (value: string) => void;
   search: string;
 }
 
 export function PracticeFilters({
-  langFilter,
   diffFilter,
-  onLangChange,
   onDiffChange,
   onSearchChange,
   search,
@@ -28,21 +24,6 @@ export function PracticeFilters({
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
-        <div className="flex items-center gap-2">
-          <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-            Language
-          </span>
-          <select
-            className="rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none"
-            value={langFilter}
-            onChange={(e) => onLangChange(e.target.value)}
-          >
-            <option>All Languages</option>
-            <option>C++</option>
-            <option>Java</option>
-          </select>
-        </div>
-
         <div className="flex items-center gap-2">
           <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
             Difficulty

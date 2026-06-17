@@ -1,9 +1,9 @@
-import { useState, type ReactNode } from 'react';
+import { useState, type ReactNode, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import axios from 'axios';
 import type { ApiError } from '@/lib/axios';
-import { loginUser, registerUser } from '@/lib/axios';
-import type { AuthResponse, AuthPayload } from '@/types/auth';
+import { loginUser, registerUser, getMe } from '@/lib/axios';
+import type { AuthResponse, AuthPayload, AuthUserResponse } from '@/types/auth';
 import { AuthContext } from './authContext';
 /**
  * Retrieves the persisted access token from localStorage.
@@ -18,8 +18,29 @@ function getInitialToken() {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const [token, setToken] = useState<string | null>(getInitialToken);
+  const [user, setUser] = useState<AuthUserResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Fetch user data when token changes
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (!token) {
+        setUser(null);
+        return;
+      }
+
+      try {
+        const userData = await getMe();
+        setUser(userData);
+      } catch (err) {
+        console.error('Failed to fetch user data:', err);
+        setUser(null);
+      }
+    };
+
+    void fetchUser();
+  }, [token]);
 
   /**
    * Persists the access token and updates authentication state.
@@ -83,7 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ token, loading, error, login, register, logout }}
+      value={{ token, user, loading, error, login, register, logout }}
     >
       {children}
     </AuthContext.Provider>
