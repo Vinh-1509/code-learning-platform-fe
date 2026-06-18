@@ -1,12 +1,11 @@
+// src/__tests__/unit/lib/auth.test.ts
+// @vitest-environment jsdom
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import {
-  requireAuth,
-  checkLanguageSelection,
-  getAccessToken,
-} from '@/lib/auth';
+// ── Mocks ─────────────────────────────────────────────────────────────────────
 
-// TanStack Router redirect() throws — we catch the redirect target in tests
+// TanStack Router redirect() ném ra Exception — ta giả lập hành vi ném object target để bắt trong test
 const mockRedirect = vi.fn((opts: unknown) => {
   throw opts;
 });
@@ -15,81 +14,181 @@ vi.mock('@tanstack/react-router', () => ({
   redirect: (opts: unknown) => mockRedirect(opts),
 }));
 
-const mockGetMe = vi.fn();
 vi.mock('@/lib/axios', () => ({
-  getMe: () => mockGetMe(),
+  getMe: vi.fn(),
 }));
+
+import {
+  requireAuth,
+  checkLanguageSelection,
+  getAccessToken,
+} from '@/lib/auth';
+import { getMe } from '@/lib/axios';
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+const mockGetMe = vi.mocked(getMe);
+
+type MockUser = Awaited<ReturnType<typeof getMe>>;
+
+/** Tạo object user giả lập tối giản. Mặc định chọn C++ nếu không truyền tham số. */
+function makeUser(selectedLanguage: string[] = ['C++']): MockUser {
+  return {
+    _id: 'user-1',
+    email: 'test@example.com',
+    createdAt: '2024-01-01T00:00:00Z',
+    selectedLanguage,
+  };
+}
+
+/** Ép kiểu dữ liệu từng phần cho MockUser — né việc lặp lại các trường bắt buộc trong case đặc biệt. */
+function partialUser(overrides: Partial<MockUser>): MockUser {
+  return { ...makeUser(), ...overrides };
+}
+
+// ── getAccessToken() ──────────────────────────────────────────────────────────
 
 describe('getAccessToken()', () => {
   beforeEach(() => {
     localStorage.clear();
   });
 
-  it('returns null when no token is stored', () => {
+  it('should return null when no token is stored', () => {
     expect(getAccessToken()).toBeNull();
   });
 
-  it('returns the token from localStorage', () => {
-    localStorage.setItem('token', 'my-jwt');
-    expect(getAccessToken()).toBe('my-jwt');
+  it('should return the stored token string', () => {
+    localStorage.setItem('token', 'abc.123.xyz');
+    expect(getAccessToken()).toBe('abc.123.xyz');
   });
 });
+
+// ── requireAuth() ─────────────────────────────────────────────────────────────
 
 describe('requireAuth()', () => {
   beforeEach(() => {
     localStorage.clear();
-    vi.clearAllMocks();
+    mockGetMe.mockReset();
+    mockRedirect.mockClear();
   });
 
-  it('redirects to login when there is no token', async () => {
-    await expect(requireAuth()).rejects.toEqual({ to: '/login' });
+  it('should throw redirect to /login when localStorage has no token', async () => {
+    await expect(requireAuth()).rejects.toMatchObject({ to: '/login' });
   });
 
-  it('redirects to login and clears token when getMe fails', async () => {
-    localStorage.setItem('token', 'bad-token');
-    mockGetMe.mockRejectedValue(new Error('Unauthorized'));
+  it('should throw redirect to /login when getMe() rejects (expired / invalid token)', async () => {
+    localStorage.setItem('token', 'expired-token');
+    mockGetMe.mockRejectedValueOnce(new Error('401 Unauthorized'));
 
-    await expect(requireAuth()).rejects.toEqual({ to: '/login' });
+    await expect(requireAuth()).rejects.toMatchObject({ to: '/login' });
+  });
+
+  it('should remove the token from localStorage when getMe() rejects', async () => {
+    localStorage.setItem('token', 'expired-token');
+    mockGetMe.mockRejectedValueOnce(new Error('401 Unauthorized'));
+
+    await expect(requireAuth()).rejects.toBeDefined();
     expect(localStorage.getItem('token')).toBeNull();
   });
 
-  it('redirects to language selection when user has no language', async () => {
+  it('should throw redirect to /languageselection when user has no selectedLanguage property', async () => {
     localStorage.setItem('token', 'valid-token');
-    mockGetMe.mockResolvedValue({ selectedLanguage: [] });
+    mockGetMe.mockResolvedValueOnce(
+      partialUser({ selectedLanguage: undefined })
+    );
 
-    await expect(requireAuth()).rejects.toEqual({ to: '/languageselection' });
+    await expect(requireAuth()).rejects.toMatchObject({
+      to: '/languageselection',
+    });
   });
 
-  it('allows access when user has a token and selected language', async () => {
+  it('should throw redirect to /languageselection when selectedLanguage is an empty array', async () => {
     localStorage.setItem('token', 'valid-token');
-    mockGetMe.mockResolvedValue({ selectedLanguage: ['C++'] });
+    mockGetMe.mockResolvedValueOnce(makeUser([]));
+
+    await expect(requireAuth()).rejects.toMatchObject({
+      to: '/languageselection',
+    });
+  });
+
+  it('should resolve without throwing when token is valid and a language is selected', async () => {
+    localStorage.setItem('token', 'valid-token');
+    mockGetMe.mockResolvedValueOnce(makeUser(['C++']));
 
     await expect(requireAuth()).resolves.toBeUndefined();
   });
+
+  it('should NOT remove the token from localStorage on a successful auth check', async () => {
+    localStorage.setItem('token', 'valid-token');
+    mockGetMe.mockResolvedValueOnce(makeUser(['Java']));
+
+    await requireAuth();
+    expect(localStorage.getItem('token')).toBe('valid-token');
+  });
 });
+
+// ── checkLanguageSelection() ──────────────────────────────────────────────────
 
 describe('checkLanguageSelection()', () => {
   beforeEach(() => {
     localStorage.clear();
-    vi.clearAllMocks();
+    mockGetMe.mockReset();
+    mockRedirect.mockClear();
   });
 
-  it('redirects to login when there is no token', async () => {
-    await expect(checkLanguageSelection()).rejects.toEqual({ to: '/login' });
+  it('should throw redirect to /login when localStorage has no token', async () => {
+    await expect(checkLanguageSelection()).rejects.toMatchObject({
+      to: '/login',
+    });
   });
 
-  it('redirects to dashboard when user already picked a language', async () => {
+  it('should throw redirect to /login when getMe() rejects', async () => {
+    localStorage.setItem('token', 'expired-token');
+    mockGetMe.mockRejectedValueOnce(new Error('401 Unauthorized'));
+
+    await expect(checkLanguageSelection()).rejects.toMatchObject({
+      to: '/login',
+    });
+  });
+
+  it('should remove the token from localStorage when getMe() rejects', async () => {
+    localStorage.setItem('token', 'expired-token');
+    mockGetMe.mockRejectedValueOnce(new Error('401 Unauthorized'));
+
+    await expect(checkLanguageSelection()).rejects.toBeDefined();
+    expect(localStorage.getItem('token')).toBeNull();
+  });
+
+  it('should throw redirect to /dashboard when the user already has a language selected', async () => {
     localStorage.setItem('token', 'valid-token');
-    mockGetMe.mockResolvedValue({ selectedLanguage: ['C++'] });
+    mockGetMe.mockResolvedValueOnce(makeUser(['C++']));
 
-    await expect(checkLanguageSelection()).rejects.toEqual({
+    await expect(checkLanguageSelection()).rejects.toMatchObject({
       to: '/dashboard',
     });
   });
 
-  it('stays on language page when user has not picked a language yet', async () => {
+  it('should throw redirect to /dashboard for any non-empty selectedLanguage array', async () => {
     localStorage.setItem('token', 'valid-token');
-    mockGetMe.mockResolvedValue({ selectedLanguage: [] });
+    mockGetMe.mockResolvedValueOnce(makeUser(['Java']));
+
+    await expect(checkLanguageSelection()).rejects.toMatchObject({
+      to: '/dashboard',
+    });
+  });
+
+  it('should resolve without throwing when selectedLanguage is an empty array (user stays on selection page)', async () => {
+    localStorage.setItem('token', 'valid-token');
+    mockGetMe.mockResolvedValueOnce(makeUser([]));
+
+    await expect(checkLanguageSelection()).resolves.toBeUndefined();
+  });
+
+  it('should resolve without throwing when selectedLanguage property is absent entirely', async () => {
+    localStorage.setItem('token', 'valid-token');
+    mockGetMe.mockResolvedValueOnce(
+      partialUser({ selectedLanguage: undefined })
+    );
 
     await expect(checkLanguageSelection()).resolves.toBeUndefined();
   });
