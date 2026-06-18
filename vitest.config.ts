@@ -9,10 +9,15 @@ export default defineConfig({
     environment: 'jsdom',
     // Make describe/it/expect globals (no explicit import needed)
     globals: true,
-    // Run jest-dom matchers and any other global setup before every test file
+    // Run jest-dom matchers and MSW setup before every test file
     setupFiles: ['./src/__tests__/setup.ts'],
     // Only look for test files inside our designated folder
     include: ['src/__tests__/**/*.test.{ts,tsx}'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html'],
+      // No minimum threshold yet — collect baseline first (see implementation_plan.md)
+    },
   },
   resolve: {
     // Mirror the '@/' path alias from vite.config.ts
