@@ -1,8 +1,17 @@
+// src/__tests__/unit/lib/auth.test.ts
+// @vitest-environment jsdom
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
+
+// TanStack Router redirect() ném ra Exception — ta giả lập hành vi ném object target để bắt trong test
+const mockRedirect = vi.fn((opts: unknown) => {
+  throw opts;
+});
+
 vi.mock('@tanstack/react-router', () => ({
-  redirect: (opts: { to: string }) => ({ __isRedirect: true, to: opts.to }),
+  redirect: (opts: unknown) => mockRedirect(opts),
 }));
 
 vi.mock('@/lib/axios', () => ({
@@ -22,7 +31,7 @@ const mockGetMe = vi.mocked(getMe);
 
 type MockUser = Awaited<ReturnType<typeof getMe>>;
 
-/** Minimal user object. Pass an empty array or omit the arg to simulate no language selected. */
+/** Tạo object user giả lập tối giản. Mặc định chọn C++ nếu không truyền tham số. */
 function makeUser(selectedLanguage: string[] = ['C++']): MockUser {
   return {
     _id: 'user-1',
@@ -32,7 +41,7 @@ function makeUser(selectedLanguage: string[] = ['C++']): MockUser {
   };
 }
 
-/** Cast a partial shape to MockUser — avoids repeating every required field in edge-case tests. */
+/** Ép kiểu dữ liệu từng phần cho MockUser — né việc lặp lại các trường bắt buộc trong case đặc biệt. */
 function partialUser(overrides: Partial<MockUser>): MockUser {
   return { ...makeUser(), ...overrides };
 }
@@ -60,6 +69,7 @@ describe('requireAuth()', () => {
   beforeEach(() => {
     localStorage.clear();
     mockGetMe.mockReset();
+    mockRedirect.mockClear();
   });
 
   it('should throw redirect to /login when localStorage has no token', async () => {
@@ -77,15 +87,12 @@ describe('requireAuth()', () => {
     localStorage.setItem('token', 'expired-token');
     mockGetMe.mockRejectedValueOnce(new Error('401 Unauthorized'));
 
-    // We don't care about the throw here — just the side-effect
     await expect(requireAuth()).rejects.toBeDefined();
-
     expect(localStorage.getItem('token')).toBeNull();
   });
 
   it('should throw redirect to /languageselection when user has no selectedLanguage property', async () => {
     localStorage.setItem('token', 'valid-token');
-    // Simulate a user who has never picked a language — property is absent
     mockGetMe.mockResolvedValueOnce(
       partialUser({ selectedLanguage: undefined })
     );
@@ -116,7 +123,6 @@ describe('requireAuth()', () => {
     mockGetMe.mockResolvedValueOnce(makeUser(['Java']));
 
     await requireAuth();
-
     expect(localStorage.getItem('token')).toBe('valid-token');
   });
 });
@@ -127,6 +133,7 @@ describe('checkLanguageSelection()', () => {
   beforeEach(() => {
     localStorage.clear();
     mockGetMe.mockReset();
+    mockRedirect.mockClear();
   });
 
   it('should throw redirect to /login when localStorage has no token', async () => {
@@ -149,7 +156,6 @@ describe('checkLanguageSelection()', () => {
     mockGetMe.mockRejectedValueOnce(new Error('401 Unauthorized'));
 
     await expect(checkLanguageSelection()).rejects.toBeDefined();
-
     expect(localStorage.getItem('token')).toBeNull();
   });
 
