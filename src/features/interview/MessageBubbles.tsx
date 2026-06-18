@@ -26,7 +26,7 @@ export function AIMessage({
   return (
     <div className="flex gap-3 mb-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
       {/* AI Avatar */}
-      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center">
+      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-codeblock-header flex items-center justify-center">
         <span className="text-xs font-bold text-white">🤖</span>
       </div>
 
@@ -36,10 +36,10 @@ export function AIMessage({
           className={cn(
             'rounded-xl p-3.5 text-sm leading-relaxed',
             isFeedback
-              ? 'bg-amber-50 border border-amber-200 text-amber-900'
+              ? 'bg-hint-yellow border border-yellow-medium/40 text-brown'
               : isQuestion
-                ? 'bg-slate-100 border border-slate-200 text-slate-900'
-                : 'bg-slate-50 border border-slate-200 text-slate-800'
+                ? 'bg-muted border border-border text-foreground'
+                : 'bg-muted/40 border border-border text-foreground/90'
           )}
         >
           <p className="whitespace-pre-wrap break-words">{content}</p>
@@ -49,7 +49,7 @@ export function AIMessage({
         {hasCodeBlock && (
           <button
             onClick={handleCopy}
-            className="mt-2 flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-700 transition-colors"
+            className="mt-2 flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
           >
             {copied ? (
               <>
@@ -78,13 +78,13 @@ export function UserMessage({ content }: UserMessageProps) {
     <div className="flex gap-3 mb-4 justify-end animate-in fade-in slide-in-from-bottom-2 duration-300">
       {/* Message Bubble - aligned to right */}
       <div className="flex-1 max-w-md">
-        <div className="rounded-xl p-3.5 text-sm leading-relaxed bg-blue-500 text-white border border-blue-600">
+        <div className="rounded-xl p-3.5 text-sm leading-relaxed bg-primary text-white border border-primary/90">
           <p className="whitespace-pre-wrap break-words">{content}</p>
         </div>
       </div>
 
       {/* User Avatar */}
-      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">
+      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary flex items-center justify-center">
         <span className="text-xs font-bold text-white">👤</span>
       </div>
     </div>
@@ -102,8 +102,8 @@ export function FeedbackBadge({ isCorrect, message }: FeedbackBadgeProps) {
       className={cn(
         'rounded-xl p-4 border mb-4 flex items-start gap-3 animate-in fade-in slide-in-from-top-2 duration-300',
         isCorrect
-          ? 'bg-emerald-50 border-emerald-300'
-          : 'bg-rose-50 border-rose-300'
+          ? 'bg-green-mint border border-success/30'
+          : 'bg-red-mint border border-destructive/30'
       )}
     >
       <span className="text-xl flex-shrink-0 mt-0.5">
@@ -113,7 +113,7 @@ export function FeedbackBadge({ isCorrect, message }: FeedbackBadgeProps) {
         <p
           className={cn(
             'text-sm font-semibold',
-            isCorrect ? 'text-emerald-800' : 'text-rose-800'
+            isCorrect ? 'text-green-foreground' : 'text-red-foreground'
           )}
         >
           {isCorrect
@@ -123,7 +123,7 @@ export function FeedbackBadge({ isCorrect, message }: FeedbackBadgeProps) {
         <p
           className={cn(
             'text-sm mt-1',
-            isCorrect ? 'text-emerald-700' : 'text-rose-700'
+            isCorrect ? 'text-green-foreground/90' : 'text-red-foreground/90'
           )}
         >
           {message}

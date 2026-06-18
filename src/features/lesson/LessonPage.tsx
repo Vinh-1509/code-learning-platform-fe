@@ -88,7 +88,7 @@ export function LessonPage() {
                 activeTab === 'theory' ? 'block' : 'hidden lg:block'
               )}
             >
-              <div className="lg:hidden bg-blue-50/50 text-blue-600 px-6 py-2.5 text-sm font-bold border-b border-blue-100/50 select-none">
+              <div className="lg:hidden bg-primary-second/50 text-primary px-6 py-2.5 text-sm font-bold border-b border-primary-second-border/50 select-none">
                 Theory
               </div>
               <TheoryPanel block={currentBlock} />
@@ -101,7 +101,7 @@ export function LessonPage() {
                 activeTab === 'practice' ? 'flex' : 'hidden lg:flex'
               )}
             >
-              <div className="lg:hidden bg-blue-50/50 text-blue-600 px-6 py-2.5 text-sm font-bold border-b border-blue-100/50 select-none">
+              <div className="lg:hidden bg-primary-second/50 text-primary px-6 py-2.5 text-sm font-bold border-b border-primary-second-border/50 select-none">
                 Practice
               </div>
               <ExerciseTabBar

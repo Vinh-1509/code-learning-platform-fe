@@ -18,7 +18,7 @@ export function SubmitBar({
 
   return (
     <div className="pt-6">
-      <p className="text-[10px] text-slate-400 text-center mb-2 font-medium">
+      <p className="text-[10px] text-muted-foreground text-center mb-2 font-medium">
         {!allFilled
           ? 'Fill in all blanks to enable submit.'
           : !canResubmit
@@ -31,8 +31,8 @@ export function SubmitBar({
         className={cn(
           'w-full font-bold h-10 text-xs text-white rounded-xl transition-all uppercase tracking-wider',
           !isDisabled
-            ? 'bg-blue-600 hover:bg-blue-700 shadow-md cursor-pointer'
-            : 'bg-blue-200 text-blue-400/80 cursor-not-allowed shadow-none'
+            ? 'bg-primary hover:bg-primary/90 shadow-md cursor-pointer'
+            : 'bg-primary-second text-primary-second-foreground/40 cursor-not-allowed shadow-none'
         )}
       >
         {isSubmitting ? 'Verifying...' : 'Submit Answer →'}

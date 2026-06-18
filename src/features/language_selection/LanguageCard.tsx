@@ -34,7 +34,7 @@ export function LanguageCard({
         buttonBg: 'bg-purple-cpp hover:bg-purple-cpp/90 text-white',
         selectedBorder:
           'border-purple-cpp ring-2 ring-purple-cpp ring-offset-2',
-        unselectedBorder: 'border-slate-200 hover:border-purple-cpp/30',
+        unselectedBorder: 'border-border hover:border-purple-cpp/30',
       }
     : {
         headerBg: 'bg-orange-jv',
@@ -44,7 +44,7 @@ export function LanguageCard({
         bulletBg: 'bg-orange-jv',
         buttonBg: 'bg-orange-jv hover:bg-orange-jv/90 text-white',
         selectedBorder: 'border-orange-jv ring-2 ring-orange-jv ring-offset-2',
-        unselectedBorder: 'border-slate-200 hover:border-orange-jv/30',
+        unselectedBorder: 'border-border hover:border-orange-jv/30',
       };
 
   const borderClass = isSelected
@@ -76,11 +76,11 @@ export function LanguageCard({
       </div>
 
       <div
-        className="p-5 space-y-4 bg-white"
+        className="p-5 space-y-4 bg-card"
         onClick={(e) => e.stopPropagation()}
       >
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">
             Strengths
           </p>
           <div className="flex flex-wrap gap-1.5">
@@ -96,14 +96,14 @@ export function LanguageCard({
         </div>
 
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">
             Challenges
           </p>
           <div className="flex flex-wrap gap-1.5">
             {lang.challenges.map((c) => (
               <span
                 key={c}
-                className="text-xs px-2.5 py-1 rounded-full border border-slate-200 text-slate-500 bg-slate-50/50"
+                className="text-xs px-2.5 py-1 rounded-full border border-border text-muted-foreground bg-muted/50"
               >
                 {c}
               </span>
@@ -112,14 +112,14 @@ export function LanguageCard({
         </div>
 
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">
             Use Cases
           </p>
           <ul className="space-y-1">
             {lang.useCases.map((u) => (
               <li
                 key={u}
-                className="flex items-center gap-2 text-sm text-slate-600"
+                className="flex items-center gap-2 text-sm text-muted-foreground"
               >
                 <span
                   className={`w-1.5 h-1.5 rounded-full shrink-0 ${theme.bulletBg}`}

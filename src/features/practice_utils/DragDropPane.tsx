@@ -90,22 +90,22 @@ export function DragDropPane({
   const allFilled = isAllFilled(droppedBlocks);
 
   return (
-    <div className="min-h-full bg-white p-6 flex flex-col justify-between">
+    <div className="min-h-full bg-card p-6 flex flex-col justify-between">
       <div>
         {/* Task Description */}
         {showDescription && description && (
-          <div className="rounded-xl p-4 bg-blue-50/80 border border-blue-100/70 text-sm text-blue-600 mb-5">
+          <div className="rounded-xl p-4 bg-primary-second/80 border border-primary-second-border/70 text-sm text-primary mb-5">
             <p className="font-bold text-[13px]">
               {description ||
                 'Task: Drag and drop the code blocks to form a correct solution'}
             </p>
 
-            <div className="text-xs text-blue-500/90 mt-1 flex flex-col gap-1">
+            <div className="text-xs text-primary/90 mt-1 flex flex-col gap-1">
               <span>
                 Read the code carefully and drag the blocks into the correct
                 order in the drop zone below.
               </span>
-              <span className="lg:hidden text-[10px] font-semibold text-emerald-600 bg-emerald-50 border border-emerald-100/80 px-2.5 py-1 rounded-md mt-1 w-fit">
+              <span className="lg:hidden text-[10px] font-semibold text-green-foreground bg-green-mint border border-green-mint/30 px-2.5 py-1 rounded-md mt-1 w-fit">
                 💡 Tip: You can also tap a block to place it in the first empty
                 slot!
               </span>
@@ -121,7 +121,7 @@ export function DragDropPane({
         />
 
         {/* Available Blocks */}
-        <p className="text-[11px] font-bold text-slate-400 mb-2 tracking-wider uppercase">
+        <p className="text-[11px] font-bold text-muted-foreground mb-2 tracking-wider uppercase">
           Available Blocks — drag to zone below
         </p>
 
@@ -140,11 +140,11 @@ export function DragDropPane({
         </div>
 
         {/* Drop Zone */}
-        <p className="text-[11px] font-bold text-slate-400 mb-2 tracking-wider uppercase">
+        <p className="text-[11px] font-bold text-muted-foreground mb-2 tracking-wider uppercase">
           Drop Zone — place blocks in correct order
         </p>
 
-        <div className="flex flex-col gap-2.5 bg-slate-100/60 p-3 rounded-2xl border border-slate-200/60">
+        <div className="flex flex-col gap-2.5 bg-muted/60 p-3 rounded-2xl border border-border/60">
           {droppedBlocks.map((blockId, slotIndex) => {
             const block = blockId
               ? availableBlocks.find((b) => b.id === blockId)

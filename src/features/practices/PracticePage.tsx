@@ -9,6 +9,7 @@ export function PracticePage() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'practice'>(
     'practice'
   );
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // TODO(api): thay bằng progress thật từ backend khi có endpoint
   const completedLessons = 12;
@@ -16,14 +17,19 @@ export function PracticePage() {
 
   return (
     <div className="h-screen overflow-hidden">
-      <Navbar />
+      <Navbar onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
       <AppSidebar
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={(tab: 'dashboard' | 'practice') => {
+          setActiveTab(tab);
+          setIsSidebarOpen(false);
+        }}
         completedLessons={completedLessons}
         totalLessons={totalLessons}
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
       />
-      <main className="ml-64 h-screen overflow-y-auto pt-14">
+      <main className="ml-0 md:ml-64 h-screen overflow-y-auto pt-14">
         <PracticeLibrary />
       </main>
     </div>

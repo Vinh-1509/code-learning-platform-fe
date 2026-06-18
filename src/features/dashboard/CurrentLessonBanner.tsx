@@ -35,11 +35,11 @@ export function CurrentLessonBanner({
   };
 
   return (
-    <Card className="bg-white drop-shadow-lg border border-slate-200 shadow-sm transition-all duration-300 ease-in-out hover:bg-slate-50 hover:shadow-lg hover:scale-[1.01] hover:border-slate-300 cursor-pointer">
+    <Card className="bg-card drop-shadow-lg border border-border shadow-sm transition-all duration-300 ease-in-out hover:bg-muted/40 hover:shadow-lg hover:scale-[1.01] hover:border-border/80 cursor-pointer">
       <CardContent className="p-6">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <span className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium mb-3">
+            <span className="inline-flex items-center px-3 py-1 rounded-full bg-primary-second text-primary text-xs font-medium mb-3">
               In progress
             </span>
             <h2 className="text-2xl font-bold text-foreground">{lessonName}</h2>

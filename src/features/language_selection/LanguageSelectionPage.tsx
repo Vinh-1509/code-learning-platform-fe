@@ -31,12 +31,12 @@ export function LanguageSelectionPage() {
   );
 
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center p-8">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-8">
       <div className="text-center mb-10 space-y-2">
-        <h1 className="text-4xl font-extrabold tracking-tight text-slate-900">
-          Choose your <span className="text-blue-600">language</span>
+        <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
+          Choose your <span className="text-primary">language</span>
         </h1>
-        <p className="text-xs font-bold uppercase tracking-widest text-blue-600">
+        <p className="text-xs font-bold uppercase tracking-widest text-primary">
           Select the language you want to build your custom journey.
         </p>
       </div>
@@ -46,7 +46,7 @@ export function LanguageSelectionPage() {
       </div>
 
       <div className="flex items-center justify-between w-full max-w-2xl mt-8">
-        <span className="flex items-center gap-1.5 text-xs text-slate-500">
+        <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <Lock className="h-3 w-3" />
           Selection will be saved to your profile
         </span>
@@ -55,7 +55,7 @@ export function LanguageSelectionPage() {
             void handleConfirm();
           }}
           disabled={!selected || saving}
-          className="bg-blue-600 hover:bg-blue-500 disabled:opacity-40 text-white font-medium px-6 h-10 rounded-xl transition-colors"
+          className="bg-primary hover:bg-primary/90 disabled:opacity-40 text-white font-medium px-6 h-10 rounded-xl transition-colors"
         >
           {saving ? 'Saving...' : 'Continue'}
         </Button>

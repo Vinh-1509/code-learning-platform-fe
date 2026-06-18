@@ -55,7 +55,7 @@ const Navbar = ({
           <Button
             type="button"
             onClick={onToggleSidebar}
-            className="lg:hidden flex items-center justify-center size-9 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow p-0 cursor-pointer"
+            className="lg:hidden flex items-center justify-center size-9 bg-primary hover:bg-primary/90 text-white rounded-xl shadow p-0 cursor-pointer"
           >
             <Code className="size-5" />
           </Button>
@@ -73,15 +73,15 @@ const Navbar = ({
 
       {/* Middle section: Mobile Switcher (Learn / Code) */}
       {variant === 'lesson' && activeTab && onChangeTab && (
-        <div className="lg:hidden flex border border-slate-200 rounded-lg p-0.5 bg-white select-none">
+        <div className="lg:hidden flex border border-border rounded-lg p-0.5 bg-card select-none">
           <button
             type="button"
             onClick={() => onChangeTab('theory')}
             className={cn(
               'px-4 py-1 text-sm font-semibold rounded-md transition-all duration-200 h-8 flex items-center justify-center cursor-pointer',
               activeTab === 'theory'
-                ? 'border border-orange-400 text-orange-500 bg-white shadow-sm font-bold'
-                : 'border border-transparent text-slate-300 bg-transparent'
+                ? 'border border-orange-400 text-orange-500 bg-card shadow-sm font-bold'
+                : 'border border-transparent text-muted-foreground bg-transparent'
             )}
           >
             Learn
@@ -92,8 +92,8 @@ const Navbar = ({
             className={cn(
               'px-4 py-1 text-sm font-semibold rounded-md transition-all duration-200 h-8 flex items-center justify-center cursor-pointer',
               activeTab === 'practice'
-                ? 'border border-orange-400 text-orange-500 bg-white shadow-sm font-bold'
-                : 'border border-transparent text-slate-300 bg-transparent'
+                ? 'border border-orange-400 text-orange-500 bg-card shadow-sm font-bold'
+                : 'border border-transparent text-muted-foreground bg-transparent'
             )}
           >
             Code

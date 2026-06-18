@@ -6,9 +6,9 @@ import { cn } from '@/lib/utils';
 import type { Exercise } from '@/lib/axios';
 
 const difficultyStyles: Record<string, string> = {
-  easy: 'text-emerald-600 bg-emerald-50',
-  medium: 'text-amber-600 bg-amber-50',
-  hard: 'text-red-500 bg-red-50',
+  easy: 'text-green-foreground bg-green-mint border border-green-mint/30',
+  medium: 'text-yellow-patel bg-yellow-medium border border-yellow-medium/30',
+  hard: 'text-red-foreground bg-red-mint border border-red-mint/30',
 };
 
 interface ExerciseCardProps {
@@ -27,7 +27,9 @@ export function ExerciseCard({ exercise }: ExerciseCardProps) {
   let statusLabel = null;
   if (isCompleted) {
     statusLabel = (
-      <span className="text-xs font-medium text-emerald-600">Completed</span>
+      <span className="text-xs font-medium text-green-foreground">
+        Completed
+      </span>
     );
   }
   if (isAvailable) {
@@ -78,7 +80,9 @@ export function ExerciseCard({ exercise }: ExerciseCardProps) {
           >
             {level}
           </span>
-          {isCompleted && <CheckCircle2 className="size-5 text-emerald-500" />}
+          {isCompleted && (
+            <CheckCircle2 className="size-5 text-green-foreground" />
+          )}
           {isLocked && <Lock className="size-4 text-muted-foreground/40" />}
         </div>
 

@@ -14,7 +14,7 @@ interface LessonSidebarProps {
 function BlockIcon({ status }: { status: Block['status'] }) {
   if (status === 'completed')
     return (
-      <div className="size-5 rounded-full flex items-center justify-center bg-bluelight text-primary-foreground text-[10px] font-bold shrink-0">
+      <div className="size-5 rounded-full flex items-center justify-center bg-bluelight text-primary text-[10px] font-bold shrink-0">
         ✓
       </div>
     );
@@ -93,9 +93,9 @@ export function LessonSidebar({
                   'relative flex items-center gap-3 px-4 py-3 min-h-18 transition-colors select-none',
                   isLocked ? 'cursor-not-allowed opacity-60' : 'cursor-pointer',
                   isSelected
-                    ? 'bg-blue-50/50'
+                    ? 'bg-primary-second'
                     : !isLocked
-                      ? 'hover:bg-slate-100'
+                      ? 'hover:bg-muted'
                       : ''
                 )}
               >
@@ -116,7 +116,7 @@ export function LessonSidebar({
                   >
                     Block {index + 1}
                   </span>
-                  <span className="text-sm font-medium text-primary-foreground truncate leading-tight">
+                  <span className="text-sm font-medium text-foreground truncate leading-tight">
                     {block.title || blockTypeLabel}
                   </span>
                   {block.description && (

@@ -135,25 +135,25 @@ export function FeynmanInterviewPane({
   };
 
   return (
-    <div className="flex flex-col h-full bg-white rounded-lg border border-slate-200 overflow-hidden">
+    <div className="flex flex-col h-full bg-card rounded-lg border border-border overflow-hidden">
       {/* Header */}
-      <div className="px-4 py-3 bg-slate-900 border-b border-slate-800 flex items-center gap-2">
-        <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center">
+      <div className="px-4 py-3 bg-codeblock-header border-b border-border flex items-center gap-2">
+        <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
           <span className="text-xs font-bold text-white">🤖</span>
         </div>
         <span className="text-sm font-bold text-white">Feynman AI</span>
-        <span className="ml-auto text-xs text-slate-400">
+        <span className="ml-auto text-xs text-muted-foreground/80">
           Question {currentQuestion}/3
         </span>
       </div>
 
       {/* Success Banner */}
       {messages.length === 2 && (
-        <div className="mx-4 mt-4 p-3 bg-emerald-50 border border-emerald-300 rounded-lg">
-          <p className="text-sm font-semibold text-emerald-800">
+        <div className="mx-4 mt-4 p-3 bg-green-mint border border-success/30 rounded-lg">
+          <p className="text-sm font-semibold text-green-foreground">
             ✓ All exercises complete!
           </p>
-          <p className="text-xs text-emerald-700 mt-1">
+          <p className="text-xs text-green-foreground/90 mt-1">
             Now explain your reasoning to unlock the next block.
           </p>
         </div>
@@ -186,13 +186,13 @@ export function FeynmanInterviewPane({
         {/* Loading State */}
         {isLoading && (
           <div className="flex gap-3 mb-4">
-            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center">
+            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-codeblock flex items-center justify-center">
               <span className="text-xs font-bold text-white">🤖</span>
             </div>
             <div className="flex-1">
-              <div className="rounded-xl p-3.5 bg-slate-100 border border-slate-200 inline-flex items-center gap-2">
-                <Loader2 className="w-4 h-4 animate-spin text-slate-600" />
-                <span className="text-sm text-slate-600">
+              <div className="rounded-xl p-3.5 bg-muted border border-border inline-flex items-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">
                   AI is thinking...
                 </span>
               </div>
@@ -205,13 +205,13 @@ export function FeynmanInterviewPane({
 
       {/* Completion Banner */}
       {isBlockComplete && (
-        <div className="mx-4 mb-4 p-4 bg-emerald-50 border border-emerald-300 rounded-lg">
+        <div className="mx-4 mb-4 p-4 bg-green-mint border border-success/30 rounded-lg">
           <div className="flex flex-col gap-4">
             <div>
-              <p className="text-sm font-bold text-emerald-800">
+              <p className="text-sm font-bold text-green-foreground">
                 🎉 Block Complete!
               </p>
-              <p className="text-xs text-emerald-700 mt-1">
+              <p className="text-xs text-green-foreground/90 mt-1">
                 {hasNextBlock
                   ? "You've demonstrated a solid understanding. Ready for the next block?"
                   : "You've completed all the blocks in this lesson! Excellent work! 🎓"}
@@ -223,7 +223,7 @@ export function FeynmanInterviewPane({
                   onComplete();
                   onNextBlock();
                 }}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white h-9 px-3 text-sm font-semibold flex items-center justify-center gap-1.5"
+                className="w-full bg-primary hover:bg-primary/90 text-white h-9 px-3 text-sm font-semibold flex items-center justify-center gap-1.5"
               >
                 Next Block
                 <ArrowRight className="w-4 h-4" />
@@ -235,7 +235,7 @@ export function FeynmanInterviewPane({
 
       {/* Input Area */}
       {!isBlockComplete && (
-        <div className="px-4 py-3 border-t border-slate-200 bg-slate-50">
+        <div className="px-4 py-3 border-t border-border bg-muted/40">
           <div className="flex gap-2">
             <input
               type="text"
@@ -248,12 +248,12 @@ export function FeynmanInterviewPane({
               }}
               placeholder="Type your explanation..."
               disabled={isLoading}
-              className="flex-1 px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-slate-100 disabled:text-slate-500"
+              className="flex-1 px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-muted disabled:text-muted-foreground"
             />
             <Button
               onClick={() => void handleSubmitResponse()}
               disabled={isLoading || !userInput.trim()}
-              className="bg-blue-600 hover:bg-blue-700 text-white h-9 px-4 font-semibold flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-primary hover:bg-primary/90 text-white h-9 px-4 font-semibold flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
