@@ -31,18 +31,18 @@ export function DropSlot({
       className={cn(
         'w-full h-12 rounded-xl flex items-center px-3 border transition-all',
         block
-          ? 'bg-blue-50 border-blue-500 shadow-sm'
+          ? 'bg-primary-second border-primary shadow-sm'
           : isOver
-            ? 'bg-blue-100/70 border-blue-400 border-dashed'
-            : 'bg-slate-50 border-slate-200'
+            ? 'bg-primary-second/70 border-primary-second-border border-dashed'
+            : 'bg-muted/40 border-border'
       )}
     >
       <div
         className={cn(
           'size-5 rounded-full border flex items-center justify-center text-[11px] font-bold mr-3 shrink-0',
           block
-            ? 'bg-blue-600 border-blue-600 text-white'
-            : 'border-slate-300 text-slate-400 bg-white'
+            ? 'bg-primary border-primary text-primary-foreground'
+            : 'border-border text-muted-foreground bg-card'
         )}
       >
         {slotIndex + 1}
@@ -52,7 +52,7 @@ export function DropSlot({
         <div
           draggable
           onDragStart={() => onDragStart(block.id, slotIndex)}
-          className="flex items-center justify-between flex-1 cursor-grab font-mono text-[13px] text-slate-800"
+          className="flex items-center justify-between flex-1 cursor-grab font-mono text-[13px] text-foreground"
         >
           <span>
             {'  '.repeat(block.indent)}
@@ -63,15 +63,17 @@ export function DropSlot({
             variant="ghost"
             size="icon"
             onClick={() => onRemove(slotIndex)}
-            className="text-slate-400 hover:text-slate-600 font-bold text-xs size-6 p-0 hover:bg-transparent shadow-none"
+            className="text-muted-foreground hover:text-foreground font-bold text-xs size-6 p-0 hover:bg-transparent shadow-none"
           >
             ✕
           </Button>
         </div>
       ) : (
-        <div className="flex items-center justify-between w-full text-slate-400 text-xs">
+        <div className="flex items-center justify-between w-full text-muted-foreground text-xs">
           <span />
-          <span className="text-slate-400/60 font-medium">+ drop here</span>
+          <span className="text-muted-foreground/60 font-medium">
+            + drop here
+          </span>
         </div>
       )}
     </div>

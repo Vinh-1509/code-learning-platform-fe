@@ -7,6 +7,7 @@ export function PracticePage() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'practice'>(
     'practice'
   );
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // App metrics state properties values indicators
   const completedLessons = 12;
@@ -14,17 +15,23 @@ export function PracticePage() {
 
   return (
     <div className="h-screen overflow-hidden bg-background">
-      <Navbar variant="dashboard" />
-
+      <Navbar
+        variant="dashboard"
+        onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+      />
       <AppSidebar
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={(tab: 'dashboard' | 'practice') => {
+          setActiveTab(tab);
+          setIsSidebarOpen(false);
+        }}
         completedLessons={completedLessons}
         totalLessons={totalLessons}
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
       />
-
       {/* Scrollable View Workspace Shell */}
-      <main className="ml-64 h-screen overflow-y-auto pt-14">
+      <main className="ml-0 md:ml-64 h-screen overflow-y-auto pt-14">
         <PracticeLibrary />
       </main>
     </div>

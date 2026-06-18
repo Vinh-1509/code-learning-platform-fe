@@ -53,16 +53,16 @@ export function FillBlankPane({
   );
 
   return (
-    <div className="h-full p-6 flex flex-col">
+    <div className="min-h-full p-6 flex flex-col">
       <div className="flex-1">
         {/* Task Description */}
         {showDescription && description && (
-          <div className="rounded-xl p-4 bg-blue-50/80 border border-blue-100/70 text-sm text-blue-600 mb-5">
+          <div className="rounded-xl p-4 bg-primary-second/80 border border-primary-second-border/70 text-sm text-primary mb-5">
             <p className="font-bold text-[13px]">
               {description || 'Task: Fill in the missing code snippets'}
             </p>
 
-            <p className="text-xs text-blue-500/90 mt-0.5">
+            <p className="text-xs text-primary/90 mt-0.5">
               Read the code carefully and fill in the blank fields to complete
               the program.
             </p>
@@ -76,7 +76,7 @@ export function FillBlankPane({
           onNext={onNext}
         />
 
-        <p className="text-[11px] font-bold text-slate-400 mb-3 tracking-wider uppercase">
+        <p className="text-[11px] font-bold text-muted-foreground mb-3 tracking-wider uppercase">
           Code Editor
         </p>
 

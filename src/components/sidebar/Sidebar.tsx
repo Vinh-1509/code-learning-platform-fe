@@ -47,14 +47,14 @@ export function AppSidebar({
       )}
       <aside
         className={cn(
-          'fixed top-14 left-0 bottom-0 w-64 border-r bg-white z-40 transition-transform duration-300 md:translate-x-0',
+          'fixed top-14 left-0 bottom-0 w-64 border-r border-sidebar-border bg-sidebar z-40 transition-transform duration-300 md:translate-x-0',
           isOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
         <div className="px-4 py-4">
-          <div className="rounded-xl bg-sidebar p-4">
+          <div className="rounded-xl bg-card border border-border p-4">
             <div className="flex items-start gap-3">
-              <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary-second">
                 <SquareTerminal className="size-5 text-primary" />
               </div>
 

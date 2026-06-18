@@ -169,10 +169,10 @@ export function FeynmanInterviewPane({
   // Render
   // -------------------------------------------------------------------------
   return (
-    <div className="flex flex-col h-full bg-white rounded-lg border border-slate-200 overflow-hidden">
+    <div className="flex flex-col h-full bg-card rounded-lg border border-border overflow-hidden">
       {/* Header */}
-      <div className="px-4 py-3 bg-slate-900 border-b border-slate-800 flex items-center gap-2">
-        <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center">
+      <div className="px-4 py-3 bg-codeblock-header border-b border-border flex items-center gap-2">
+        <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
           <span className="text-xs font-bold text-white">🤖</span>
         </div>
         <span className="text-sm font-bold text-white">Feynman AI</span>
@@ -250,13 +250,13 @@ export function FeynmanInterviewPane({
 
       {/* Completion Banner */}
       {isBlockComplete && (
-        <div className="mx-4 mb-4 p-4 bg-emerald-50 border border-emerald-300 rounded-lg">
+        <div className="mx-4 mb-4 p-4 bg-green-mint border border-success/30 rounded-lg">
           <div className="flex flex-col gap-4">
             <div>
-              <p className="text-sm font-bold text-emerald-800">
+              <p className="text-sm font-bold text-green-foreground">
                 🎉 Block Complete!
               </p>
-              <p className="text-xs text-emerald-700 mt-1">
+              <p className="text-xs text-green-foreground/90 mt-1">
                 {hasNextBlock
                   ? "You've demonstrated a solid understanding. Ready for the next block?"
                   : "You've completed all the blocks in this lesson! Excellent work! 🎓"}
@@ -290,12 +290,12 @@ export function FeynmanInterviewPane({
               }}
               placeholder="Type your explanation…"
               disabled={isLoading}
-              className="flex-1 px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-slate-100 disabled:text-slate-500"
+              className="flex-1 px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-muted disabled:text-muted-foreground"
             />
             <Button
               onClick={() => void handleSubmitResponse()}
               disabled={isLoading || !userInput.trim()}
-              className="bg-blue-600 hover:bg-blue-700 text-white h-9 px-4 font-semibold flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-primary hover:bg-primary/90 text-white h-9 px-4 font-semibold flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />

@@ -21,15 +21,15 @@ import type { Module, Lesson } from './useRoadmap';
 function LessonIcon({ status }: { status: string }) {
   if (status === 'completed')
     return (
-      <CheckCircle2 className="size-5 text-green-500 animate-in fade-in zoom-in duration-300" />
+      <CheckCircle2 className="size-5 text-success animate-in fade-in zoom-in duration-300" />
     );
   if (status === 'active')
     return (
-      <div className="size-5 rounded-full bg-blue-500 flex items-center justify-center shadow-sm shadow-blue-200">
+      <div className="size-5 rounded-full bg-primary flex items-center justify-center shadow-sm shadow-primary/20">
         <Play className="size-3 text-white fill-white ml-0.5" />
       </div>
     );
-  return <Lock className="size-5 text-slate-400/50" />;
+  return <Lock className="size-5 text-muted-foreground/50" />;
 }
 
 interface LessonItemProps {
@@ -54,7 +54,7 @@ function LessonItem({ lesson, onStart }: LessonItemProps) {
     <Button
       type="button"
       onClick={onStart}
-      className="bg-blue-600 hover:bg-blue-700 text-white px-4 h-7 text-xs rounded-md shadow-sm font-semibold transition-all duration-200"
+      className="bg-primary hover:bg-primary/90 text-white px-4 h-7 text-xs rounded-md shadow-sm font-semibold transition-all duration-200"
     >
       {startButtonLabel}
     </Button>
@@ -65,10 +65,10 @@ function LessonItem({ lesson, onStart }: LessonItemProps) {
       className={cn(
         'flex items-center justify-between p-4 border rounded-xl transition-all duration-200',
         lesson.status === 'completed'
-          ? 'bg-green-50/20 border-green-100'
+          ? 'bg-green-mint/20 border-green-mint/40'
           : lesson.status === 'active'
-            ? 'bg-blue-50/20 border-blue-100 shadow-sm'
-            : 'bg-slate-50/40 border-slate-100/60 opacity-80'
+            ? 'bg-primary-second/20 border-primary-second-border/40 shadow-sm'
+            : 'bg-muted/40 border-border/60 opacity-80'
       )}
     >
       <div className="flex items-center gap-3">
@@ -76,7 +76,9 @@ function LessonItem({ lesson, onStart }: LessonItemProps) {
         <span
           className={cn(
             'text-sm font-medium',
-            lesson.status === 'locked' ? 'text-slate-400' : 'text-slate-900'
+            lesson.status === 'locked'
+              ? 'text-muted-foreground'
+              : 'text-foreground'
           )}
         >
           {lesson.name}
@@ -121,20 +123,20 @@ function ModuleItem({
     switch (status) {
       case 'completed':
         return (
-          <span className="text-[10px] uppercase font-bold text-green-700 bg-green-100 px-2.5 py-0.5 rounded-full border border-green-200/30">
+          <span className="text-[10px] uppercase font-bold text-green-foreground bg-green-mint px-2.5 py-0.5 rounded-full border border-green-mint/30">
             Done
           </span>
         );
       case 'active':
         return (
-          <span className="text-[10px] uppercase font-bold text-blue-700 bg-blue-100 px-2.5 py-0.5 rounded-full border border-blue-200/30">
+          <span className="text-[10px] uppercase font-bold text-primary bg-primary-second px-2.5 py-0.5 rounded-full border border-primary-second-border/30">
             Active
           </span>
         );
       case 'locked':
       default:
         return (
-          <span className="text-[10px] uppercase font-bold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200/30">
+          <span className="text-[10px] uppercase font-bold text-muted-foreground bg-muted px-2.5 py-0.5 rounded-full border border-border/30">
             Locked
           </span>
         );
@@ -147,15 +149,15 @@ function ModuleItem({
 
   return (
     <div className="flex gap-4">
-      <div className="flex flex-col items-center">
+      <div className="flex flex-col items-center w-9 shrink-0">
         <div
           className={cn(
             'size-9 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300',
             module.status === 'completed'
-              ? 'bg-green-500 text-white shadow-sm shadow-green-100'
+              ? 'bg-success text-white shadow-sm shadow-success/10'
               : module.status === 'active'
-                ? 'bg-blue-500 text-white shadow-sm shadow-blue-100'
-                : 'bg-slate-200 text-slate-400'
+                ? 'bg-primary text-white shadow-sm shadow-primary/10'
+                : 'bg-muted text-muted-foreground'
           )}
         >
           {index}
@@ -164,7 +166,7 @@ function ModuleItem({
           <div
             className={cn(
               'w-0.5 flex-1 mt-2 transition-colors duration-300',
-              module.status === 'completed' ? 'bg-green-300' : 'bg-slate-200'
+              module.status === 'completed' ? 'bg-success/50' : 'bg-border'
             )}
           />
         )}
@@ -175,33 +177,33 @@ function ModuleItem({
           variant="ghost"
           onClick={onToggle}
           className={cn(
-            'w-full flex items-center justify-between p-4 border rounded-xl text-left transition-all h-auto text-foreground shadow-sm font-normal cursor-pointer hover:shadow-md duration-200',
+            'w-full flex items-center justify-between p-4 border rounded-xl text-left transition-all h-auto text-foreground shadow-sm font-normal cursor-pointer hover:shadow-md duration-200 whitespace-normal',
             module.status === 'active'
-              ? 'bg-blue-50/30 border-blue-200 hover:bg-blue-50/50'
+              ? 'bg-primary-second/30 border-primary-second-border hover:bg-primary-second/50'
               : module.status === 'completed'
-                ? 'bg-white border-slate-200 hover:bg-slate-50/50'
-                : 'bg-slate-50/50 border-slate-100 hover:bg-slate-50/30 opacity-70'
+                ? 'bg-card border-border hover:bg-muted/50'
+                : 'bg-muted/50 border-border/50 hover:bg-muted/30 opacity-70'
           )}
         >
-          <div className="flex items-center gap-3">
-            <span className="font-semibold text-slate-800">{module.name}</span>
+          <div className="flex flex-wrap items-center gap-2 min-w-0 mr-2">
+            <span className="font-semibold text-foreground">{module.name}</span>
             {getStatusBadge(module.status)}
           </div>
           {isExpanded ? (
-            <ChevronUp className="text-slate-500" />
+            <ChevronUp className="text-muted-foreground shrink-0" />
           ) : (
-            <ChevronDown className="text-slate-500" />
+            <ChevronDown className="text-muted-foreground shrink-0" />
           )}
         </Button>
 
         {isExpanded && (
           <div className="mt-4 space-y-3 animate-in slide-in-from-top-2 duration-200">
             {lessonItems}
-            <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden mt-4 border border-slate-200/60">
+            <div className="h-1.5 bg-muted rounded-full overflow-hidden mt-4 border border-border/60">
               <div
                 className={cn(
                   'h-full transition-all duration-500',
-                  module.status === 'completed' ? 'bg-green-500' : 'bg-blue-500'
+                  module.status === 'completed' ? 'bg-success' : 'bg-primary'
                 )}
                 style={{ width: `${module.progress}%` }}
               />
@@ -257,17 +259,17 @@ export function LearningRoadmap({
   ));
 
   return (
-    <Card className="bg-[#f8faff] border border-blue-100/80 shadow-md shadow-blue-50/50 p-6 rounded-2xl">
+    <Card className="bg-card border border-border shadow-md p-6 rounded-2xl">
       <CardContent className="p-0">
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 rounded-xl bg-blue-100/80 text-blue-600 shadow-sm shadow-blue-100">
+          <div className="p-2 rounded-xl bg-primary-second text-primary shadow-sm">
             <Map className="size-5" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-slate-800">
+            <h2 className="text-xl font-bold text-foreground">
               Learning Roadmap
             </h2>
-            <p className="text-xs text-slate-500 font-medium mt-0.5">
+            <p className="text-xs text-muted-foreground font-medium mt-0.5">
               Follow your custom path to coding mastery
             </p>
           </div>

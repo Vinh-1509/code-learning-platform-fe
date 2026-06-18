@@ -10,8 +10,8 @@ import { cn } from '@/lib/utils';
 interface NavbarProps {
   variant?: 'dashboard' | 'lesson' | 'practice';
   onToggleSidebar?: () => void;
-  activeTab?: 'theory' | 'practice';
-  onChangeTab?: (tab: 'theory' | 'practice') => void;
+  activeTab?: 'theory' | 'practice' | 'description' | 'code';
+  onChangeTab?: (tab: 'theory' | 'practice' | 'description' | 'code') => void;
 }
 
 const Navbar = ({
@@ -20,8 +20,14 @@ const Navbar = ({
   activeTab,
   onChangeTab,
 }: NavbarProps) => {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const activeLanguage = user?.selectedLanguage?.[0];
+  const isCpp = activeLanguage === 'C++';
+  const tabActiveStyle = isCpp
+    ? 'border border-purple-cpp text-purple-cpp bg-purple-jv-background/20 shadow-sm font-bold'
+    : 'border border-orange-jv text-orange-jv bg-orange-jv-background/20 shadow-sm font-bold';
 
   // Quick config for back buttons to reduce repetitive JSX
   const isLesson = variant === 'lesson';
@@ -70,24 +76,38 @@ const Navbar = ({
           </span>
         </Link>
       </div>
-      {/* MIDDLE: Mobile View Switcher (Learn / Code) */}
-      {isLesson && activeTab && onChangeTab && (
-        <div className="lg:hidden flex border border-border rounded-lg p-0.5 bg-card">
-          {(['theory', 'practice'] as const).map((tab) => (
-            <button
-              key={tab}
-              type="button"
-              onClick={() => onChangeTab(tab)}
-              className={cn(
-                'px-4 py-1 text-sm font-semibold rounded-md transition-all h-8 flex items-center justify-center cursor-pointer',
-                activeTab === tab
-                  ? 'border border-orange-400 text-orange-500 bg-card shadow-sm font-bold'
-                  : 'border border-transparent text-slate-300 bg-transparent'
-              )}
-            >
-              {tab === 'theory' ? 'Learn' : 'Code'}
-            </button>
-          ))}
+
+      {/* MIDDLE: Mobile View Switcher (Learn / Code or Description / Code) */}
+      {(isLesson || isPractice) && activeTab && onChangeTab && (
+        <div className="lg:hidden flex border border-border rounded-lg p-0.5 bg-card select-none">
+          <button
+            type="button"
+            onClick={() =>
+              onChangeTab(variant === 'lesson' ? 'theory' : 'description')
+            }
+            className={cn(
+              'px-4 py-1 text-sm font-semibold rounded-md transition-all h-8 flex items-center justify-center cursor-pointer',
+              activeTab === 'theory' || activeTab === 'description'
+                ? tabActiveStyle
+                : 'border border-transparent text-slate-300 bg-transparent'
+            )}
+          >
+            {variant === 'lesson' ? 'Learn' : 'Description'}
+          </button>
+          <button
+            type="button"
+            onClick={() =>
+              onChangeTab(variant === 'lesson' ? 'practice' : 'code')
+            }
+            className={cn(
+              'px-4 py-1 text-sm font-semibold rounded-md transition-all h-8 flex items-center justify-center cursor-pointer',
+              activeTab === 'practice' || activeTab === 'code'
+                ? tabActiveStyle
+                : 'border border-transparent text-slate-300 bg-transparent'
+            )}
+          >
+            Code
+          </button>
         </div>
       )}
 
@@ -107,8 +127,8 @@ const Navbar = ({
           </Link>
         )}
 
-        {/* Mobile Dropdown Menu for Lesson View */}
-        {isLesson && (
+        {/* Mobile Dropdown Menu for Lesson & Practice View */}
+        {(isLesson || isPractice) && (
           <div className="lg:hidden relative">
             <Button
               type="button"
@@ -128,12 +148,12 @@ const Navbar = ({
                 />
                 <div className="absolute right-0 mt-2 w-48 rounded-md bg-card border border-border shadow-lg py-1 z-50 animate-in fade-in slide-in-from-top-1 duration-100">
                   <Link
-                    to="/dashboard"
+                    to={backTo}
                     onClick={() => setIsMenuOpen(false)}
                     className="flex items-center gap-2 px-4 py-2 text-sm text-foreground hover:bg-slate-50"
                   >
                     <ChevronLeft className="w-4 h-4" />
-                    Back to Dashboard
+                    {backLabel}
                   </Link>
                   <button
                     type="button"

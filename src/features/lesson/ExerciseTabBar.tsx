@@ -22,13 +22,19 @@ export function ExerciseTabBar({
   blockCompleted,
 }: ExerciseTabBarProps) {
   return (
-    <div className="flex gap-2 p-4 border-b border-slate-200 bg-trueaccent">
+    <div className="flex gap-2 p-4 border-b border-slate-200 bg-trueaccent overflow-x-auto select-none no-scrollbar">
       {loading ? (
-        <span className="text-sm text-slate-500">Loading exercises...</span>
+        <span className="text-sm text-muted-foreground shrink-0">
+          Loading exercises...
+        </span>
       ) : error ? (
-        <span className="text-sm text-red-500">Failed to load exercises</span>
+        <span className="text-sm text-destructive shrink-0">
+          Failed to load exercises
+        </span>
       ) : exercises.length === 0 ? (
-        <span className="text-sm text-slate-500">No practice available</span>
+        <span className="text-sm text-muted-foreground shrink-0">
+          No practice available
+        </span>
       ) : (
         <>
           {exercises.map((ex, idx) => {
@@ -41,17 +47,17 @@ export function ExerciseTabBar({
                 size="sm"
                 onClick={() => setActiveExerciseIndex(idx)}
                 className={cn(
-                  'text-xs font-bold rounded-lg transition-colors h-8 px-3 flex items-center gap-1.5 shadow-sm',
+                  'text-xs font-bold rounded-lg transition-colors h-8 px-3 flex items-center gap-1.5 shadow-sm shrink-0',
                   isActive
                     ? isPassed
                       ? 'bg-emerald-600 hover:bg-emerald-700 text-white border-none'
                       : 'bg-blue-600 hover:bg-blue-700 text-white border-none'
                     : isPassed
-                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-300 hover:bg-emerald-100/50'
-                      : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300'
+                      ? 'bg-green-mint text-green-foreground border border-success/30 hover:bg-green-mint/80'
+                      : 'bg-card text-muted-foreground border border-border hover:border-border/80'
                 )}
               >
-                {isPassed && <span>✓</span>}
+                {isPassed && <span className="shrink-0">✓</span>}
                 Question {idx + 1}
               </Button>
             );
@@ -59,7 +65,7 @@ export function ExerciseTabBar({
 
           {/* Block completion badge */}
           {blockCompleted && (
-            <span className="ml-auto flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-300 rounded-lg">
+            <span className="ml-auto flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold text-green-foreground bg-green-mint border border-success/30 rounded-lg shrink-0 whitespace-nowrap">
               🎉 Block complete!
             </span>
           )}

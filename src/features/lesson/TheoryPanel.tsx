@@ -43,7 +43,7 @@ export function TheoryPanel({ block }: TheoryPaneProps) {
                   {index + 1}. What is it?
                 </h2>
 
-                <div className="rounded-lg border-l-4 border-primary bg-blue-50 p-4 text-sm text-primary">
+                <div className="rounded-lg border-l-4 border-primary bg-primary-second p-4 text-sm text-primary">
                   {item.data.text}
                 </div>
               </section>
