@@ -15,7 +15,10 @@ export function PracticePage() {
 
   return (
     <div className="h-screen overflow-hidden bg-background">
-      <Navbar variant="dashboard" />
+      <Navbar
+        variant="dashboard"
+        onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+      />
       <AppSidebar
         activeTab={activeTab}
         onTabChange={(tab: 'dashboard' | 'practice') => {
@@ -28,7 +31,7 @@ export function PracticePage() {
         onClose={() => setIsSidebarOpen(false)}
       />
       {/* Scrollable View Workspace Shell */}
-      <main className="ml-64 h-screen overflow-y-auto pt-14">
+      <main className="ml-0 md:ml-64 h-screen overflow-y-auto pt-14">
         <PracticeLibrary />
       </main>
     </div>

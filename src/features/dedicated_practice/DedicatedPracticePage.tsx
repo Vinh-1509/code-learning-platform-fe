@@ -8,6 +8,8 @@ import { useDedicatedPractice } from './useDedicatedPractice';
 import { fetchExercises } from '@/lib/axios';
 import { TaskPane } from './TaskPanel';
 
+import { cn } from '@/lib/utils';
+
 const PracticeRouteApi = getRouteApi('/practicededicated/$exerciseId');
 
 interface ExerciseResponse {
@@ -20,6 +22,9 @@ interface ExerciseResponse {
 export function DedicatedPracticePage() {
   const { exerciseId } = PracticeRouteApi.useParams();
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<'description' | 'code'>(
+    'description'
+  );
 
   // Custom hook containing state management for fetching/submitting challenges
   const {
@@ -124,19 +129,40 @@ export function DedicatedPracticePage() {
     );
   }
 
+  const isCpp = practiceInfo?.language === 'C++';
+  const tabHeaderStyle = isCpp
+    ? 'lg:hidden bg-purple-jv-background/50 text-purple-cpp px-6 py-2.5 text-sm font-bold border-b border-purple-cpp/20 select-none'
+    : 'lg:hidden bg-orange-jv-background/50 text-orange-jv px-6 py-2.5 text-sm font-bold border-b border-orange-jv/20 select-none';
+
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-card">
-      <Navbar variant="practice" />
+      <Navbar
+        variant="practice"
+        activeTab={activeTab}
+        onChangeTab={setActiveTab}
+      />
 
       {/* Main split-pane workspace workspace container */}
-      <div className="flex flex-1 overflow-hidden pt-14">
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden pt-14">
         {/* Left Side: Instructions Column */}
-        <div className="flex-1 overflow-y-auto border-r border-border/40">
+        <div
+          className={cn(
+            'flex-1 overflow-y-auto border-r border-border/40 bg-card',
+            activeTab === 'description' ? 'block' : 'hidden lg:block'
+          )}
+        >
+          <div className={tabHeaderStyle}>Description</div>
           <TaskPane title={taskTitle} instruction={taskInstruction} />
         </div>
 
         {/* Right Side: Execution Dashboard Panel */}
-        <div className="flex-1 min-h-0 overflow-y-auto z-10 shadow-[-10px_0_15px_-5px_rgba(0,0,0,0.06)] bg-background">
+        <div
+          className={cn(
+            'flex-1 min-h-0 overflow-y-auto z-10 shadow-[-10px_0_15px_-5px_rgba(0,0,0,0.06)] bg-background',
+            activeTab === 'code' ? 'block' : 'hidden lg:block'
+          )}
+        >
+          <div className={tabHeaderStyle}>Code</div>
           {rightPanel}
         </div>
       </div>

@@ -34,7 +34,7 @@ export function PracticeLibrary() {
   const showList = !loading && !error && exercises && exercises.length > 0;
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 p-8">
+    <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-8">
       <PracticeFilters
         diffFilter={diffFilter}
         onDiffChange={handleDifficultyChange}

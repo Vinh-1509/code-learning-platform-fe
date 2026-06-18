@@ -53,7 +53,7 @@ export function FillBlankPane({
   );
 
   return (
-    <div className="h-full p-6 flex flex-col">
+    <div className="min-h-full p-6 flex flex-col">
       <div className="flex-1">
         {/* Task Description */}
         {showDescription && description && (

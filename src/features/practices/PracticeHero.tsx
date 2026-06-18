@@ -9,9 +9,9 @@ export function PracticeHero() {
   const barWidths = [160, 120, 140, 100, 130, 90];
 
   return (
-    <div className="grid min-h-40 grid-cols-[240px_1fr] overflow-hidden rounded-xl border-2 border-primary bg-background">
+    <div className="grid min-h-40 grid-cols-1 md:grid-cols-[240px_1fr] overflow-hidden rounded-xl border-2 border-primary bg-background">
       {/* Decorative Simulated IDE Graphic section */}
-      <div className="flex items-center justify-center bg-slate-900">
+      <div className="hidden md:flex items-center justify-center bg-slate-900">
         <div className="space-y-2 p-6 opacity-40">
           {barWidths.map((width, index) => (
             <div
