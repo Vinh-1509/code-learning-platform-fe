@@ -7,85 +7,36 @@ import { PracticeFilters } from './PracticeFilters';
 import { PracticeHero } from './PracticeHero';
 
 export function PracticeLibrary() {
-  // State bộ lọc — đổi filter thì reset về trang 1
   const [search, setSearch] = useState('');
   const [diffFilter, setDiffFilter] = useState('All Levels');
-  const [langFilter, setLangFilter] = useState('All Languages');
-  const [page, setPage] = useState(1);
 
   const handleSearchChange = (value: string) => {
     setSearch(value);
-    setPage(1);
   };
 
   const handleDifficultyChange = (value: string) => {
     setDiffFilter(value);
-    setPage(1);
   };
 
-  const handleLanguageChange = (value: string) => {
-    setLangFilter(value);
-    setPage(1);
-  };
-
+  // Sync criteria triggers up to usePractice domain layer fetches
   const { exercises, loading, error } = usePractice({
     q: search,
     difficulty: diffFilter,
-    language: langFilter,
-    page,
+    page: 1,
     limit: 15,
   });
 
+  // Structural view toggles to keep template rendering clean
   const showLoading = loading;
   const showError = !loading && error;
-  const showEmpty = !loading && !error && exercises.length === 0;
-  const showList = !loading && !error && exercises.length > 0;
-
-  let exerciseContent = null;
-
-  if (showLoading) {
-    exerciseContent = (
-      <div className="flex flex-col items-center justify-center gap-2 py-20">
-        <Loader2 className="size-8 animate-spin text-primary" />
-        <p className="text-sm text-muted-foreground">
-          Đang tìm kiếm bài tập phù hợp...
-        </p>
-      </div>
-    );
-  }
-
-  if (showError) {
-    exerciseContent = (
-      <div className="py-20 text-center font-medium text-red-500">{error}</div>
-    );
-  }
-
-  if (showEmpty) {
-    exerciseContent = (
-      <div className="py-20 text-center text-sm text-muted-foreground">
-        Không tìm thấy bài tập nào khớp với bộ lọc.
-      </div>
-    );
-  }
-
-  if (showList) {
-    const cards = exercises.map((exercise) => (
-      <ExerciseCard key={exercise._id} exercise={exercise} />
-    ));
-
-    exerciseContent = (
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {cards}
-      </div>
-    );
-  }
+  const showEmpty =
+    !loading && !error && (!exercises || exercises.length === 0);
+  const showList = !loading && !error && exercises && exercises.length > 0;
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-8">
       <PracticeFilters
-        langFilter={langFilter}
         diffFilter={diffFilter}
-        onLangChange={handleLanguageChange}
         onDiffChange={handleDifficultyChange}
         onSearchChange={handleSearchChange}
         search={search}
@@ -93,6 +44,7 @@ export function PracticeLibrary() {
 
       <PracticeHero />
 
+      {/* Target Content Feed Frame */}
       <div>
         <div className="mb-4 flex items-center justify-between">
           <h3 className="flex items-center gap-1.5 text-base font-bold text-foreground">
@@ -101,7 +53,34 @@ export function PracticeLibrary() {
           </h3>
         </div>
 
-        {exerciseContent}
+        {showLoading && (
+          <div className="flex flex-col items-center justify-center gap-2 py-20">
+            <Loader2 className="size-8 animate-spin text-primary" />
+            <p className="text-sm text-muted-foreground">
+              Looking for matching challenges...
+            </p>
+          </div>
+        )}
+
+        {showError && (
+          <div className="py-20 text-center font-medium text-red-500">
+            {error}
+          </div>
+        )}
+
+        {showEmpty && (
+          <div className="py-20 text-center text-sm text-muted-foreground">
+            No challenges matches the selected filter setup.
+          </div>
+        )}
+
+        {showList && (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {exercises.map((exercise) => (
+              <ExerciseCard key={exercise._id} exercise={exercise} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

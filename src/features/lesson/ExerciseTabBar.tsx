@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import type { PracticeExercise } from '@/features/practice_utils/types/practiceTypes';
+import type { PracticeExercise } from '@/components/practice_utils/types/practiceTypes';
 
 interface ExerciseTabBarProps {
   loading: boolean;
@@ -22,7 +22,7 @@ export function ExerciseTabBar({
   blockCompleted,
 }: ExerciseTabBarProps) {
   return (
-    <div className="flex gap-2 p-4 border-b border-border bg-muted/40">
+    <div className="flex gap-2 p-4 border-b border-slate-200 bg-trueaccent">
       {loading ? (
         <span className="text-sm text-muted-foreground">
           Loading exercises...

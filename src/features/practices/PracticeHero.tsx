@@ -1,6 +1,5 @@
 import { Button } from '@/components/ui/button';
 
-// TODO(api): thay bằng bài "continue learning" từ backend (bài đang dở / gần nhất)
 const FEATURED = {
   title: 'Declare Student Variables',
   language: 'C++',
@@ -9,17 +8,23 @@ const FEATURED = {
 export function PracticeHero() {
   const barWidths = [160, 120, 140, 100, 130, 90];
 
-  const codeBars = barWidths.map((width, index) => (
-    <div key={index} className="h-2 rounded bg-muted/80" style={{ width }} />
-  ));
-
   return (
-    <div className="grid min-h-40 grid-cols-1 md:grid-cols-[240px_1fr] overflow-hidden rounded-xl border-2 border-primary bg-background">
-      <div className="flex items-center justify-center bg-codeblock py-6 md:py-0">
-        <div className="space-y-2 p-6 opacity-40">{codeBars}</div>
+    <div className="grid min-h-40 grid-cols-[240px_1fr] overflow-hidden rounded-xl border-2 border-primary bg-background">
+      {/* Decorative Simulated IDE Graphic section */}
+      <div className="flex items-center justify-center bg-slate-900">
+        <div className="space-y-2 p-6 opacity-40">
+          {barWidths.map((width, index) => (
+            <div
+              key={index}
+              className="h-2 rounded bg-blue-400"
+              style={{ width }}
+            />
+          ))}
+        </div>
       </div>
 
-      <div className="flex flex-col justify-center gap-3 p-6 md:p-8">
+      {/* Hero content banner context definitions */}
+      <div className="flex flex-col justify-center gap-3 p-8">
         <span className="inline-flex w-fit rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
           CONTINUE LEARNING
         </span>

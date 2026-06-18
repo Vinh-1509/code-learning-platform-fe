@@ -1,19 +1,23 @@
 import { useEffect, useState } from 'react';
-
 import {
   explainExerciseAnswer,
   fetchExerciseById,
   getExerciseHint,
   submitExerciseAnswer,
+  type ExerciseResponse,
 } from '@/lib/axios';
-import { convertExerciseResponse } from '@/features/practice_utils/utils/exercise.converter';
-import type { PracticeExercise } from '@/features/practice_utils/types/practiceTypes';
+import { convertExerciseResponse } from '@/components/practice_utils/utils/exercise.converter';
+import type { PracticeExercise } from '@/components/practice_utils/types/practiceTypes';
 
-// Hook cho trang /practicededicated/:exerciseId — load 1 bài + submit/hint/explain
+/**
+ * useDedicatedPractice resolves single-challenge interactions (loading, code submission, hints, metrics)
+ */
 export function useDedicatedPractice(exerciseId: string) {
   const [exercise, setExercise] = useState<PracticeExercise | null>(null);
+  const [rawResponse, setRawResponse] = useState<ExerciseResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [lastSubmitCorrect, setLastSubmitCorrect] = useState<boolean>(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -21,11 +25,13 @@ export function useDedicatedPractice(exerciseId: string) {
     async function loadExercise() {
       setLoading(true);
       setError(null);
+      setLastSubmitCorrect(false);
 
       try {
         const response = await fetchExerciseById(exerciseId);
         if (!isMounted) return;
 
+        setRawResponse(response);
         setExercise(convertExerciseResponse(response));
       } catch (err) {
         if (!isMounted) return;
@@ -33,9 +39,7 @@ export function useDedicatedPractice(exerciseId: string) {
           err instanceof Error ? err.message : 'Failed to load exercise'
         );
       } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
+        if (isMounted) setLoading(false);
       }
     }
 
@@ -46,13 +50,26 @@ export function useDedicatedPractice(exerciseId: string) {
     };
   }, [exerciseId]);
 
-  const submitAnswer = (id: string, answer: unknown) =>
-    submitExerciseAnswer(id, answer);
+  // Transmit answer block payloads payload evaluating user verification state
+  const submitAnswer = async (id: string, answer: unknown) => {
+    const res = await submitExerciseAnswer(id, answer);
+    setLastSubmitCorrect(Boolean(res.correct));
+    return res;
+  };
 
   const getHint = (id: string, level?: number) => getExerciseHint(id, level);
 
   const explainAnswer = (id: string, answer: unknown) =>
     explainExerciseAnswer(id, answer);
 
-  return { exercise, loading, error, submitAnswer, getHint, explainAnswer };
+  return {
+    exercise,
+    rawResponse,
+    loading,
+    error,
+    lastSubmitCorrect,
+    submitAnswer,
+    getHint,
+    explainAnswer,
+  };
 }

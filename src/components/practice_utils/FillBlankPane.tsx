@@ -27,6 +27,7 @@ interface FillBlankPaneProps {
   onSubmit: () => void;
   onToggleHint: () => void;
   onRequestHint: () => void;
+  onNext?: () => void;
 }
 
 export function FillBlankPane({
@@ -45,14 +46,15 @@ export function FillBlankPane({
   onSubmit,
   onToggleHint,
   onRequestHint,
+  onNext,
 }: FillBlankPaneProps) {
   const allFilled = lines.every((line) =>
     line.parts.every((part) => !part.isBlank || Boolean(userAnswers[part.id]))
   );
 
   return (
-    <div className="min-h-full bg-card p-6 flex flex-col justify-between">
-      <div>
+    <div className="h-full p-6 flex flex-col">
+      <div className="flex-1">
         {/* Task Description */}
         {showDescription && description && (
           <div className="rounded-xl p-4 bg-primary-second/80 border border-primary-second-border/70 text-sm text-primary mb-5">
@@ -70,6 +72,8 @@ export function FillBlankPane({
           showResult={showResult}
           explanation={explanation}
           explanationStatus={explanationStatus}
+          showDescription={showDescription}
+          onNext={onNext}
         />
 
         <p className="text-[11px] font-bold text-muted-foreground mb-3 tracking-wider uppercase">

@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import type { AuthPayload } from '@/types/auth';
+import type { AuthPayload, AuthUserResponse } from '@/types/auth';
 
 /**
  * Authentication context value shared across the application.
@@ -7,6 +7,9 @@ import type { AuthPayload } from '@/types/auth';
 export interface AuthContextValue {
   /** Current access token. Null if user is not authenticated. */
   token: string | null;
+
+  /** Current authenticated user data. Null if not authenticated. */
+  user: AuthUserResponse | null;
 
   /** Indicates whether an auth request is in progress. */
   loading: boolean;

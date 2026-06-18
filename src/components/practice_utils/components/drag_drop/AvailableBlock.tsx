@@ -33,8 +33,8 @@ export function AvailableBlock({
       className={cn(
         'rounded-xl h-11 flex items-center px-4 font-mono text-[13px] border shadow-sm transition-all relative select-none shrink-0 min-w-[110px] justify-center',
         isUsed
-          ? 'opacity-20 border-border bg-muted/50 cursor-not-allowed shadow-none'
-          : 'border-primary/40 bg-card text-foreground cursor-pointer hover:border-primary hover:shadow'
+          ? 'opacity-20 border-slate-200 bg-slate-100/50 cursor-not-allowed shadow-none'
+          : 'border-blue-400 bg-white text-slate-800 cursor-pointer hover:border-blue-600 hover:shadow'
       )}
     >
       <span>{block.code}</span>

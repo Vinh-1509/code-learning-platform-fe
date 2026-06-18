@@ -32,6 +32,7 @@ interface DragDropPaneProps {
   onSubmit: () => void;
   onToggleHint: () => void;
   onRequestHint: () => void;
+  onNext?: () => void;
   onSelectBlock?: (blockId: string) => void;
 }
 
@@ -84,14 +85,15 @@ export function DragDropPane({
   onToggleHint,
   onRequestHint,
   onSelectBlock,
+  onNext,
 }: DragDropPaneProps) {
   const usedIds = getUsedIds(droppedBlocks);
 
   const allFilled = isAllFilled(droppedBlocks);
 
   return (
-    <div className="min-h-full bg-card p-6 flex flex-col justify-between">
-      <div>
+    <div className="h-full p-6 flex flex-col">
+      <div className="flex-1">
         {/* Task Description */}
         {showDescription && description && (
           <div className="rounded-xl p-4 bg-primary-second/80 border border-primary-second-border/70 text-sm text-primary mb-5">
@@ -118,6 +120,8 @@ export function DragDropPane({
           showResult={showResult}
           explanation={explanation}
           explanationStatus={explanationStatus}
+          showDescription={showDescription}
+          onNext={onNext}
         />
 
         {/* Available Blocks */}
