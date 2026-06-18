@@ -6,7 +6,6 @@ import Navbar from '@/components/navbar/Navbar';
 import { PracticePanel } from '@/components/practice_utils/PracticePanel';
 import { useDedicatedPractice } from './useDedicatedPractice';
 import { fetchExercises } from '@/lib/axios';
-
 import { TaskPane } from './TaskPanel';
 
 const PracticeRouteApi = getRouteApi('/practicededicated/$exerciseId');
@@ -21,6 +20,8 @@ interface ExerciseResponse {
 export function DedicatedPracticePage() {
   const { exerciseId } = PracticeRouteApi.useParams();
   const navigate = useNavigate();
+
+  // Custom hook containing state management for fetching/submitting challenges
   const {
     exercise,
     rawResponse,
@@ -35,11 +36,13 @@ export function DedicatedPracticePage() {
   const practiceInfo = rawResponse as ExerciseResponse | null;
   const [nextExerciseId, setNextExerciseId] = useState<string | null>(null);
 
+  // Effect to discover and pre-cache the next eligible/unlocked exercise
   useEffect(() => {
     if (!practiceInfo?.language || !practiceInfo?.level) return;
 
     let isMounted = true;
-    void (async () => {
+
+    const prefetchNextExercise = async () => {
       try {
         const params = {
           language: practiceInfo.language,
@@ -47,28 +50,29 @@ export function DedicatedPracticePage() {
           page: 1,
           limit: 1000,
         };
+
         const list = await fetchExercises(params);
         if (!isMounted) return;
 
+        // Sequence challenges according to curriculum ordering schema
         const sorted = (list.data || []).sort((a, b) => a.order - b.order);
         const currentIdx = sorted.findIndex((e) => e._id === practiceInfo._id);
 
         if (currentIdx !== -1) {
+          // Identify nearest available challenge that isn't locked down
           const nextValidExercise = sorted
             .slice(currentIdx + 1)
             .find((e) => e.status !== 'locked');
 
-          if (nextValidExercise) {
-            setNextExerciseId(nextValidExercise._id);
-          } else {
-            setNextExerciseId(null);
-          }
+          setNextExerciseId(nextValidExercise ? nextValidExercise._id : null);
         }
       } catch (err) {
         console.error('Failed to pre-fetch next valid exercise:', err);
-        setNextExerciseId(null);
+        if (isMounted) setNextExerciseId(null);
       }
-    })();
+    };
+
+    void prefetchNextExercise();
 
     return () => {
       isMounted = false;
@@ -78,6 +82,7 @@ export function DedicatedPracticePage() {
   const taskTitle = exercise?.title ?? 'Loading...';
   const taskInstruction = exercise?.description ?? '';
 
+  // Handle route change when user clicks to progress to next challenge
   const handleNextExercise = () => {
     if (nextExerciseId) {
       void navigate({
@@ -87,6 +92,7 @@ export function DedicatedPracticePage() {
     }
   };
 
+  // Content determination switcher based on loading state tree
   let rightPanel = null;
 
   if (loading) {
@@ -95,17 +101,13 @@ export function DedicatedPracticePage() {
         <Loader2 className="size-10 animate-spin text-primary" />
       </div>
     );
-  }
-
-  if (!loading && error) {
+  } else if (error) {
     rightPanel = (
-      <div className="rounded-3xl border border-red-200 bg-red-50 p-8 text-sm text-red-600">
+      <div className="rounded-3xl border border-red-200 bg-red-50 p-8 text-sm text-red-600 mx-6 my-4">
         {error}
       </div>
     );
-  }
-
-  if (!loading && !error && exercise) {
+  } else if (exercise) {
     rightPanel = (
       <div className="h-full flex flex-col">
         <PracticePanel
@@ -126,12 +128,15 @@ export function DedicatedPracticePage() {
     <div className="flex flex-col h-screen overflow-hidden bg-card">
       <Navbar variant="practice" />
 
+      {/* Main split-pane workspace workspace container */}
       <div className="flex flex-1 overflow-hidden pt-14">
-        <div className="flex-1 overflow-y-auto">
+        {/* Left Side: Instructions Column */}
+        <div className="flex-1 overflow-y-auto border-r border-border/40">
           <TaskPane title={taskTitle} instruction={taskInstruction} />
         </div>
 
-        <div className="flex-1 min-h-0 overflow-y-auto z-10 shadow-[-10px_0_15px_-5px_rgba(0,0,0,0.06)]">
+        {/* Right Side: Execution Dashboard Panel */}
+        <div className="flex-1 min-h-0 overflow-y-auto z-10 shadow-[-10px_0_15px_-5px_rgba(0,0,0,0.06)] bg-background">
           {rightPanel}
         </div>
       </div>
