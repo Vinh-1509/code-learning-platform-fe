@@ -1,9 +1,10 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { Button } from '@/components/ui/button';
+import { AutoResizeTextarea } from '@/components/ui/AutoResizeTextarea';
 import { AIMessage, UserMessage } from './MessageBubbles';
 import type { FeynmanMessage, FeynmanInterviewProps } from './feynmanTypes';
-import { Loader2, ArrowRight } from 'lucide-react';
+import { Loader2, ArrowRight, RotateCw } from 'lucide-react';
 import {
   fetchFeynmanQuestion,
   fetchFeynmanHistory,
@@ -40,70 +41,69 @@ export function FeynmanInterviewPane({
   const [isBlockComplete, setIsBlockComplete] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const initializeSession = useCallback(async () => {
+    try {
+      setIsInitializing(true);
+      setError(null);
+
+      setMessages([]);
+      setUserInput('');
+      setIsBlockComplete(false);
+
+      const { chatHistory, isFeynmanPassed } =
+        await fetchFeynmanHistory(lessonBlockId);
+
+      if (chatHistory.length > 0) {
+        setMessages(historyToMessages(chatHistory));
+
+        if (isFeynmanPassed) {
+          setIsBlockComplete(true);
+        }
+      } else {
+        const introMessage: FeynmanMessage = {
+          id: 'intro',
+          role: 'ai',
+          content:
+            'Excellent! You completed all the exercises. Now let me check if you truly understand the concept. 🎯',
+        };
+
+        const question = await fetchFeynmanQuestion(lessonBlockId);
+
+        const questionMessage: FeynmanMessage = {
+          id: 'q1',
+          role: 'ai',
+          content: question,
+        };
+
+        setMessages([introMessage, questionMessage]);
+      }
+    } catch (err) {
+      if (axios.isAxiosError<{ message?: string }>(err)) {
+        if (err.response?.status === 403) {
+          setError(
+            err.response.data?.message ||
+              'Feynman is available only after the block is completed.'
+          );
+        } else {
+          setError('Failed to load Feynman session. Please try again.');
+        }
+      } else {
+        setError('Failed to load Feynman session. Please try again.');
+      }
+
+      console.error(err);
+    } finally {
+      setIsInitializing(false);
+    }
+  }, [lessonBlockId]);
+
   // -------------------------------------------------------------------------
   // On mount: restore session or start fresh
   // -------------------------------------------------------------------------
   useEffect(() => {
-    let cancelled = false;
-
-    async function init() {
-      try {
-        setError(null);
-        const { chatHistory, isFeynmanPassed } =
-          await fetchFeynmanHistory(lessonBlockId);
-
-        if (cancelled) return;
-
-        if (chatHistory.length > 0) {
-          setMessages(historyToMessages(chatHistory));
-          if (isFeynmanPassed) {
-            setIsBlockComplete(true);
-          }
-        } else {
-          const introMessage: FeynmanMessage = {
-            id: 'intro',
-            role: 'ai',
-            content:
-              'Excellent! You completed all the exercises. Now let me check if you truly understand the concept. 🎯',
-          };
-
-          const question = await fetchFeynmanQuestion(lessonBlockId);
-          if (cancelled) return;
-
-          const questionMessage: FeynmanMessage = {
-            id: 'q1',
-            role: 'ai',
-            content: question,
-          };
-
-          setMessages([introMessage, questionMessage]);
-        }
-      } catch (err) {
-        if (!cancelled) {
-          if (axios.isAxiosError<{ message?: string }>(err)) {
-            if (err.response?.status === 403) {
-              setError(
-                err.response.data?.message ||
-                  'Feynman is available only after the block is completed.'
-              );
-            } else {
-              setError('Failed to load Feynman session. Please try again.');
-            }
-          } else {
-            setError('Failed to load Feynman session. Please try again.');
-          }
-          console.error(err);
-        }
-      } finally {
-        if (!cancelled) setIsInitializing(false);
-      }
-    }
-
-    void init();
-    return () => {
-      cancelled = true;
-    };
-  }, [lessonBlockId]);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void initializeSession();
+  }, [initializeSession]);
 
   // -------------------------------------------------------------------------
   // Auto-scroll
@@ -239,7 +239,25 @@ export function FeynmanInterviewPane({
             {/* Inline error */}
             {error && (
               <div className="rounded-lg p-3 bg-rose-50 border border-rose-200">
-                <p className="text-sm text-rose-700">{error}</p>
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm text-rose-700">{error}</p>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => void initializeSession()}
+                    disabled={isInitializing}
+                  >
+                    {isInitializing ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <>
+                        <RotateCw className="w-4 h-4 mr-1" />
+                        Retry
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
             )}
           </>
@@ -279,18 +297,21 @@ export function FeynmanInterviewPane({
       {!isBlockComplete && !isInitializing && !error && (
         <div className="px-4 py-3 border-t border-slate-200 bg-slate-50">
           <div className="flex gap-2">
-            <input
-              type="text"
+            <AutoResizeTextarea
               value={userInput}
               onChange={(e) => setUserInput(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey && !isLoading) {
+                  e.preventDefault();
                   void handleSubmitResponse();
                 }
               }}
               placeholder="Type your explanation…"
               disabled={isLoading}
-              className="flex-1 px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-muted disabled:text-muted-foreground"
+              className="flex-1 px-3 py-1.5 text-sm border border-border rounded-lg
+                        focus:outline-none focus:ring-2 focus:ring-primary
+                        focus:border-transparent disabled:bg-muted
+                        disabled:text-muted-foreground min-h-[36px] max-h-[200px]"
             />
             <Button
               onClick={() => void handleSubmitResponse()}

@@ -16,7 +16,7 @@ interface LoginFormProps {
   loading?: boolean;
   error?: string | null;
 }
-export function LoginForm({ onSubmit, loading }: LoginFormProps) {
+export function LoginForm({ onSubmit, loading, error }: LoginFormProps) {
   const [formData, setFormData] = useState({ email: '', password: '' });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -92,6 +92,16 @@ export function LoginForm({ onSubmit, loading }: LoginFormProps) {
             />
           </div>
         </Field>
+
+        {error && (
+          <div
+            role="alert"
+            aria-live="polite"
+            className="rounded-lg border border-red-200 bg-red-50 px-3 py-2"
+          >
+            <p className="text-sm text-red-700">{error}</p>
+          </div>
+        )}
 
         <Field className="pt-2">
           <Button

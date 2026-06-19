@@ -9,7 +9,6 @@ interface ExerciseTabBarProps {
   exercisePassMap: Record<string, boolean>;
   activeExerciseIndex: number;
   setActiveExerciseIndex: (index: number) => void;
-  blockCompleted: boolean;
 }
 
 export function ExerciseTabBar({
@@ -19,7 +18,6 @@ export function ExerciseTabBar({
   exercisePassMap,
   activeExerciseIndex,
   setActiveExerciseIndex,
-  blockCompleted,
 }: ExerciseTabBarProps) {
   return (
     <div className="flex gap-2 p-4 border-b border-slate-200 bg-trueaccent overflow-x-auto select-none no-scrollbar">
@@ -62,13 +60,6 @@ export function ExerciseTabBar({
               </Button>
             );
           })}
-
-          {/* Block completion badge */}
-          {blockCompleted && (
-            <span className="ml-auto flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold text-green-foreground bg-green-mint border border-success/30 rounded-lg shrink-0 whitespace-nowrap">
-              🎉 Block complete!
-            </span>
-          )}
         </>
       )}
     </div>
