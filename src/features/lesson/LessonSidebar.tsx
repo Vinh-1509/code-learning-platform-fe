@@ -84,12 +84,8 @@ export function LessonSidebar({
         </div>
         <div className="flex flex-col">
           {blocks.map((block, index) => {
-            const prevBlock = index > 0 ? blocks[index - 1] : null;
-
             // Enforce lock from the frontend until the previous block has fully passed Feynman
-            const isLocked =
-              block.status === 'locked' ||
-              (prevBlock !== null && !prevBlock.isFeynmanPassed);
+            const isLocked = block.status === 'locked';
 
             const isSelected = block._id === selectedBlockId;
 

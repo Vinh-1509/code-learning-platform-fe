@@ -17,8 +17,11 @@ api.interceptors.response.use(
   (response) => response,
   (error: unknown) => {
     if (axios.isAxiosError(error) && error.response?.status === 401) {
-      localStorage.removeItem('token');
-      window.location.href = '/login';
+      const hasToken = Boolean(localStorage.getItem('token'));
+      if (hasToken) {
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(
       error instanceof Error ? error : new Error('Unknown error')
@@ -297,25 +300,6 @@ export async function explainExerciseAnswer(
   return data;
 }
 
-// Block completion
-export interface BlockCompleteResponse {
-  message: string;
-  lessonProgress: {
-    status: string;
-    completionPercentage: number;
-    isCompleted: boolean;
-  };
-}
-
-export async function completeBlock(
-  blockId: string
-): Promise<BlockCompleteResponse> {
-  const { data } = await api.post<BlockCompleteResponse>(
-    `/api/learning/blocks/${blockId}/complete`
-  );
-  return data;
-}
-
 //Practice Page
 export interface WeaknessTagResponse {
   _id: string;
@@ -410,10 +394,12 @@ export async function fetchFeynmanHistory(blockId: string): Promise<{
   chatHistory: FeynmanChatMessage[];
   isFeynmanPassed: boolean;
 }> {
-  const [historyRes, statsRes] = await Promise.all([
-    api.get<FeynmanHistoryResponse>(`/api/feynman/block/${blockId}/history`),
-    api.get<FeynmanStatsResponse>(`/api/feynman/block/${blockId}/stats`),
-  ]);
+  const historyRes = await api.get<FeynmanHistoryResponse>(
+    `/api/feynman/block/${blockId}/history`
+  );
+  const statsRes = await api.get<FeynmanStatsResponse>(
+    `/api/feynman/block/${blockId}/stats`
+  );
 
   return {
     chatHistory: historyRes.data.chatHistory ?? [],
