@@ -127,7 +127,6 @@ export function LessonPage() {
                 exercisePassMap={exercisePassMap}
                 activeExerciseIndex={activeExerciseIndex}
                 setActiveExerciseIndex={setActiveExerciseIndex}
-                blockCompleted={blockCompleted}
               />
 
               <div className="flex-1 overflow-y-auto p-4 h-full">

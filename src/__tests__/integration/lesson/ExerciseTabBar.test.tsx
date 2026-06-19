@@ -34,7 +34,6 @@ describe('ExerciseTabBar', () => {
         exercisePassMap={{}}
         activeExerciseIndex={0}
         setActiveExerciseIndex={vi.fn()}
-        blockCompleted={false}
       />
     );
 
@@ -50,7 +49,6 @@ describe('ExerciseTabBar', () => {
         exercisePassMap={{}}
         activeExerciseIndex={0}
         setActiveExerciseIndex={vi.fn()}
-        blockCompleted={false}
       />
     );
 
@@ -66,7 +64,6 @@ describe('ExerciseTabBar', () => {
         exercisePassMap={{}}
         activeExerciseIndex={0}
         setActiveExerciseIndex={vi.fn()}
-        blockCompleted={false}
       />
     );
 
@@ -82,7 +79,6 @@ describe('ExerciseTabBar', () => {
         exercisePassMap={{}}
         activeExerciseIndex={0}
         setActiveExerciseIndex={vi.fn()}
-        blockCompleted={false}
       />
     );
 
@@ -104,7 +100,6 @@ describe('ExerciseTabBar', () => {
         exercisePassMap={{}}
         activeExerciseIndex={0}
         setActiveExerciseIndex={vi.fn()}
-        blockCompleted={false}
       />
     );
 
@@ -124,7 +119,6 @@ describe('ExerciseTabBar', () => {
         exercisePassMap={{ 'ex-1': true }}
         activeExerciseIndex={1}
         setActiveExerciseIndex={vi.fn()}
-        blockCompleted={false}
       />
     );
 
@@ -142,7 +136,6 @@ describe('ExerciseTabBar', () => {
         exercisePassMap={{ 'ex-1': true }}
         activeExerciseIndex={0}
         setActiveExerciseIndex={vi.fn()}
-        blockCompleted={false}
       />
     );
 
@@ -165,44 +158,11 @@ describe('ExerciseTabBar', () => {
         exercisePassMap={{}}
         activeExerciseIndex={0}
         setActiveExerciseIndex={setActiveExerciseIndex}
-        blockCompleted={false}
       />
     );
 
     await user.click(screen.getByRole('button', { name: /question 2/i }));
 
     expect(setActiveExerciseIndex).toHaveBeenCalledWith(1);
-  });
-
-  it('shows block complete badge', () => {
-    render(
-      <ExerciseTabBar
-        loading={false}
-        error={null}
-        exercises={mockExercises}
-        exercisePassMap={{}}
-        activeExerciseIndex={0}
-        setActiveExerciseIndex={vi.fn()}
-        blockCompleted={true}
-      />
-    );
-
-    expect(screen.getByText(/block complete!/i)).toBeInTheDocument();
-  });
-
-  it('hides block complete badge when block is not completed', () => {
-    render(
-      <ExerciseTabBar
-        loading={false}
-        error={null}
-        exercises={mockExercises}
-        exercisePassMap={{}}
-        activeExerciseIndex={0}
-        setActiveExerciseIndex={vi.fn()}
-        blockCompleted={false}
-      />
-    );
-
-    expect(screen.queryByText(/block complete!/i)).not.toBeInTheDocument();
   });
 });
