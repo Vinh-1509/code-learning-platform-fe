@@ -436,7 +436,9 @@ export interface DashboardRoadmap {
 }
 
 export interface DashboardStats {
+  totalLessons: number;
   totalLearnedLessons: number;
+  totalExercises: number;
   totalCompletedExercises: number;
   overallProgress: number;
   weakTagsCount: number;

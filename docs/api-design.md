@@ -1162,7 +1162,9 @@ Get general dashboard summary for the authenticated user.
     "language": "C++"
   },
   "stats": {
+    "totalLessons": 10,
     "totalLearnedLessons": 5,
+    "totalExercises": 8,
     "totalCompletedExercises": 18,
     "overallProgress": 32,
     "weakTagsCount": 2
