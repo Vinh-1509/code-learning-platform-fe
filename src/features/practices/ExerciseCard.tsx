@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router';
-import { CheckCircle2, Lock } from 'lucide-react';
+import { CheckCircle2, Lock, AlertTriangle } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -13,9 +13,13 @@ const difficultyStyles: Record<string, string> = {
 
 interface ExerciseCardProps {
   exercise: Exercise;
+  isWeakRecommend?: boolean; // Flag identifying weak concept overlap
 }
 
-export function ExerciseCard({ exercise }: ExerciseCardProps) {
+export function ExerciseCard({
+  exercise,
+  isWeakRecommend = false,
+}: ExerciseCardProps) {
   const { title, instruction, level, status } = exercise;
 
   const isLocked = status === 'locked';
@@ -66,20 +70,35 @@ export function ExerciseCard({ exercise }: ExerciseCardProps) {
   return (
     <div
       className={cn(
-        'flex min-h-45 flex-col justify-between rounded-xl border border-border bg-background p-5 transition-all',
-        isLocked ? 'opacity-75' : 'hover:border-primary/40 hover:shadow-sm'
+        'flex min-h-45 flex-col justify-between rounded-xl border border-border bg-card p-5 transition-all relative overflow-hidden',
+        isLocked
+          ? 'opacity-50 bg-muted select-none'
+          : 'hover:border-primary/40 hover:shadow-sm',
+        isWeakRecommend &&
+          !isLocked &&
+          'border-amber-500/60 bg-amber-50/10 hover:border-amber-500'
       )}
     >
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <span
-            className={cn(
-              'rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider',
-              levelStyle
+          <div className="flex items-center gap-1.5">
+            <span
+              className={cn(
+                'rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider',
+                levelStyle
+              )}
+            >
+              {level}
+            </span>
+
+            {isWeakRecommend && !isLocked && (
+              <span className="inline-flex items-center gap-0.5 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-800 border border-amber-200">
+                <AlertTriangle className="size-3 text-amber-600" />
+                Review Needed
+              </span>
             )}
-          >
-            {level}
-          </span>
+          </div>
+
           {isCompleted && (
             <CheckCircle2 className="size-5 text-green-foreground" />
           )}
