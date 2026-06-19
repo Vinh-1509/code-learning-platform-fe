@@ -317,12 +317,29 @@ export async function completeBlock(
 }
 
 //Practice Page
+export interface WeaknessTagResponse {
+  _id: string;
+  name: string;
+  description: string;
+  totalAttempts: number;
+  failAttempts: number;
+  failureRate: number;
+  isWeak: boolean;
+  updatedAt: string;
+}
+
+export async function fetchWeaknessTags(): Promise<WeaknessTagResponse[]> {
+  const { data } = await api.get<WeaknessTagResponse[]>('/api/tags/weakness');
+  return data;
+}
+
 export type Difficulty = 'easy' | 'medium' | 'hard';
 export interface Exercise {
   _id: string;
   title: string;
   instruction: string;
   language: string;
+  tagId: string[];
   type: ExerciseType;
   level: Difficulty;
   order: number;
@@ -412,5 +429,51 @@ export async function sendFeynmanMessage(
     `/api/feynman/block/${blockId}/chat`,
     { message }
   );
+  return data;
+}
+
+//API for dashboard
+
+// Dashboard Data Types
+export interface DashboardUser {
+  _id: string;
+  email: string;
+  username: string;
+  fullName: string;
+  selectedLanguage: string[];
+}
+
+export interface DashboardRoadmap {
+  _id: string;
+  title: string;
+  language: string;
+}
+
+export interface DashboardStats {
+  totalLearnedLessons: number;
+  totalCompletedExercises: number;
+  overallProgress: number;
+  weakTagsCount: number;
+}
+
+export interface DashboardMilestone {
+  _id: string;
+  title: string;
+  status: 'active' | 'locked' | 'completed';
+  completionPercentage: number;
+}
+
+export interface DashboardResponse {
+  user: DashboardUser;
+  roadmap: DashboardRoadmap;
+  stats: DashboardStats;
+  milestones: DashboardMilestone[];
+  dailyReview: {
+    pendingCount: number;
+  };
+}
+
+export async function fetchDashboardData(): Promise<DashboardResponse> {
+  const { data } = await api.get<DashboardResponse>('/api/dashboard');
   return data;
 }

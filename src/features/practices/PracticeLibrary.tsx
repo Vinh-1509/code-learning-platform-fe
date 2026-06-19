@@ -18,15 +18,21 @@ export function PracticeLibrary() {
     setDiffFilter(value);
   };
 
-  // Sync criteria triggers up to usePractice domain layer fetches
-  const { exercises, loading, error } = usePractice({
+  // Connect layout directly to the orchestrated practice query domain stream
+  const {
+    exercises,
+    weakTagIdsSet,
+    featuredExercise,
+    isWeakRecommendation,
+    loading,
+    error,
+  } = usePractice({
     q: search,
     difficulty: diffFilter,
     page: 1,
     limit: 15,
   });
 
-  // Structural view toggles to keep template rendering clean
   const showLoading = loading;
   const showError = !loading && error;
   const showEmpty =
@@ -34,7 +40,7 @@ export function PracticeLibrary() {
   const showList = !loading && !error && exercises && exercises.length > 0;
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-8">
+    <div className="mx-auto max-w-7xl space-y-6 p-4  sm:p-8">
       <PracticeFilters
         diffFilter={diffFilter}
         onDiffChange={handleDifficultyChange}
@@ -42,7 +48,13 @@ export function PracticeLibrary() {
         search={search}
       />
 
-      <PracticeHero />
+      {/* Renders the top priority item, passing down if it's an actual weakness recommendation */}
+      {!loading && !error && (
+        <PracticeHero
+          exercise={featuredExercise}
+          isWeak={isWeakRecommendation}
+        />
+      )}
 
       {/* Target Content Feed Frame */}
       <div>
@@ -76,9 +88,20 @@ export function PracticeLibrary() {
 
         {showList && (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {exercises.map((exercise) => (
-              <ExerciseCard key={exercise._id} exercise={exercise} />
-            ))}
+            {exercises.map((exercise) => {
+              // Checks if any tagId linked to this exercise overlaps with tracked weaknesses
+              const hasWeakTagIntersect = exercise.tagId?.some((id) =>
+                weakTagIdsSet.has(id)
+              );
+
+              return (
+                <ExerciseCard
+                  key={exercise._id}
+                  exercise={exercise}
+                  isWeakRecommend={hasWeakTagIntersect}
+                />
+              );
+            })}
           </div>
         )}
       </div>

@@ -5,6 +5,7 @@ import { StatsGrid } from './StatsGrid';
 import { LearningRoadmap } from './LearningRoadmap';
 import { useRoadmap } from './useRoadmap';
 import { useStartLesson } from './useStartLesson';
+import { useDashboardData } from './useDashboard'; // Imported the new hook
 import Navbar from '@/components/navbar/Navbar';
 
 /**
@@ -18,14 +19,19 @@ export function DashboardPage() {
     'dashboard'
   );
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // Roadmap logic from current codebase
   const {
     modules,
     expandedModules,
     toggleModule,
     handleStartLesson,
     currentLesson,
-    loading,
+    loading: roadmapLoading,
   } = useRoadmap();
+
+  // Real dashboard statistics fetched here
+  const { dashboardData, loading: statsLoading } = useDashboardData();
   const startLesson = useStartLesson();
 
   const currentLessonBanner = currentLesson ? (
@@ -38,9 +44,12 @@ export function DashboardPage() {
     />
   ) : null;
 
-  //mocked data
+  // Fallback info from the new API structure or fallback to old totals
   const totalLessons = 45;
-  const completedLessons = 12;
+  const completedLessons = dashboardData?.stats.totalLearnedLessons ?? 0;
+
+  // Unified loading state for critical components
+  const isPageLoading = roadmapLoading || statsLoading;
 
   return (
     <div className="h-screen overflow-hidden">
@@ -54,8 +63,8 @@ export function DashboardPage() {
           setActiveTab(tab);
           setIsSidebarOpen(false);
         }}
-        completedLessons={loading ? undefined : completedLessons}
-        totalLessons={loading ? undefined : totalLessons}
+        completedLessons={isPageLoading ? undefined : completedLessons}
+        totalLessons={isPageLoading ? undefined : totalLessons}
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
       />
@@ -63,11 +72,18 @@ export function DashboardPage() {
       {/* CONTENT */}
       <main className="ml-0 md:ml-64 pt-14 h-screen overflow-y-auto">
         <div className="p-4 sm:p-8 max-w-7xl mx-auto space-y-6">
-          {!loading && currentLessonBanner}
+          {!isPageLoading && currentLessonBanner}
 
+          {/* Connected real dynamic statistics from dashboardData payload */}
           <StatsGrid
-            lessonsLearned={loading ? 0 : completedLessons}
-            problemsSolved={42}
+            lessonsLearned={
+              statsLoading ? 0 : (dashboardData?.stats.totalLearnedLessons ?? 0)
+            }
+            problemsSolved={
+              statsLoading
+                ? 0
+                : (dashboardData?.stats.totalCompletedExercises ?? 0)
+            }
           />
 
           <LearningRoadmap
@@ -75,7 +91,7 @@ export function DashboardPage() {
             expandedModules={expandedModules}
             toggleModule={toggleModule}
             handleStartLesson={handleStartLesson}
-            loading={loading}
+            loading={roadmapLoading}
           />
         </div>
       </main>
