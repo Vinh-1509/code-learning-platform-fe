@@ -22,9 +22,9 @@ interface ExerciseResponse {
 export function DedicatedPracticePage() {
   const { exerciseId } = PracticeRouteApi.useParams();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'description' | 'code'>(
-    'description'
-  );
+  const [activeTab, setActiveTab] = useState<
+    'theory' | 'code' | 'practice' | 'description'
+  >('description');
 
   // Custom hook containing state management for fetching/submitting challenges
   const {

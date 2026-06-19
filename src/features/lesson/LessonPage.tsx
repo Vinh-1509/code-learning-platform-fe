@@ -31,7 +31,9 @@ export function LessonPage() {
     string | null
   >(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'theory' | 'practice'>('theory');
+  const [activeTab, setActiveTab] = useState<
+    'theory' | 'code' | 'practice' | 'description'
+  >('theory');
 
   const activeBlockId =
     selectedBlockId ??
