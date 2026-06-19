@@ -27,9 +27,6 @@ export function LessonPage() {
   const { currentLesson, refetchLesson } = useBlockLessons({ lessonId });
 
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
-  const [justPassedFeynmanBlockId, setJustPassedFeynmanBlockId] = useState<
-    string | null
-  >(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<
     'theory' | 'code' | 'practice' | 'description'
@@ -37,17 +34,17 @@ export function LessonPage() {
 
   const activeBlockId =
     selectedBlockId ??
-    currentLesson?.blocks.find(
-      (b: Block) =>
-        b.status === 'active' ||
-        (b.status === 'completed' && !b.isFeynmanPassed)
-    )?._id ??
+    currentLesson?.blocks.find((b) => b.status === 'active')?._id ??
     currentLesson?.blocks[0]?._id ??
     null;
 
   const currentBlock =
     currentLesson?.blocks.find((b: Block) => b._id === activeBlockId) ??
     undefined;
+
+  const [feynmanPassedBlockId, setFeynmanPassedBlockId] = useState<
+    string | null
+  >(null);
 
   const {
     exercises,
@@ -83,10 +80,6 @@ export function LessonPage() {
           lessonTitle={currentLesson?.title}
           selectedBlockId={activeBlockId}
           onSelectBlock={(id) => {
-            // Clear the "just passed" state so the user can revisit exercises on previously passed blocks
-            if (id !== activeBlockId) {
-              setJustPassedFeynmanBlockId(null);
-            }
             setSelectedBlockId(id);
           }}
           isOpen={isSidebarOpen}
@@ -139,10 +132,11 @@ export function LessonPage() {
                     (currentLesson?.blocks.length ?? 0) > currentBlockIndex + 1;
 
                   const shouldShowFeynman =
-                    blockCompleted &&
                     activeBlockId &&
-                    (!currentBlock?.isFeynmanPassed ||
-                      justPassedFeynmanBlockId === activeBlockId);
+                    ((blockCompleted &&
+                      currentBlock?.status === 'active' &&
+                      currentBlock?.isFeynmanPassed === false) ||
+                      feynmanPassedBlockId === activeBlockId);
 
                   if (shouldShowFeynman) {
                     return (
@@ -151,8 +145,8 @@ export function LessonPage() {
                         onComplete={() => {
                           if (activeBlockId) {
                             setSelectedBlockId(activeBlockId);
+                            setFeynmanPassedBlockId(activeBlockId); // hold the conversation
                           }
-                          setJustPassedFeynmanBlockId(activeBlockId);
                           void refetchLesson?.();
                         }}
                         onNextBlock={() => {
@@ -160,7 +154,6 @@ export function LessonPage() {
                             const nextBlock =
                               currentLesson?.blocks[currentBlockIndex + 1];
                             if (nextBlock) {
-                              setJustPassedFeynmanBlockId(null);
                               setSelectedBlockId(nextBlock._id);
                             }
                           });

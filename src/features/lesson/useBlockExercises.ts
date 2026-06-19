@@ -4,7 +4,6 @@ import {
   submitExerciseAnswer,
   getExerciseHint,
   explainExerciseAnswer,
-  completeBlock,
 } from '@/lib/axios';
 import { convertExerciseResponse } from '@/components/practice_utils/utils/exercise.converter';
 import type { PracticeExercise } from '@/components/practice_utils/types/practiceTypes';
@@ -27,15 +26,22 @@ export function useBlockExercises({ block }: UseBlockExercisesOptions) {
     Record<string, boolean>
   >({});
   const [blockCompleted, setBlockCompleted] = useState(false);
-  const exercisesRef = useRef<PracticeExercise[]>(exercises);
+
+  // Tracks required exercise IDs for the current block.
+  // Stored in a ref so the submitAnswer closure always reads the current value
+  // without needing to be recreated on every render.
+  const requiredIdsRef = useRef<Set<string>>(new Set());
 
   const blockId = block?._id;
 
   useEffect(() => {
     async function getExercises() {
+      // No block selected — clear everything
       if (!block) {
         setExercises([]);
-        exercisesRef.current = [];
+        setExercisePassMap({});
+        setBlockCompleted(false);
+        requiredIdsRef.current = new Set();
         return;
       }
 
@@ -43,9 +49,12 @@ export function useBlockExercises({ block }: UseBlockExercisesOptions) {
         (item) => item.type === 'practice'
       );
 
+      // Block has no practice content at all — Feynman gate is immediately open
       if (practiceItems.length === 0) {
         setExercises([]);
-        exercisesRef.current = [];
+        setExercisePassMap({});
+        setBlockCompleted(true);
+        requiredIdsRef.current = new Set();
         return;
       }
 
@@ -59,30 +68,43 @@ export function useBlockExercises({ block }: UseBlockExercisesOptions) {
         .map((item) => item.data.exerciseId as string)
         .filter(Boolean);
 
+      // Practice content items exist but none have exerciseIds — treat as no gate
       if (exerciseIds.length === 0) {
         setExercises([]);
-        exercisesRef.current = [];
+        setExercisePassMap({});
+        setBlockCompleted(true);
+        requiredIdsRef.current = new Set();
         return;
       }
 
+      // Compute which exercise IDs are required (data.required defaults to true).
+      const requiredIds = new Set(
+        practiceItems
+          .filter((item) => item.data.required !== false)
+          .map((item) => item.data.exerciseId as string)
+          .filter(Boolean)
+      );
+      requiredIdsRef.current = requiredIds;
+
+      // Reset pass tracking for the incoming block.
+      // If no exercises are marked required, the gate is already open.
+      setExercisePassMap({});
+      setBlockCompleted(requiredIds.size === 0);
+
       setLoading(true);
       setError(null);
-      // Reset pass tracking when block changes
-      setExercisePassMap({});
-      setBlockCompleted(false);
+
       try {
         const apiExercises = await Promise.all(
           exerciseIds.map((id) => fetchExerciseById(id))
         );
         const convertedExercises = apiExercises.map(convertExerciseResponse);
         setExercises(convertedExercises);
-        exercisesRef.current = convertedExercises;
       } catch (err) {
         setError(
           err instanceof Error ? err.message : 'Failed to fetch exercises'
         );
         setExercises([]);
-        exercisesRef.current = [];
       } finally {
         setLoading(false);
       }
@@ -102,13 +124,15 @@ export function useBlockExercises({ block }: UseBlockExercisesOptions) {
       setExercisePassMap((prev) => {
         const next = { ...prev, [exerciseId]: true };
 
-        // Check if every exercise in the current block is now passed
-        const allPassed = exercisesRef.current.every((ex) => next[ex.id]);
-        if (allPassed && block && !blockCompleted) {
+        // Check if every required exercise is now passed.
+        // An empty required set means the gate was already open (handled at load time),
+        // but guard here too for safety.
+        const allRequiredPassed =
+          requiredIdsRef.current.size === 0 ||
+          [...requiredIdsRef.current].every((id) => next[id]);
+
+        if (allRequiredPassed) {
           setBlockCompleted(true);
-          void completeBlock(block._id).catch((err) => {
-            console.error('Failed to mark block as complete:', err);
-          });
         }
 
         return next;
