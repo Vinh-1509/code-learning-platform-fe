@@ -14,10 +14,10 @@ export function PracticePage() {
 
   const completedLessons = loading
     ? undefined
-    : (dashboardData?.stats.totalLearnedLessons ?? 0);
+    : (dashboardData?.stats.totalCompletedExercises ?? 0);
   const totalLessons = loading
     ? undefined
-    : (dashboardData?.stats.totalLessons ?? 0);
+    : (dashboardData?.stats.totalExercises ?? 0);
 
   return (
     <div className="h-screen overflow-hidden bg-background">
@@ -33,6 +33,7 @@ export function PracticePage() {
         }}
         completedLessons={completedLessons}
         totalLessons={totalLessons}
+        progressLabel="Exercises Solved"
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
       />

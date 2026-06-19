@@ -14,6 +14,7 @@ interface AppSidebarProps {
   onTabChange?: (tab: 'dashboard' | 'practice') => void;
   completedLessons?: number;
   totalLessons?: number;
+  progressLabel?: string;
   isOpen?: boolean;
   onClose?: () => void;
 }
@@ -22,8 +23,9 @@ interface AppSidebarProps {
 export function AppSidebar({
   activeTab,
   onTabChange,
-  completedLessons = 12,
-  totalLessons = 45,
+  completedLessons = 0,
+  totalLessons = 0,
+  progressLabel = 'Lessons Learned',
   isOpen = false,
   onClose,
 }: AppSidebarProps) {
@@ -67,7 +69,7 @@ export function AppSidebar({
                   </h3>
 
                   <p className="text-xs text-muted-foreground">
-                    {completedLessons}/{totalLessons} Lessons Learned
+                    {completedLessons}/{totalLessons} {progressLabel}
                   </p>
                 </div>
               </div>
