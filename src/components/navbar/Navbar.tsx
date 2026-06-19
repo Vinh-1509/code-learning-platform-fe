@@ -39,25 +39,12 @@ const Navbar = ({
     <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 h-14 bg-card border-b border-border select-none">
       {/* LEFT: Logo & Sidebar Toggles */}
       <div className="flex items-center gap-2">
-        {/* Dashboard Sidebar Toggle */}
-        {variant === 'dashboard' && onToggleSidebar && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            onClick={onToggleSidebar}
-            className="md:hidden -ml-2 h-9 w-9 text-muted-foreground"
-          >
-            <Menu className="size-5" />
-          </Button>
-        )}
-
         {/* Lesson Sidebar Toggle */}
         {variant === 'lesson' && onToggleSidebar && (
           <Button
             type="button"
             onClick={onToggleSidebar}
-            className="lg:hidden flex items-center justify-center size-9 bg-primary text-primary-foreground rounded-xl shadow p-0"
+            className="lg:hidden flex items-center justify-center size-9 bg-primary text-primary-foreground rounded-xl shadow-md shadow-primary/30 p-0"
           >
             <Code className="size-5" />
           </Button>
@@ -71,9 +58,9 @@ const Navbar = ({
             variant === 'lesson' && 'hidden lg:inline-block'
           )}
         >
-          <span className="text-xl font-black text-primary tracking-tight select-none">
-            CodeStep
-          </span>
+          <div className="flex items-center justify-center size-9 bg-primary text-primary-foreground rounded-xl shadow-md shadow-primary/30">
+            <Code className="size-5" />
+          </div>
         </Link>
       </div>
 
@@ -110,7 +97,6 @@ const Navbar = ({
           </button>
         </div>
       )}
-
       {/* RIGHT: Actions / Profile Menu */}
       <div className="flex items-center gap-3">
         {/* Desktop Back Buttons (Shared Logic) */}
@@ -174,20 +160,38 @@ const Navbar = ({
         {/* Dashboard Actions: Sign Out & Avatar */}
         {variant === 'dashboard' && (
           <>
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={logout}
-              className="text-sm font-medium text-foreground hover:text-muted-foreground cursor-pointer h-auto p-0 hover:bg-transparent shadow-none"
-            >
-              Sign Out
-            </Button>
-            <Separator orientation="vertical" className="h-4 bg-slate-300" />
-            <Avatar className="size-8">
-              <AvatarFallback className="bg-muted text-muted-foreground border border-border flex items-center justify-center">
-                <User className="size-4" />
-              </AvatarFallback>
-            </Avatar>
+            {/* Desktop Actions */}
+            <div className="hidden md:flex items-center gap-3">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={logout}
+                className="text-sm font-medium text-foreground hover:text-muted-foreground cursor-pointer h-auto p-0 hover:bg-transparent shadow-none"
+              >
+                Sign Out
+              </Button>
+              <Separator orientation="vertical" className="h-4 bg-slate-300" />
+              <Avatar className="size-8">
+                <AvatarFallback className="bg-muted text-muted-foreground border border-border flex items-center justify-center">
+                  <User className="size-4" />
+                </AvatarFallback>
+              </Avatar>
+            </div>
+
+            {/* Mobile Actions: Sidebar Toggle */}
+            {onToggleSidebar && (
+              <div className="md:hidden">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={onToggleSidebar}
+                  className="h-9 w-9 text-muted-foreground -mr-2"
+                >
+                  <Menu className="size-5" />
+                </Button>
+              </div>
+            )}
           </>
         )}
       </div>

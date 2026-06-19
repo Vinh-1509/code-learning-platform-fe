@@ -1,11 +1,12 @@
 import { useNavigate } from '@tanstack/react-router';
-import { LayoutDashboard, Grid3x3, SquareTerminal } from 'lucide-react';
+import { LayoutDashboard, Grid3x3, SquareTerminal, LogOut } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 
 import { useSidebarLanguage } from './useSidebarLanguage';
+import { useAuth } from '@/features/auth/useAuth';
 
 interface AppSidebarProps {
   variant?: 'dashboard' | 'lesson';
@@ -28,6 +29,7 @@ export function AppSidebar({
 }: AppSidebarProps) {
   const navigate = useNavigate();
   const { languageLabel } = useSidebarLanguage();
+  const { logout } = useAuth();
 
   const progressPercent =
     totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
@@ -47,65 +49,79 @@ export function AppSidebar({
       )}
       <aside
         className={cn(
-          'fixed top-14 left-0 bottom-0 w-64 border-r border-sidebar-border bg-sidebar z-40 transition-transform duration-300 md:translate-x-0',
+          'fixed top-14 left-0 bottom-0 w-64 border-r border-sidebar-border bg-sidebar z-40 transition-transform duration-300 md:translate-x-0 flex flex-col justify-between',
           isOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
-        <div className="px-4 py-4">
-          <div className="rounded-xl bg-card border border-border p-4">
-            <div className="flex items-start gap-3">
-              <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary-second">
-                <SquareTerminal className="size-5 text-primary" />
+        <div className="flex flex-col flex-1">
+          <div className="px-4 py-4">
+            <div className="rounded-xl bg-card border border-border p-4">
+              <div className="flex items-start gap-3">
+                <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary-second">
+                  <SquareTerminal className="size-5 text-primary" />
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-sm font-semibold text-foreground">
+                    {languageLabel} Mastery
+                  </h3>
+
+                  <p className="text-xs text-muted-foreground">
+                    {completedLessons}/{totalLessons} Lessons Learned
+                  </p>
+                </div>
               </div>
 
-              <div className="min-w-0 flex-1">
-                <h3 className="text-sm font-semibold text-foreground">
-                  {languageLabel} Mastery
-                </h3>
-
-                <p className="text-xs text-muted-foreground">
-                  {completedLessons}/{totalLessons} Lessons Learned
-                </p>
-              </div>
+              <Progress value={progressPercent} className="mt-3 h-1.5" />
             </div>
-
-            <Progress value={progressPercent} className="mt-3 h-1.5" />
           </div>
+
+          <nav className="flex-1 px-4">
+            <p className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+              Navigate
+            </p>
+
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
+
+              return (
+                <Button
+                  key={item.id}
+                  variant="ghost"
+                  onClick={() => {
+                    onTabChange?.(item.id);
+                    void navigate({
+                      to: item.id === 'dashboard' ? '/dashboard' : '/practice',
+                    });
+                    onClose?.(); // Close mobile drawer on navigation
+                  }}
+                  className={cn(
+                    'mt-1 flex w-full items-center justify-start gap-3 rounded-l-lg rounded-r-none px-4 py-2.5 text-left text-sm font-medium shadow-none transition-colors h-auto cursor-pointer',
+                    isActive
+                      ? 'bg-primary-second text-primary border-r-4 border-r-primary hover:bg-primary-second hover:text-primary'
+                      : 'border-r-4 border-r-transparent text-muted-foreground hover:bg-muted hover:text-foreground'
+                  )}
+                >
+                  <Icon className="size-5" />
+                  {item.label}
+                </Button>
+              );
+            })}
+          </nav>
         </div>
 
-        <nav className="flex-1 px-4">
-          <p className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-            Navigate
-          </p>
-
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeTab === item.id;
-
-            return (
-              <Button
-                key={item.id}
-                variant="ghost"
-                onClick={() => {
-                  onTabChange?.(item.id);
-                  void navigate({
-                    to: item.id === 'dashboard' ? '/dashboard' : '/practice',
-                  });
-                  onClose?.(); // Close mobile drawer on navigation
-                }}
-                className={cn(
-                  'mt-1 flex w-full items-center justify-start gap-3 rounded-l-lg rounded-r-none px-4 py-2.5 text-left text-sm font-medium shadow-none transition-colors h-auto cursor-pointer',
-                  isActive
-                    ? 'bg-primary-second text-primary border-r-4 border-r-primary hover:bg-primary-second hover:text-primary'
-                    : 'border-r-4 border-r-transparent text-muted-foreground hover:bg-muted hover:text-foreground'
-                )}
-              >
-                <Icon className="size-5" />
-                {item.label}
-              </Button>
-            );
-          })}
-        </nav>
+        {/* Sign Out Button at the very bottom */}
+        <div className="p-4 border-t border-sidebar-border mt-auto">
+          <Button
+            variant="ghost"
+            onClick={logout}
+            className="w-full flex items-center justify-start gap-3 px-4 py-2.5 text-left text-sm font-semibold text-red-600 hover:bg-rose-50 hover:text-red-700 cursor-pointer shadow-none rounded-lg"
+          >
+            <LogOut className="size-5" />
+            Sign Out
+          </Button>
+        </div>
       </aside>
     </>
   );

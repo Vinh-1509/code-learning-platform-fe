@@ -24,12 +24,14 @@ export function TheoryPanel({ block }: TheoryPaneProps) {
   );
 
   return (
-    <div className="flex-1 bg-card p-6 min-w-0 ">
-      <h1 className="mt-2 text-3xl font-bold text-foreground">
+    <div className="flex-1 bg-card p-4 md:p-6 min-w-0 ">
+      <h1 className="mt-2 text-2xl md:text-3xl font-bold text-foreground">
         {block.title || 'Theory'}
       </h1>
       {block.description && (
-        <p className="mt-2 text-muted-foreground">{block.description}</p>
+        <p className="mt-2 text-muted-foreground font-medium md:font-normal">
+          {block.description}
+        </p>
       )}
 
       <Separator className="my-6" />
@@ -43,7 +45,7 @@ export function TheoryPanel({ block }: TheoryPaneProps) {
                   {index + 1}. What is it?
                 </h2>
 
-                <div className="rounded-lg border-l-4 border-primary bg-primary-second p-4 text-sm text-primary">
+                <div className="rounded-lg border-l-4 border-primary bg-primary-second p-4 text-sm text-primary font-medium md:font-normal">
                   {item.data.text}
                 </div>
               </section>
@@ -58,7 +60,7 @@ export function TheoryPanel({ block }: TheoryPaneProps) {
                 </h2>
 
                 {item.data.explanation && (
-                  <p className="text-sm leading-6 text-muted-foreground">
+                  <p className="text-sm leading-6 text-muted-foreground font-medium md:font-normal">
                     {item.data.explanation}
                   </p>
                 )}
