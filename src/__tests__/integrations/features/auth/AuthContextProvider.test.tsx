@@ -94,8 +94,9 @@ describe('AuthProvider — initial state', () => {
     await waitFor(() => {
       expect(screen.getByTestId('user')).toHaveTextContent('none');
     });
-    // Token itself is untouched by a getMe() failure on mount.
+
     expect(screen.getByTestId('token')).toHaveTextContent('existing-token');
+    expect(localStorage.getItem('token')).toBe('existing-token');
   });
 });
 

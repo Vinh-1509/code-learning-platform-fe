@@ -200,20 +200,27 @@ src/
         ├── components/lessons/
         │   ├── ExerciseTabBar.test.tsx           ✅
         │   └── LessonSidebar.test.tsx            ✅
+        ├── components/practices/
+        │   └── ExerciseCard.test.tsx             ✅
         ├── features/auth/
         │   ├── LoginForm.test.tsx                ✅
         │   ├── SignUpForm.test.tsx               ✅
         │   └── AuthContextProvider.test.tsx      ✅
         ├── features/dashboard/
         │   ├── LearningRoadmap.test.tsx          ✅
-        │   └── CurrentLessonBanner.test.tsx      ✅
+        │   ├── CurrentLessonBanner.test.tsx      ✅
+        │   └── useStartLesson.test.tsx           ✅
+        ├── features/interview/
+        │   └── FeynmanInterviewPane.test.tsx     ✅
         └── hooks/
             ├── useBlockExercises.test.ts         ✅
             ├── useBlockLessons.test.ts           ✅
             ├── usePractice.test.ts               ✅
             ├── useDedicatedPractice.test.ts      ✅
             ├── useDashboard.test.ts              ✅
-            └── useLanguageSelection.test.ts      ✅
+            ├── useLanguageSelection.test.ts      ✅
+            ├── useRoadmap.test.ts                ✅
+            └── useSidebarLanguage.test.ts        ✅
 
 ```
 
@@ -442,5 +449,5 @@ Notable behaviors to test beyond the basic fetch: the 400ms debounce on search/f
 > 1. **TanStack Router context in tests:** ✅ Resolved — use `createMemoryHistory` + `RouterProvider` wrapper. No source changes needed.
 > 2. **Coverage threshold:** ✅ Resolved — collect and display coverage, no strict minimum yet. Establish baseline first.
 > 3. **Phase 3 scope:** ✅ Resolved — `PracticePanel.tsx` and `FillBlankPane.tsx` deferred to Phase 4.
-> 4. **🆕 `usePractice` debounce:** Uses `setTimeout(400ms)`. Tests must call `vi.useFakeTimers()` and `vi.advanceTimersByTime(400)` to trigger the fetch without waiting real time.
-> 5. **🆕 `AuthContextProvider` `useEffect` on token change:** The effect calls `getMe()` on mount when a token exists in localStorage. Tests that check the user state should pre-seed localStorage before rendering and use `waitFor` to resolve the effect.
+> 4. **✅ Resolved — `usePractice` debounce:** Uses `setTimeout(400ms)`. Tests must call `vi.useFakeTimers()` and `vi.advanceTimersByTime(400)` to trigger the fetch without waiting real time.
+> 5. **✅ Resolved — `AuthContextProvider` `useEffect` on token change:** The effect calls `getMe()` on mount when a token exists in localStorage. Tests that check the user state should pre-seed localStorage before rendering and use `waitFor` to resolve the effect.
