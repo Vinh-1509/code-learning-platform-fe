@@ -190,9 +190,14 @@ describe('useBlockExercises()', () => {
     // Rerender with a new block
     rerender({ block: blockB });
 
-    // Assert immediate reset behavior
-    expect(result.current.blockCompleted).toBe(false);
-    expect(result.current.exercisePassMap).toEqual({});
+    await waitFor(() => {
+      expect(result.current.exercisePassMap).toEqual({});
+      expect(result.current.blockCompleted).toBe(false);
+    });
+
+    await waitFor(() => {
+      expect(result.current.exercises).toHaveLength(1); // block-B exercises loaded
+    });
   });
 
   it('delegates getHint() to the API handler and returns the response', async () => {

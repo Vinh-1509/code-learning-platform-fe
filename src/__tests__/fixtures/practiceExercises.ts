@@ -19,7 +19,11 @@ export const fillBlankExerciseFixture: FillBlankExercise = {
       ],
     },
   ],
-  hints: { '1': 'The variable stores a count.' },
+  hints: {
+    '1': 'The variable stores a count.',
+    '2': 'It should be initialized to zero.',
+    '3': 'Consider the variable name used elsewhere.',
+  },
 };
 
 export const dragDropExerciseFixture: DragDropExercise = {

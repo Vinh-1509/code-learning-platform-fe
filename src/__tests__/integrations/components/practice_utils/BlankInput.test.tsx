@@ -28,7 +28,6 @@ describe('BlankInput', () => {
 
     render(<BlankInput {...defaultProps} />);
 
-    // Removed the "as HTMLInputElement" assertion here
     const input = screen.getByRole('textbox');
 
     // Verify properties on the input
@@ -54,7 +53,6 @@ describe('BlankInput', () => {
 
     render(<BlankInput {...defaultProps} />);
 
-    // Removed the "as HTMLInputElement" assertion here
     const input = screen.getByRole('textbox');
 
     expect(input).toHaveValue('');

@@ -9,6 +9,10 @@ import {
   fillBlankExerciseFixture,
 } from '../../../fixtures/practiceExercises';
 
+import * as api from '@/lib/axios';
+
+vi.spyOn(api, 'getExerciseHistory');
+
 describe('PracticePanel', () => {
   beforeEach(() => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
@@ -155,5 +159,50 @@ describe('PracticePanel', () => {
       ).toBeInTheDocument();
     });
     expect(onGetHint).toHaveBeenCalledWith(fillBlankExerciseFixture.id);
+  });
+
+  it('restores previously unlocked hints from history when the hint panel is opened', async () => {
+    const user = userEvent.setup();
+
+    vi.mocked(api.getExerciseHistory).mockResolvedValue([
+      {
+        _id: 'attempt-1',
+        exerciseId: fillBlankExerciseFixture.id,
+        isPassed: false,
+        items: [],
+        hintLevel: 2,
+        attemptNumber: 1,
+        attemptedAt: new Date().toISOString(),
+      },
+    ]);
+
+    render(
+      <PracticePanel
+        exercise={fillBlankExerciseFixture}
+        onSubmit={vi.fn()}
+        onGetHint={vi.fn()}
+      />
+    );
+
+    await waitFor(() => {
+      expect(api.getExerciseHistory).toHaveBeenCalledWith(
+        fillBlankExerciseFixture.id
+      );
+    });
+
+    // Open the hint panel
+    await user.click(screen.getByRole('button', { name: /hint/i }));
+
+    expect(
+      await screen.findByText('The variable stores a count.')
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByText('It should be initialized to zero.')
+    ).toBeInTheDocument();
+
+    expect(
+      screen.queryByText('Consider the variable name used elsewhere.')
+    ).not.toBeInTheDocument();
   });
 });
