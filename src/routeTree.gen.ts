@@ -8,94 +8,94 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router'
 
-import { Route as rootRouteImport } from './routes/__root';
-import { Route as PracticeRouteImport } from './routes/practice';
-import { Route as LanguageselectionRouteImport } from './routes/languageselection';
-import { Route as DashboardRouteImport } from './routes/dashboard';
-import { Route as IndexRouteImport } from './routes/index';
-import { Route as PracticededicatedExerciseIdRouteImport } from './routes/practicededicated.$exerciseId';
-import { Route as LessonLessonIdRouteImport } from './routes/lesson.$lessonId';
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as PracticeRouteImport } from './routes/practice'
+import { Route as LanguageselectionRouteImport } from './routes/languageselection'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as PracticededicatedExerciseIdRouteImport } from './routes/practicededicated.$exerciseId'
+import { Route as LessonLessonIdRouteImport } from './routes/lesson.$lessonId'
 
-const SignupLazyRouteImport = createFileRoute('/signup')();
-const LoginLazyRouteImport = createFileRoute('/login')();
+const SignupLazyRouteImport = createFileRoute('/signup')()
+const LoginLazyRouteImport = createFileRoute('/login')()
 
 const SignupLazyRoute = SignupLazyRouteImport.update({
   id: '/signup',
   path: '/signup',
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/signup.lazy').then((d) => d.Route));
+} as any).lazy(() => import('./routes/signup.lazy').then((d) => d.Route))
 const LoginLazyRoute = LoginLazyRouteImport.update({
   id: '/login',
   path: '/login',
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/login.lazy').then((d) => d.Route));
+} as any).lazy(() => import('./routes/login.lazy').then((d) => d.Route))
 const PracticeRoute = PracticeRouteImport.update({
   id: '/practice',
   path: '/practice',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const LanguageselectionRoute = LanguageselectionRouteImport.update({
   id: '/languageselection',
   path: '/languageselection',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const PracticededicatedExerciseIdRoute =
   PracticededicatedExerciseIdRouteImport.update({
     id: '/practicededicated/$exerciseId',
     path: '/practicededicated/$exerciseId',
     getParentRoute: () => rootRouteImport,
-  } as any);
+  } as any)
 const LessonLessonIdRoute = LessonLessonIdRouteImport.update({
   id: '/lesson/$lessonId',
   path: '/lesson/$lessonId',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute;
-  '/dashboard': typeof DashboardRoute;
-  '/languageselection': typeof LanguageselectionRoute;
-  '/practice': typeof PracticeRoute;
-  '/login': typeof LoginLazyRoute;
-  '/signup': typeof SignupLazyRoute;
-  '/lesson/$lessonId': typeof LessonLessonIdRoute;
-  '/practicededicated/$exerciseId': typeof PracticededicatedExerciseIdRoute;
+  '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
+  '/languageselection': typeof LanguageselectionRoute
+  '/practice': typeof PracticeRoute
+  '/login': typeof LoginLazyRoute
+  '/signup': typeof SignupLazyRoute
+  '/lesson/$lessonId': typeof LessonLessonIdRoute
+  '/practicededicated/$exerciseId': typeof PracticededicatedExerciseIdRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute;
-  '/dashboard': typeof DashboardRoute;
-  '/languageselection': typeof LanguageselectionRoute;
-  '/practice': typeof PracticeRoute;
-  '/login': typeof LoginLazyRoute;
-  '/signup': typeof SignupLazyRoute;
-  '/lesson/$lessonId': typeof LessonLessonIdRoute;
-  '/practicededicated/$exerciseId': typeof PracticededicatedExerciseIdRoute;
+  '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
+  '/languageselection': typeof LanguageselectionRoute
+  '/practice': typeof PracticeRoute
+  '/login': typeof LoginLazyRoute
+  '/signup': typeof SignupLazyRoute
+  '/lesson/$lessonId': typeof LessonLessonIdRoute
+  '/practicededicated/$exerciseId': typeof PracticededicatedExerciseIdRoute
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport;
-  '/': typeof IndexRoute;
-  '/dashboard': typeof DashboardRoute;
-  '/languageselection': typeof LanguageselectionRoute;
-  '/practice': typeof PracticeRoute;
-  '/login': typeof LoginLazyRoute;
-  '/signup': typeof SignupLazyRoute;
-  '/lesson/$lessonId': typeof LessonLessonIdRoute;
-  '/practicededicated/$exerciseId': typeof PracticededicatedExerciseIdRoute;
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
+  '/languageselection': typeof LanguageselectionRoute
+  '/practice': typeof PracticeRoute
+  '/login': typeof LoginLazyRoute
+  '/signup': typeof SignupLazyRoute
+  '/lesson/$lessonId': typeof LessonLessonIdRoute
+  '/practicededicated/$exerciseId': typeof PracticededicatedExerciseIdRoute
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath;
+  fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/dashboard'
@@ -104,8 +104,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/lesson/$lessonId'
-    | '/practicededicated/$exerciseId';
-  fileRoutesByTo: FileRoutesByTo;
+    | '/practicededicated/$exerciseId'
+  fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/dashboard'
@@ -114,7 +114,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/lesson/$lessonId'
-    | '/practicededicated/$exerciseId';
+    | '/practicededicated/$exerciseId'
   id:
     | '__root__'
     | '/'
@@ -124,78 +124,78 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/lesson/$lessonId'
-    | '/practicededicated/$exerciseId';
-  fileRoutesById: FileRoutesById;
+    | '/practicededicated/$exerciseId'
+  fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute;
-  DashboardRoute: typeof DashboardRoute;
-  LanguageselectionRoute: typeof LanguageselectionRoute;
-  PracticeRoute: typeof PracticeRoute;
-  LoginLazyRoute: typeof LoginLazyRoute;
-  SignupLazyRoute: typeof SignupLazyRoute;
-  LessonLessonIdRoute: typeof LessonLessonIdRoute;
-  PracticededicatedExerciseIdRoute: typeof PracticededicatedExerciseIdRoute;
+  IndexRoute: typeof IndexRoute
+  DashboardRoute: typeof DashboardRoute
+  LanguageselectionRoute: typeof LanguageselectionRoute
+  PracticeRoute: typeof PracticeRoute
+  LoginLazyRoute: typeof LoginLazyRoute
+  SignupLazyRoute: typeof SignupLazyRoute
+  LessonLessonIdRoute: typeof LessonLessonIdRoute
+  PracticededicatedExerciseIdRoute: typeof PracticededicatedExerciseIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
     '/signup': {
-      id: '/signup';
-      path: '/signup';
-      fullPath: '/signup';
-      preLoaderRoute: typeof SignupLazyRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
-      id: '/login';
-      path: '/login';
-      fullPath: '/login';
-      preLoaderRoute: typeof LoginLazyRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/practice': {
-      id: '/practice';
-      path: '/practice';
-      fullPath: '/practice';
-      preLoaderRoute: typeof PracticeRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/practice'
+      path: '/practice'
+      fullPath: '/practice'
+      preLoaderRoute: typeof PracticeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/languageselection': {
-      id: '/languageselection';
-      path: '/languageselection';
-      fullPath: '/languageselection';
-      preLoaderRoute: typeof LanguageselectionRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/languageselection'
+      path: '/languageselection'
+      fullPath: '/languageselection'
+      preLoaderRoute: typeof LanguageselectionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
-      id: '/dashboard';
-      path: '/dashboard';
-      fullPath: '/dashboard';
-      preLoaderRoute: typeof DashboardRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
-      id: '/';
-      path: '/';
-      fullPath: '/';
-      preLoaderRoute: typeof IndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/practicededicated/$exerciseId': {
-      id: '/practicededicated/$exerciseId';
-      path: '/practicededicated/$exerciseId';
-      fullPath: '/practicededicated/$exerciseId';
-      preLoaderRoute: typeof PracticededicatedExerciseIdRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/practicededicated/$exerciseId'
+      path: '/practicededicated/$exerciseId'
+      fullPath: '/practicededicated/$exerciseId'
+      preLoaderRoute: typeof PracticededicatedExerciseIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lesson/$lessonId': {
-      id: '/lesson/$lessonId';
-      path: '/lesson/$lessonId';
-      fullPath: '/lesson/$lessonId';
-      preLoaderRoute: typeof LessonLessonIdRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/lesson/$lessonId'
+      path: '/lesson/$lessonId'
+      fullPath: '/lesson/$lessonId'
+      preLoaderRoute: typeof LessonLessonIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -208,7 +208,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignupLazyRoute: SignupLazyRoute,
   LessonLessonIdRoute: LessonLessonIdRoute,
   PracticededicatedExerciseIdRoute: PracticededicatedExerciseIdRoute,
-};
+}
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>();
+  ._addFileTypes<FileRouteTypes>()

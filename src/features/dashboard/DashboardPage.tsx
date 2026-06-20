@@ -45,7 +45,7 @@ export function DashboardPage() {
   ) : null;
 
   // Fallback info from the new API structure or fallback to old totals
-  const totalLessons = 45;
+  const totalLessons = dashboardData?.stats.totalLessons ?? 0;
   const completedLessons = dashboardData?.stats.totalLearnedLessons ?? 0;
 
   // Unified loading state for critical components

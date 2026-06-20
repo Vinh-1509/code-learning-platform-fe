@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { AppSidebar } from '../../components/sidebar/Sidebar';
 import Navbar from '@/components/navbar/Navbar';
 import { PracticeLibrary } from './PracticeLibrary';
+import { useDashboardData } from '@/features/dashboard/useDashboard';
 
 export function PracticePage() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'practice'>(
@@ -9,9 +10,14 @@ export function PracticePage() {
   );
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  // App metrics state properties values indicators
-  const completedLessons = 12;
-  const totalLessons = 45;
+  const { dashboardData, loading } = useDashboardData();
+
+  const completedLessons = loading
+    ? undefined
+    : (dashboardData?.stats.totalCompletedExercises ?? 0);
+  const totalLessons = loading
+    ? undefined
+    : (dashboardData?.stats.totalExercises ?? 0);
 
   return (
     <div className="h-screen overflow-hidden bg-background">
@@ -27,10 +33,10 @@ export function PracticePage() {
         }}
         completedLessons={completedLessons}
         totalLessons={totalLessons}
+        progressLabel="Exercises Solved"
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
       />
-      {/* Scrollable View Workspace Shell */}
       <main className="ml-0 md:ml-64 h-screen overflow-y-auto pt-14">
         <PracticeLibrary />
       </main>

@@ -16,6 +16,7 @@ export function useDashboardData() {
       try {
         setLoading(true);
         const data = await fetchDashboardData();
+        console.log('dashboard payload:', data); // ← add this
         setDashboardData(data);
         setError(null);
       } catch (err) {
