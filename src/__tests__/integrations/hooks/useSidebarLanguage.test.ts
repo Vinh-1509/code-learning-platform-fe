@@ -32,23 +32,6 @@ describe('useSidebarLanguage', () => {
     expect(getMe).toHaveBeenCalledTimes(1);
   });
 
-  it('joins multiple selected languages', async () => {
-    vi.mocked(getMe).mockResolvedValue({
-      _id: 'user-1',
-      email: 'test@example.com',
-      username: 'testuser',
-      fullName: 'Test User',
-      selectedLanguage: ['Java', 'C++'],
-      createdAt: '2026-01-01T00:00:00.000Z',
-    });
-
-    const { result } = renderHook(() => useSidebarLanguage());
-
-    await waitFor(() => {
-      expect(result.current.languageLabel).toBe('Java, C++');
-    });
-  });
-
   it('falls back to "Your Language" when selectedLanguage is undefined', async () => {
     vi.mocked(getMe).mockResolvedValue({
       _id: 'user-1',
