@@ -3,7 +3,6 @@ import { Link } from '@tanstack/react-router';
 import { ChevronLeft, User, Menu, Code } from 'lucide-react';
 import { useAuth } from '@/features/auth/useAuth';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -162,15 +161,6 @@ const Navbar = ({
           <>
             {/* Desktop Actions */}
             <div className="hidden md:flex items-center gap-3">
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={logout}
-                className="text-sm font-medium text-foreground hover:text-muted-foreground cursor-pointer h-auto p-0 hover:bg-transparent shadow-none"
-              >
-                Sign Out
-              </Button>
-              <Separator orientation="vertical" className="h-4 bg-slate-300" />
               <Avatar className="size-8">
                 <AvatarFallback className="bg-muted text-muted-foreground border border-border flex items-center justify-center">
                   <User className="size-4" />
