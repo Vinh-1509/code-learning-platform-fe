@@ -6,9 +6,7 @@ import Navbar from '@/components/navbar/Navbar';
 import { PracticePanel } from '@/components/practice_utils/PracticePanel';
 import { useDedicatedPractice } from './useDedicatedPractice';
 import { fetchExercises } from '@/lib/axios';
-import type { Exercise } from '@/lib/axios';
-import type { PracticeExercise } from '@/components/practice_utils/types/practiceTypes';
-import { ExerciseTabBar } from '../lesson/ExerciseTabBar';
+
 import { TaskPane } from './TaskPanel';
 
 import { cn } from '@/lib/utils';
@@ -28,7 +26,6 @@ export function DedicatedPracticePage() {
   const [activeTab, setActiveTab] = useState<
     'theory' | 'code' | 'practice' | 'description'
   >('description');
-  const [exercisesList, setExercisesList] = useState<Exercise[]>([]);
 
   // Custom hook containing state management for fetching/submitting challenges
   const {
@@ -65,7 +62,6 @@ export function DedicatedPracticePage() {
 
         // Sequence challenges according to curriculum ordering schema
         const sorted = (list.data || []).sort((a, b) => a.order - b.order);
-        setExercisesList(sorted);
 
         const currentIdx = sorted.findIndex((e) => e._id === practiceInfo._id);
 
@@ -81,7 +77,6 @@ export function DedicatedPracticePage() {
         console.error('Failed to pre-fetch next valid exercise:', err);
         if (isMounted) {
           setNextExerciseId(null);
-          setExercisesList([]);
         }
       }
     };
@@ -122,55 +117,8 @@ export function DedicatedPracticePage() {
       </div>
     );
   } else if (exercise) {
-    // Show only unlocked exercises or the current exercise
-    const availableExercises = exercisesList.filter(
-      (e) => e.status !== 'locked' || e._id === exerciseId
-    );
-
-    const mappedExercises = availableExercises.map((ex) => ({
-      id: ex._id,
-      type:
-        ex.type === 'drag_drop'
-          ? ('dragdrop' as const)
-          : ('fillblank' as const),
-      title: ex.title,
-      description: ex.instruction,
-    })) as PracticeExercise[];
-
-    const exercisePassMap = availableExercises.reduce(
-      (acc, ex) => {
-        acc[ex._id] =
-          ex.status === 'completed' ||
-          (ex._id === exerciseId && lastSubmitCorrect);
-        return acc;
-      },
-      {} as Record<string, boolean>
-    );
-
-    const activeIndex = availableExercises.findIndex(
-      (e) => e._id === exerciseId
-    );
-
     rightPanel = (
       <div className="h-full flex flex-col">
-        {availableExercises.length > 0 && (
-          <ExerciseTabBar
-            loading={false}
-            error={null}
-            exercises={mappedExercises}
-            exercisePassMap={exercisePassMap}
-            activeExerciseIndex={activeIndex !== -1 ? activeIndex : 0}
-            setActiveExerciseIndex={(idx) => {
-              const target = availableExercises[idx];
-              if (target) {
-                void navigate({
-                  to: '/practicededicated/$exerciseId',
-                  params: { exerciseId: target._id },
-                });
-              }
-            }}
-          />
-        )}
         <div className="flex-1 overflow-y-auto p-4 h-full">
           <PracticePanel
             exercise={exercise}

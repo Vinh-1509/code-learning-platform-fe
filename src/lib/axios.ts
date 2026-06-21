@@ -20,7 +20,6 @@ api.interceptors.response.use(
       const hasToken = Boolean(localStorage.getItem('token'));
       if (hasToken) {
         localStorage.removeItem('token');
-        window.location.href = '/login';
       }
     }
     return Promise.reject(

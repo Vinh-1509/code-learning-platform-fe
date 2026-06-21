@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "target": "es2023",
+    "module": "commonjs",
+    "types": ["node"],
+    "jsx": "react-jsx",
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true
+  },
+  "include": ["e2e/**/*.ts"]
+}
