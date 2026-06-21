@@ -1,0 +1,1 @@
+{"root":["./e2e/auth.spec.ts","./e2e/dashboard.spec.ts","./e2e/dedicated.spec.ts","./e2e/global-setup.ts","./e2e/interview.spec.ts","./e2e/language-select.spec.ts","./e2e/practice.spec.ts"],"version":"6.0.3"}

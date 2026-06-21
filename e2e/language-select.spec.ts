@@ -1,59 +1,91 @@
 import { test, expect, type Page } from '@playwright/test';
 
+test.use({ storageState: { cookies: [], origins: [] } });
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
-/**
- * Navigate to /languageselection as a freshly-registered user:
- * has a valid token but no selectedLanguage yet.
- *
- * In CI, point TEST_FRESH_TOKEN at a token seeded for an account
- * with no language selected. Locally the fallback runs a quick
- * signup to get a real token.
- */
-async function gotoAsFirstTimeUser(page: Page) {
-  const token = process.env.TEST_FRESH_TOKEN;
-
-  if (token) {
-    await page.addInitScript((t) => localStorage.setItem('token', t), token);
-    await page.goto('/languageselection');
-  } else {
-    // Fall back: register a throwaway account → lands on /languageselection
-    await page.goto('/signup');
-    const email = `lang-select-${Date.now()}@codestep.dev`;
-    await page.getByLabel(/email/i).fill(email);
-    await page.getByLabel(/^password$/i).fill('Password123!');
-    await page.getByLabel(/confirm password/i).fill('Password123!');
-    await page.getByRole('button', { name: /create account/i }).click();
-    await expect(page).toHaveURL('/languageselection', { timeout: 10_000 });
-  }
+function uniqueEmail(prefix: string): string {
+  return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 10_000)}@codestep.dev`;
 }
 
 /**
- * Inject a token for an existing user who already has a language saved.
- * Used to verify the checkLanguageSelection redirect guard.
+ * Sign up a brand-new throwaway account via the real UI, then log in
+ * with the same credentials.
  */
-async function gotoAsReturningUser(page: Page) {
-  const token = process.env.TEST_USER_TOKEN;
-  if (!token) {
-    // Sign in with the seeded test account
-    await page.goto('/login');
-    await page
-      .getByLabel(/email/i)
-      .fill(process.env.TEST_USER_EMAIL ?? 'testuser@codestep.dev');
+async function signUpNewUser(page: Page, emailPrefix = 'lang-select') {
+  const email = uniqueEmail(emailPrefix);
+  const password = 'Password123!';
+
+  await page.goto('/signup');
+  await page.getByLabel(/email/i).fill(email);
+  await page.getByLabel(/^password$/i).fill(password);
+  await page.getByLabel(/confirm password/i).fill(password);
+
+  const createBtn = page.getByRole('button', {
+    name: /create account/i,
+  });
+  await expect(createBtn).toBeEnabled();
+  await createBtn.click();
+
+  // Allow the assertion to pass whether it lands on login OR languageselection
+  await expect(page).toHaveURL(/\/(login|languageselection)/, {
+    timeout: 10_000,
+  });
+
+  if (new URL(page.url()).pathname === '/login') {
+    const emailInput = page.locator('input[type="email"]');
+    await emailInput.waitFor();
+    await emailInput.fill(email);
+    await expect(emailInput).toHaveValue(email);
+
     await page
       .getByLabel(/password/i)
       .first()
-      .fill(process.env.TEST_USER_PASSWORD ?? 'Password123!');
-    await page.getByRole('button', { name: /sign in/i }).click();
-    await expect(page).toHaveURL(/\/(dashboard|languageselection)/, {
-      timeout: 10_000,
-    });
-  } else {
-    await page.addInitScript((t) => localStorage.setItem('token', t), token);
-    await page.goto('/languageselection');
+      .fill(password);
+
+    await Promise.all([
+      page.waitForURL(/languageselection/, {
+        timeout: 15000,
+      }),
+      page.getByRole('button', { name: /sign in/i }).click(),
+    ]);
   }
+
+  return { email, password };
+}
+
+/**
+ * Navigate to /languageselection as a freshly-registered user:
+ * has a valid token but no selectedLanguage yet.
+ */
+async function gotoAsFirstTimeUser(page: Page) {
+  await signUpNewUser(page);
+}
+
+/**
+ * Produce a "returning user" — i.e. an account that already has a
+ * selectedLanguage saved — entirely through real UI flows:
+ *   1. Sign up a fresh account (lands on /languageselection)
+ *   2. Pick a language and confirm (redirects to /dashboard)
+ *   3. Re-visit /languageselection to exercise the redirect guard
+ */
+async function gotoAsReturningUser(page: Page) {
+  await signUpNewUser(page, 'lang-returning');
+
+  await expect(page).toHaveURL(/languageselection/);
+
+  await page.getByRole('button', { name: /select c\+\+/i }).click();
+  await page.getByRole('button', { name: /continue/i }).click();
+
+  await expect(page).toHaveURL('/dashboard');
+
+  const token = await page.evaluate(() => localStorage.getItem('token'));
+
+  expect(token).toBeTruthy();
+
+  await page.goto('/languageselection');
 }
 
 // ---------------------------------------------------------------------------
@@ -133,23 +165,17 @@ test.describe('Language selection page — card interaction', () => {
   });
 
   test('clicking the C++ card marks it as selected', async ({ page }) => {
-    const cppCard = page
-      .locator('div')
-      .filter({ hasText: /^C\+\+/ })
-      .first();
+    // Click the actual button rather than the vague outer div
+    await page.getByRole('button', { name: /select c\+\+/i }).click();
 
-    await cppCard.click();
-
-    // The selected card shows "✓ Selected" on its button
     await expect(
       page.getByRole('button', { name: /✓ selected/i }).first()
     ).toBeVisible();
   });
 
   test('clicking the Java card marks it as selected', async ({ page }) => {
-    const javaCard = page.locator('div').filter({ hasText: /^Java/ }).first();
-
-    await javaCard.click();
+    // Click the actual button
+    await page.getByRole('button', { name: /select java/i }).click();
 
     await expect(
       page.getByRole('button', { name: /✓ selected/i }).first()
@@ -190,9 +216,10 @@ test.describe('Language selection page — card interaction', () => {
   test('selecting via the card body (not the button) also works', async ({
     page,
   }) => {
-    // LanguageCard has an onClick on the outer div as well
-    const cppHeader = page.locator('div').filter({ hasText: 'C++' }).first();
-    await cppHeader.click();
+    // Target the specific heading to ensure we click the header section,
+    // bypassing the stopPropagation zone in the body
+    const cppTitle = page.getByRole('heading', { name: 'C++' });
+    await cppTitle.click();
 
     await expect(page.getByRole('button', { name: /continue/i })).toBeEnabled();
   });
