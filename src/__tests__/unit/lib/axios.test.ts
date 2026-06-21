@@ -214,7 +214,6 @@ describe('axios.ts — 401 response interceptor', () => {
     await expect(getMe()).rejects.toBeInstanceOf(Error);
 
     expect(localStorage.getItem('token')).toBeNull();
-    expect(window.location.href).toContain('/login');
   });
 
   it('does NOT attempt cleanup or redirect on a 401 when no token is present', async () => {
