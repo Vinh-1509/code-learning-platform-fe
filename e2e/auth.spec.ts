@@ -233,7 +233,6 @@ test.describe('Auth redirect guards', () => {
       timeout: 8_000,
     });
   });
-
   test('authenticated user visiting /signup is redirected away', async ({
     page,
   }) => {

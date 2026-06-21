@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from '@tanstack/react-router';
-import { ChevronLeft, User, Menu, Code } from 'lucide-react';
+import { ChevronLeft, User, Menu, Code, LogOut } from 'lucide-react';
 import { useAuth } from '@/features/auth/useAuth';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -52,14 +52,27 @@ const Navbar = ({
         {/* Clickable Logo with smooth Hover & Click (Active) animation */}
         <Link
           to="/dashboard"
-          className={cn(
-            'inline-block transition-all duration-200 ease-out transform hover:scale-105 active:scale-95 active:opacity-80 cursor-pointer',
-            variant === 'lesson' && 'hidden lg:inline-block'
-          )}
+          className="inline-block transition-all duration-200 ease-out transform hover:scale-105 active:scale-95 active:opacity-80 cursor-pointer"
         >
-          <div className="flex items-center justify-center size-9 bg-primary text-primary-foreground rounded-xl shadow-md shadow-primary/30">
+          {/* Mobile View: Logo Icon */}
+          <div
+            className={cn(
+              'flex items-center justify-center size-9 bg-primary text-primary-foreground rounded-xl shadow-md shadow-primary/30 md:hidden',
+              variant === 'lesson' && 'hidden'
+            )}
+          >
             <Code className="size-5" />
           </div>
+
+          {/* PC View: Text "CodeStep" in primary blue */}
+          <span
+            className={cn(
+              'hidden md:inline-block font-extrabold text-xl text-primary tracking-tight',
+              variant === 'lesson' && 'hidden lg:inline-block'
+            )}
+          >
+            CodeStep
+          </span>
         </Link>
       </div>
 
@@ -161,6 +174,15 @@ const Navbar = ({
           <>
             {/* Desktop Actions */}
             <div className="hidden md:flex items-center gap-3">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={logout}
+                className="flex items-center gap-2 px-3 h-9 text-sm font-semibold text-red-600 hover:bg-rose-50 hover:text-red-700 cursor-pointer shadow-none rounded-lg"
+              >
+                <LogOut className="size-4" />
+                Sign Out
+              </Button>
               <Avatar className="size-8">
                 <AvatarFallback className="bg-muted text-muted-foreground border border-border flex items-center justify-center">
                   <User className="size-4" />
