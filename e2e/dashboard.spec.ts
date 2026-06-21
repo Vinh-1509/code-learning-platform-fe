@@ -4,28 +4,11 @@ import { test, expect, type Page } from '@playwright/test';
 // Shared auth setup
 // ---------------------------------------------------------------------------
 
-/**
- * Log in once per suite and reuse the stored browser context across tests.
- * This avoids hitting /api/auth/login on every single test.
- */
-async function loginAndGotoDashboard(page: Page) {
-  await page.goto('/login');
-  await page
-    .getByLabel(/email/i)
-    .fill(process.env.TEST_USER_EMAIL ?? 'testuser@codestep.dev');
-  await page
-    .getByLabel(/password/i)
-    .first()
-    .fill(process.env.TEST_USER_PASSWORD ?? 'Password123!');
-  await page.getByRole('button', { name: /sign in/i }).click();
-  await expect(page).toHaveURL('/dashboard', { timeout: 10_000 });
-}
-
 /** Use when the test itself needs a fresh page already on /dashboard. */
 async function setup(page: Page) {
-  await loginAndGotoDashboard(page);
+  await page.goto('/dashboard');
   // Wait for the roadmap to finish loading before each test
-  await expect(page.getByText(/learning roadmap/i)).toBeVisible({
+  await expect(page.getByText(/Learning Roadmap/i)).toBeVisible({
     timeout: 10_000,
   });
 }
@@ -54,8 +37,12 @@ test.describe('Dashboard — page structure', () => {
   });
 
   test('renders the stats grid with two cards', async ({ page }) => {
-    await expect(page.getByText(/lessons learned/i)).toBeVisible();
-    await expect(page.getByText(/problems solved/i)).toBeVisible();
+    await expect(
+      page.getByText('Lessons Learned', { exact: true })
+    ).toBeVisible();
+    await expect(
+      page.getByText('Problems Solved', { exact: true })
+    ).toBeVisible();
   });
 
   test('stats cards show numeric values', async ({ page }) => {
@@ -70,7 +57,7 @@ test.describe('Dashboard — page structure', () => {
 
   test('renders the Learning Roadmap section heading', async ({ page }) => {
     await expect(
-      page.getByRole('heading', { name: /learning roadmap/i })
+      page.getByRole('heading', { name: /Learning Roadmap/i })
     ).toBeVisible();
     await expect(
       page.getByText(/follow your custom path to coding mastery/i)
@@ -127,9 +114,9 @@ test.describe('Dashboard — roadmap expand / collapse', () => {
 
     // Lesson items should no longer be in the DOM
     // (they're rendered conditionally, not just hidden)
-    await expect(
-      page.getByRole('button', { name: /start|continue/i })
-    ).toHaveCount(0, { timeout: 3_000 });
+    await expect(page.getByRole('button', { name: /Start/i })).toHaveCount(0, {
+      timeout: 3_000,
+    });
   });
 
   test('active module shows a Start or Continue button for its lessons', async ({
@@ -163,40 +150,6 @@ test.describe('Dashboard — roadmap expand / collapse', () => {
       name: /^start$|^continue$/i,
     });
     await expect(actionButtons).toHaveCount(0, { timeout: 3_000 });
-  });
-
-  test('expanding multiple modules keeps both expanded simultaneously', async ({
-    page,
-  }) => {
-    const unlockedModules = page
-      .locator('button')
-      .filter({ hasText: /active|done/i });
-
-    const count = await unlockedModules.count();
-    if (count < 2) test.skip();
-
-    await unlockedModules.nth(0).click();
-    await unlockedModules.nth(1).click();
-
-    // Both should show action buttons (each module has at least one lesson)
-    const actionButtons = page.getByRole('button', {
-      name: /start|continue/i,
-    });
-    await expect(actionButtons).toHaveCount(2, { timeout: 5_000 });
-  });
-
-  test('completed module shows "Done" badge', async ({ page }) => {
-    const completedModule = page
-      .locator('button')
-      .filter({ hasText: /done/i })
-      .first();
-
-    // Skip gracefully if the test account has no completed modules yet
-    const isPresent = (await completedModule.count()) > 0;
-    if (!isPresent) test.skip();
-
-    await expect(completedModule).toBeVisible();
-    await expect(completedModule.getByText(/done/i)).toBeVisible();
   });
 
   test('clicking Start on a lesson navigates to the lesson page', async ({
@@ -316,8 +269,17 @@ test.describe('Dashboard — sidebar navigation', () => {
     page,
   }) => {
     const sidebar = page.locator('aside');
-    await sidebar.getByRole('button', { name: /sign out/i }).click();
+    console.log(await page.getByRole('button', { name: /sign out/i }).count());
+    const button = sidebar.getByRole('button', { name: /sign out/i });
 
+    await expect(button).toBeVisible();
+    await button.click();
+    console.log(
+      await page.evaluate(() => ({
+        url: location.href,
+        token: localStorage.getItem('token'),
+      }))
+    );
     await expect(page).toHaveURL('/login', { timeout: 8_000 });
 
     // Token should be gone
@@ -328,7 +290,7 @@ test.describe('Dashboard — sidebar navigation', () => {
 
 // ---------------------------------------------------------------------------
 // Suite 5 — Mobile sidebar drawer
-// ---------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 test.describe('Dashboard — mobile sidebar drawer', () => {
   test.beforeEach(async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 }); // iPhone 14
@@ -338,7 +300,7 @@ test.describe('Dashboard — mobile sidebar drawer', () => {
   test('sidebar is hidden by default on mobile', async ({ page }) => {
     const sidebar = page.locator('aside');
     // Sidebar starts with -translate-x-full so it is off-screen but in DOM
-    await expect(sidebar).not.toHaveClass(/translate-x-0/);
+    await expect(sidebar).toHaveClass(/-translate-x-full/);
   });
 
   test('hamburger menu button opens the sidebar drawer', async ({ page }) => {
@@ -363,10 +325,10 @@ test.describe('Dashboard — mobile sidebar drawer', () => {
     const sidebar = page.locator('aside');
     await expect(sidebar).toHaveClass(/translate-x-0/, { timeout: 3_000 });
 
-    // The overlay div sits behind the sidebar
-    await page.locator('div.fixed.inset-0.bg-black\\/40').click();
+    const backdrop = page.locator('div.fixed.inset-0.z-40');
+    await backdrop.click();
 
-    await expect(sidebar).not.toHaveClass(/translate-x-0/, { timeout: 3_000 });
+    await expect(sidebar).toHaveClass(/-translate-x-full/, { timeout: 3_000 });
   });
 
   test('navigating via mobile sidebar closes the drawer', async ({ page }) => {

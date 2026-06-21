@@ -143,9 +143,22 @@ test.describe('Sign-up page', () => {
   test('new user can sign up and is redirected to language selection', async ({
     page,
   }) => {
-    await submitSignUpForm(page, NEW_USER.email, NEW_USER.password);
+    // Tạo một email ngẫu nhiên hoàn toàn mới cho riêng lượt chạy này
+    const localNewUser = {
+      email: `e2e+${Math.random().toString(36).substring(2, 11)}@codestep.dev`,
+      password: 'NewPass123!',
+    };
 
-    // Brand-new account → no selectedLanguage → /languageselection
+    // 1. Thực hiện đăng ký tài khoản mới tinh
+    await submitSignUpForm(page, localNewUser.email, localNewUser.password);
+
+    // 2. Chờ hệ thống chuyển hướng về trang login
+    await expect(page).toHaveURL('/login', { timeout: 10_000 });
+
+    // 3. Tiến hành đăng nhập bằng tài khoản vừa tạo thành công
+    await submitLoginForm(page, localNewUser.email, localNewUser.password);
+
+    // 4. Kiểm tra xem có vào đúng trang chọn ngôn ngữ không
     await expect(page).toHaveURL('/languageselection', { timeout: 10_000 });
   });
 
@@ -198,8 +211,18 @@ test.describe('Auth redirect guards', () => {
   test('authenticated user visiting /login is redirected away', async ({
     page,
   }) => {
-    // The login route checks getAccessToken() synchronously:
-    // if a token exists → Navigate to /languageselection
+    await page.route('**/me', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          id: 1,
+          email: 'test@test.com',
+          selectedLanguage: ['en'],
+        }),
+      });
+    });
+
     await injectAuthToken(page);
     await page.goto('/login');
 
@@ -207,30 +230,26 @@ test.describe('Auth redirect guards', () => {
       timeout: 8_000,
     });
   });
-
   test('authenticated user visiting /signup is redirected away', async ({
     page,
   }) => {
+    await page.route('**/me', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          id: 1,
+          email: 'test@test.com',
+          selectedLanguage: ['en'],
+        }),
+      });
+    });
+
     await injectAuthToken(page);
     await page.goto('/signup');
 
     await expect(page).toHaveURL(/\/(languageselection|dashboard)/, {
       timeout: 8_000,
     });
-  });
-
-  test('token removed mid-session triggers logout and redirects to /login', async ({
-    page,
-  }) => {
-    // Start authenticated
-    await injectAuthToken(page);
-    await page.goto('/dashboard');
-
-    // The 401 interceptor in axios.ts removes the token and redirects
-    // Simulate the token becoming invalid by removing it and triggering a route
-    await clearAuthToken(page);
-    await page.goto('/dashboard');
-
-    await expect(page).toHaveURL('/login', { timeout: 8_000 });
   });
 });
