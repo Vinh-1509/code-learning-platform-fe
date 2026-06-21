@@ -114,7 +114,7 @@ export function AppSidebar({
         </div>
 
         {/* Sign Out Button at the very bottom */}
-        <div className="p-4 border-t border-sidebar-border mt-auto">
+        <div className="p-4 border-t border-sidebar-border mt-auto md:hidden">
           <Button
             variant="ghost"
             onClick={logout}
