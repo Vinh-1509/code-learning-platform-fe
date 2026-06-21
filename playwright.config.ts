@@ -13,6 +13,8 @@ dotenv.config({ path: '.env' });
  */
 export default defineConfig({
   testDir: './e2e',
+  /** Global setup function */
+  globalSetup: require.resolve('./e2e/global-setup'),
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -30,6 +32,8 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
+    /* Use the storage state from the global setup to simulate a logged-in user */
+    storageState: 'e2e/.auth/user.json',
   },
 
   /* Configure projects for major browsers */

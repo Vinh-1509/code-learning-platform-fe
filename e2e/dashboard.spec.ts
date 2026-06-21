@@ -4,26 +4,9 @@ import { test, expect, type Page } from '@playwright/test';
 // Shared auth setup
 // ---------------------------------------------------------------------------
 
-/**
- * Log in once per suite and reuse the stored browser context across tests.
- * This avoids hitting /api/auth/login on every single test.
- */
-async function loginAndGotoDashboard(page: Page) {
-  await page.goto('/login');
-  await page
-    .getByLabel(/email/i)
-    .fill(process.env.TEST_USER_EMAIL ?? 'testuser@codestep.dev');
-  await page
-    .getByLabel(/password/i)
-    .first()
-    .fill(process.env.TEST_USER_PASSWORD ?? 'Password123!');
-  await page.getByRole('button', { name: /sign in/i }).click();
-  await expect(page).toHaveURL('/dashboard', { timeout: 10_000 });
-}
-
 /** Use when the test itself needs a fresh page already on /dashboard. */
 async function setup(page: Page) {
-  await loginAndGotoDashboard(page);
+  await page.goto('/dashboard');
   // Wait for the roadmap to finish loading before each test
   await expect(page.getByText(/learning roadmap/i)).toBeVisible({
     timeout: 10_000,

@@ -1,22 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-async function login(page: Page) {
-  await page.goto('/login');
-  await page
-    .getByLabel(/email/i)
-    .fill(process.env.TEST_USER_EMAIL ?? 'testuser@codestep.dev');
-  await page
-    .getByLabel(/password/i)
-    .first()
-    .fill(process.env.TEST_USER_PASSWORD ?? 'Password123!');
-  await page.getByRole('button', { name: /sign in/i }).click();
-  await expect(page).toHaveURL('/dashboard', { timeout: 10_000 });
-}
-
 /**
  * Navigate to /practice, find the first unlocked exercise card of the
  * requested type, and click into its dedicated page.
@@ -130,7 +113,6 @@ async function fillAllBlanks(page: Page, value = 'x') {
 // ---------------------------------------------------------------------------
 test.describe('Dedicated practice — page structure', () => {
   test.beforeEach(async ({ page }) => {
-    await login(page);
     await page.goto('/practice');
     const firstStart = page.getByRole('link', { name: /start/i }).first();
     await expect(firstStart).toBeVisible({ timeout: 10_000 });
@@ -201,7 +183,7 @@ test.describe('Dedicated practice — page structure', () => {
 // ---------------------------------------------------------------------------
 test.describe('Dedicated practice — drag-drop exercise', () => {
   test.beforeEach(async ({ page }) => {
-    await login(page);
+    await page.goto('/practice');
     await openFirstExerciseOfType(page, 'dragdrop');
     // Ensure we're on desktop so all panels are visible
     await page.setViewportSize({ width: 1280, height: 800 });
@@ -360,7 +342,7 @@ test.describe('Dedicated practice — drag-drop exercise', () => {
 // ---------------------------------------------------------------------------
 test.describe('Dedicated practice — fill-blank exercise', () => {
   test.beforeEach(async ({ page }) => {
-    await login(page);
+    await page.goto('/practice');
     await openFirstExerciseOfType(page, 'fillblank');
     await page.setViewportSize({ width: 1280, height: 800 });
   });
@@ -472,7 +454,7 @@ test.describe('Dedicated practice — fill-blank exercise', () => {
 // ---------------------------------------------------------------------------
 test.describe('Dedicated practice — next exercise', () => {
   test.beforeEach(async ({ page }) => {
-    await login(page);
+    await page.goto('/practice');
     await openFirstExerciseOfType(page, 'dragdrop');
     await page.setViewportSize({ width: 1280, height: 800 });
   });
@@ -514,7 +496,7 @@ test.describe('Dedicated practice — next exercise', () => {
 // ---------------------------------------------------------------------------
 test.describe('Dedicated practice — exercise tab bar', () => {
   test.beforeEach(async ({ page }) => {
-    await login(page);
+    await page.goto('/practice');
     await openFirstExerciseOfType(page, 'dragdrop');
     await page.setViewportSize({ width: 1280, height: 800 });
   });
@@ -566,7 +548,7 @@ test.describe('Dedicated practice — exercise tab bar', () => {
 // ---------------------------------------------------------------------------
 test.describe('Dedicated practice — hints', () => {
   test.beforeEach(async ({ page }) => {
-    await login(page);
+    await page.goto('/practice');
     await openFirstExerciseOfType(page, 'dragdrop');
     await page.setViewportSize({ width: 1280, height: 800 });
   });
