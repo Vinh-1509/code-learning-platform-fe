@@ -24,6 +24,49 @@ async function setupFeynmanRouteMocks(
   blockId: string,
   options: { passed: boolean; history?: FeynmanMessage[] }
 ) {
+  // Mock the lesson details to contain NO exercises, which forces blockCompleted=true
+  // and isFeynmanPassed=false so the Feynman panel is rendered immediately.
+  await page.route(`**/api/learning/lessons/*`, async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      json: {
+        _id: 'mock-lesson-id',
+        title: 'Mock Lesson',
+        order: 1,
+        blocks: [
+          {
+            _id: blockId,
+            title: 'Mock Block 1',
+            description: 'Mock Description 1',
+            content: [
+              {
+                type: 'theory',
+                data: { order: 1, text: 'Some mock theory.' },
+              },
+            ],
+            feynmanQuestion: DEFAULT_QUESTION,
+            status: 'active',
+            isFeynmanPassed: false,
+          },
+          {
+            _id: 'mock-block-2-id',
+            title: 'Mock Block 2',
+            description: 'Mock Description 2',
+            content: [],
+            feynmanQuestion: 'Next question',
+            status: 'locked',
+            isFeynmanPassed: false,
+          },
+        ],
+        progress: {
+          completionPercentage: 0,
+          isCompleted: false,
+        },
+      },
+    });
+  });
+
   await page.route(`**/api/feynman/block/${blockId}/history`, async (route) => {
     await route.fulfill({
       status: 200,
@@ -34,6 +77,18 @@ async function setupFeynmanRouteMocks(
       },
     });
   });
+
+  await page.route(`**/api/feynman/block/${blockId}/question`, async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      json: {
+        blockId,
+        question: DEFAULT_QUESTION,
+      },
+    });
+  });
+
 
   await page.route(`**/api/feynman/block/${blockId}/stats`, async (route) => {
     await route.fulfill({
@@ -49,15 +104,31 @@ async function setupFeynmanRouteMocks(
 // ════════════════════════════════════════════════════════════════════════════
 test.describe('Feynman Interview Pane', () => {
   test.beforeEach(async ({ page }) => {
-    // 1. Inject auth token so we bypass redirect guards safely
-    await injectAuthToken(page);
+    // 1. We rely on storageState: 'e2e/.auth/user.json' for the real token
+    // await injectAuthToken(page);
 
     // 2. Head to a static route first
     await page.goto('/dashboard');
     await expect(page).toHaveURL('/dashboard');
 
-    // 3. Click the first lesson action available to navigate into the module
-    // Note: Adjust the locator if your dashboard layout uses a specific button or card structure
+    // Wait for the roadmap to finish loading
+    await expect(page.getByText(/Learning Roadmap/i)).toBeVisible({
+      timeout: 15_000,
+    });
+
+    // 3. Expand the active module if no start/continue button is visible yet
+    const startButton = page.getByRole('button', { name: /continue|start/i }).first();
+    if (!(await startButton.isVisible())) {
+      const activeModule = page
+        .locator('button')
+        .filter({ hasText: /active/i })
+        .first();
+      if (await activeModule.isVisible()) {
+        await activeModule.click();
+      }
+    }
+
+    // Click the first lesson action available to navigate into the module
     const lessonAction = page
       .getByRole('button', { name: /continue|start/i })
       .first();
@@ -153,6 +224,10 @@ test.describe('Feynman Interview Pane', () => {
     // Handle interactive responses across multiple message exchanges
     await page.route(`**/api/feynman/block/${blockId}/chat`, async (route) => {
       networkCycles += 1;
+
+      // Add a small delay so that Playwright has time to detect the loading state
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
 
       if (networkCycles === 1) {
         await route.fulfill({
