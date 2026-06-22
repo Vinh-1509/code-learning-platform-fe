@@ -17,6 +17,15 @@ async function globalSetup(_: FullConfig) {
     .fill(process.env.TEST_USER_PASSWORD ?? 'Netngo2007!');
   await page.getByRole('button', { name: /sign in/i }).click();
 
+  await page.waitForTimeout(3000);
+
+  console.log('Current URL:', page.url());
+
+  await page.screenshot({
+    path: 'global-setup-failure.png',
+    fullPage: true,
+  });
+
   // Wait for the dashboard to ensure the backend responded and token is set
   await page.waitForURL('**/dashboard');
 
