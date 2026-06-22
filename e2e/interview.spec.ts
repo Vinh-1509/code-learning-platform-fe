@@ -11,13 +11,6 @@ interface FeynmanMessage {
   content: string;
 }
 
-/** Inject an authentication token to simulate a logged-in session */
-async function injectAuthToken(page: Page, token = 'fake-valid-jwt') {
-  await page.addInitScript((t) => {
-    localStorage.setItem('token', t);
-  }, token);
-}
-
 /** Set up network route interceptors once we know the current block ID */
 async function setupFeynmanRouteMocks(
   page: Page,
@@ -78,17 +71,19 @@ async function setupFeynmanRouteMocks(
     });
   });
 
-  await page.route(`**/api/feynman/block/${blockId}/question`, async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      json: {
-        blockId,
-        question: DEFAULT_QUESTION,
-      },
-    });
-  });
-
+  await page.route(
+    `**/api/feynman/block/${blockId}/question`,
+    async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        json: {
+          blockId,
+          question: DEFAULT_QUESTION,
+        },
+      });
+    }
+  );
 
   await page.route(`**/api/feynman/block/${blockId}/stats`, async (route) => {
     await route.fulfill({
@@ -104,10 +99,19 @@ async function setupFeynmanRouteMocks(
 // ════════════════════════════════════════════════════════════════════════════
 test.describe('Feynman Interview Pane', () => {
   test.beforeEach(async ({ page }) => {
-    // 1. We rely on storageState: 'e2e/.auth/user.json' for the real token
-    // await injectAuthToken(page);
+    // Register auth mock before navigation.
+    await page.route('**/api/auth/me', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        json: {
+          _id: 'test-user',
+          selectedLanguage: ['C++'],
+        },
+      });
+    });
 
-    // 2. Head to a static route first
+    // 1. Head to a static route first
     await page.goto('/dashboard');
     await expect(page).toHaveURL('/dashboard');
 
@@ -116,8 +120,10 @@ test.describe('Feynman Interview Pane', () => {
       timeout: 15_000,
     });
 
-    // 3. Expand the active module if no start/continue button is visible yet
-    const startButton = page.getByRole('button', { name: /continue|start/i }).first();
+    // 2. Expand the active module if no start/continue button is visible yet
+    const startButton = page
+      .getByRole('button', { name: /continue|start/i })
+      .first();
     if (!(await startButton.isVisible())) {
       const activeModule = page
         .locator('button')
@@ -134,7 +140,7 @@ test.describe('Feynman Interview Pane', () => {
       .first();
     await lessonAction.click();
 
-    // 4. Wait for the browser to hit the lesson view route and grab the ID directly from the URL path
+    // 3. Wait for the browser to hit the lesson view route and grab the ID directly from the URL path
     await page.waitForURL(/\/lesson\/[a-f0-9]+/);
   });
 
@@ -227,7 +233,6 @@ test.describe('Feynman Interview Pane', () => {
 
       // Add a small delay so that Playwright has time to detect the loading state
       await new Promise((resolve) => setTimeout(resolve, 300));
-
 
       if (networkCycles === 1) {
         await route.fulfill({

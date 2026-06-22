@@ -297,26 +297,19 @@ test.describe('Dashboard — mobile sidebar drawer', () => {
   });
 
   test('clicking the backdrop closes the drawer', async ({ page }) => {
-    // Open drawer
     const navbar = page.locator('header');
     await navbar.getByRole('button').last().click();
 
     const sidebar = page.locator('aside');
-    await expect(sidebar).toHaveClass(/translate-x-0/, {
-      timeout: 3000,
-    });
+    await expect(sidebar).toHaveClass(/translate-x-0/, { timeout: 3_000 });
 
-    // Backdrop xuất hiện
     const backdrop = page.locator('div.fixed.inset-0.z-40');
     await expect(backdrop).toBeVisible();
 
-    // Firefox hay bị intercept => force click
-    await backdrop.click({ force: true });
+    // Sidebar occupies the left 256px (w-64).
+    await backdrop.click({ position: { x: 350, y: 400 } });
 
-    // Drawer đóng
-    await expect(sidebar).toHaveClass(/-translate-x-full/, {
-      timeout: 3000,
-    });
+    await expect(sidebar).toHaveClass(/-translate-x-full/, { timeout: 3_000 });
   });
 
   test('navigating via mobile sidebar closes the drawer', async ({ page }) => {

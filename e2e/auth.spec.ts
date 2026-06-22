@@ -7,21 +7,50 @@ test.use({ storageState: { cookies: [], origins: [] } });
 // Helpers
 // ---------------------------------------------------------------------------
 
-/** Fill and submit the login form. */
+/** Reliably fill a single input, retrying if React drops the event */
+async function fillInput(
+  page: Page,
+  locator: ReturnType<Page['locator']>,
+  value: string
+) {
+  await locator.waitFor({ state: 'visible' });
+  await locator.click();
+  await locator.fill(value);
+  // Verify React actually registered the value — if not, try pressSequentially
+  const actual = await locator.inputValue();
+  if (actual !== value) {
+    await locator.clear();
+    await locator.pressSequentially(value, { delay: 30 });
+  }
+}
+
 async function submitLoginForm(page: Page, email: string, password: string) {
-  await page.getByLabel(/email/i).fill(email);
-  await page
-    .getByLabel(/password/i)
-    .first()
-    .fill(password);
+  const emailInput = page.getByLabel(/email/i);
+  const passwordInput = page.getByLabel(/password/i).first();
+
+  await fillInput(page, emailInput, email);
+  await fillInput(page, passwordInput, password);
+
+  // Verify both fields before submitting
+  await expect(emailInput).toHaveValue(email);
+  await expect(passwordInput).toHaveValue(password);
+
   await page.getByRole('button', { name: /sign in/i }).click();
 }
 
-/** Fill and submit the sign-up form. */
 async function submitSignUpForm(page: Page, email: string, password: string) {
-  await page.getByLabel(/email/i).fill(email);
-  await page.getByLabel(/^password$/i).fill(password);
-  await page.getByLabel(/confirm password/i).fill(password);
+  const emailInput = page.getByLabel(/email/i);
+  const passwordInput = page.getByLabel(/^password$/i);
+  const confirmInput = page.getByLabel(/confirm password/i);
+
+  await fillInput(page, emailInput, email);
+  await fillInput(page, passwordInput, password);
+  await fillInput(page, confirmInput, password);
+
+  await expect(emailInput).toHaveValue(email);
+  await expect(passwordInput).toHaveValue(password);
+  await expect(confirmInput).toHaveValue(password);
+
   await page.getByRole('button', { name: /create account/i }).click();
 }
 
@@ -58,15 +87,12 @@ const NEW_USER = {
 // ---------------------------------------------------------------------------
 test.describe('Login page', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-
-    await page.evaluate(() => {
-      localStorage.clear();
-    });
-
+    await page.addInitScript(() => localStorage.clear());
     await page.goto('/login');
-
-    console.log(await page.locator('body').textContent());
+    // Confirm the form is interactive before each test runs
+    await expect(page.getByRole('button', { name: /sign in/i })).toBeVisible({
+      timeout: 10_000,
+    });
   });
 
   test('renders the login form', async ({ page }) => {
@@ -129,15 +155,11 @@ test.describe('Login page', () => {
 // ---------------------------------------------------------------------------
 test.describe('Sign-up page', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-
-    await page.evaluate(() => {
-      localStorage.clear();
-    });
-
+    await page.addInitScript(() => localStorage.clear());
     await page.goto('/signup');
-
-    console.log(await page.locator('body').textContent());
+    await expect(
+      page.getByRole('button', { name: /create account/i })
+    ).toBeVisible({ timeout: 10_000 });
   });
 
   test('renders the sign-up form', async ({ page }) => {

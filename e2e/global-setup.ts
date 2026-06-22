@@ -21,11 +21,6 @@ async function globalSetup(_: FullConfig) {
 
   console.log('Current URL:', page.url());
 
-  await page.screenshot({
-    path: 'global-setup-failure.png',
-    fullPage: true,
-  });
-
   // Wait for the dashboard to ensure the backend responded and token is set
   await page.waitForURL('**/dashboard');
 

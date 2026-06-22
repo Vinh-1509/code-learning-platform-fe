@@ -9,10 +9,6 @@ const DEFAULT_TIMEOUT = 10_000;
 /** Wait for the practice library to finish loading exercises. */
 async function waitForPracticeLibrary(page: Page) {
   await page.goto('/practice');
-  console.log(
-    'token:',
-    await page.evaluate(() => localStorage.getItem('token'))
-  );
   await expect(page).toHaveURL(/\/practice/, {
     timeout: DEFAULT_TIMEOUT,
   });
@@ -214,12 +210,11 @@ test.describe('Dedicated practice — page structure', () => {
     ).toBeDisabled({ timeout: DEFAULT_TIMEOUT });
   });
 
-  // test('shows the hint strip', async ({ page }) => {
-
-  //   await expect(page.getByRole('button', { name: /Get Hint/i })).toBeVisible({
-  //     timeout: DEFAULT_TIMEOUT,
-  //   });
-  // });
+  test('shows the hint strip', async ({ page }) => {
+    await expect(page.getByRole('button', { name: /Get Hint/i })).toBeVisible({
+      timeout: DEFAULT_TIMEOUT,
+    });
+  });
 
   test('mobile: Description and Code tab switcher is visible', async ({
     page,
