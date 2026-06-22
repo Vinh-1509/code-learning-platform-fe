@@ -5,7 +5,7 @@ async function globalSetup(_: FullConfig) {
   const page = await browser.newPage();
 
   // Navigate to your app and log in
-  await page.goto('http://localhost:5173/login');
+  await page.goto(process.env.BASE_URL ?? 'http://localhost:5173/login');
 
   await page
     .getByLabel(/email/i)

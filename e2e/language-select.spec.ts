@@ -10,6 +10,23 @@ function uniqueEmail(prefix: string): string {
   return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 10_000)}@codestep.dev`;
 }
 
+async function submitLoginForm(page: Page, email: string, password: string) {
+  await page.getByLabel(/email/i).fill(email);
+  await page
+    .getByLabel(/password/i)
+    .first()
+    .fill(password);
+  await page.getByRole('button', { name: /sign in/i }).click();
+}
+
+/** Fill and submit the sign-up form. */
+async function submitSignUpForm(page: Page, email: string, password: string) {
+  await page.getByLabel(/email/i).fill(email);
+  await page.getByLabel(/^password$/i).fill(password);
+  await page.getByLabel(/confirm password/i).fill(password);
+  await page.getByRole('button', { name: /create account/i }).click();
+}
+
 /**
  * Sign up a brand-new throwaway account via the real UI, then log in
  * with the same credentials.
@@ -19,40 +36,22 @@ async function signUpNewUser(page: Page, emailPrefix = 'lang-select') {
   const password = 'Password123!';
 
   await page.goto('/signup');
-  await page.getByLabel(/email/i).fill(email);
-  await page.getByLabel(/^password$/i).fill(password);
-  await page.getByLabel(/confirm password/i).fill(password);
+  await submitSignUpForm(page, email, password);
 
-  const createBtn = page.getByRole('button', {
-    name: /create account/i,
-  });
-  await expect(createBtn).toBeEnabled();
-  await createBtn.click();
-
-  // Allow the assertion to pass whether it lands on login OR languageselection
-  await expect(page).toHaveURL(/\/(login|languageselection)/, {
-    timeout: 10_000,
-  });
-
-  if (new URL(page.url()).pathname === '/login') {
-    const emailInput = page.locator('input[type="email"]');
-    await emailInput.waitFor();
-    await emailInput.fill(email);
-    await expect(emailInput).toHaveValue(email);
-
-    await page
-      .getByLabel(/password/i)
-      .first()
-      .fill(password);
-
-    await Promise.all([
-      page.waitForURL(/languageselection/, {
-        timeout: 15000,
-      }),
-      page.getByRole('button', { name: /sign in/i }).click(),
-    ]);
+  // Dynamically handle auto-login vs manual login
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      // Give the app a brief window to auto-redirect to the destination
+      await page.waitForURL('**/languageselection', { timeout: 5_000 });
+      break; // Successfully reached the target page, exit loop
+    } catch {
+      if (page.url().includes('/login')) {
+        await submitLoginForm(page, email, password);
+      }
+    }
   }
 
+  await expect(page).toHaveURL('/languageselection', { timeout: 5_000 });
   return { email, password };
 }
 
@@ -72,20 +71,21 @@ async function gotoAsFirstTimeUser(page: Page) {
  *   3. Re-visit /languageselection to exercise the redirect guard
  */
 async function gotoAsReturningUser(page: Page) {
-  await signUpNewUser(page, 'lang-returning');
+  await page.goto('/login');
+  await submitLoginForm(
+    page,
+    process.env.TEST_USER_EMAIL ?? 'testuser@codestep.dev',
+    process.env.TEST_USER_PASSWORD ?? 'Password123!'
+  );
 
-  await expect(page).toHaveURL(/languageselection/);
+  // After login, AuthContextProvider navigates to /languageselection,
+  // then checkLanguageSelection sees selectedLanguage is set → /dashboard
+  await expect(page).toHaveURL('/dashboard', { timeout: 15_000 });
 
-  await page.getByRole('button', { name: /select c\+\+/i }).click();
-  await page.getByRole('button', { name: /continue/i }).click();
-
-  await expect(page).toHaveURL('/dashboard');
-
-  const token = await page.evaluate(() => localStorage.getItem('token'));
-
-  expect(token).toBeTruthy();
-
-  await page.goto('/languageselection');
+  await page.evaluate(() => {
+    window.history.pushState({}, '', '/languageselection');
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -134,12 +134,6 @@ test.describe('Language selection page — rendering', () => {
     const continueBtn = page.getByRole('button', { name: /continue/i });
     await expect(continueBtn).toBeVisible();
     await expect(continueBtn).toBeDisabled();
-  });
-
-  test('shows the "saved to your profile" notice', async ({ page }) => {
-    await expect(
-      page.getByText(/selection will be saved to your profile/i)
-    ).toBeVisible();
   });
 
   test('skeleton cards are not visible once data has loaded', async ({

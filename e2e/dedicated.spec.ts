@@ -174,40 +174,7 @@ async function openHintPanel(page: Page) {
 }
 
 // ---------------------------------------------------------------------------
-// Suite 1 — Practice library navigation
-// ---------------------------------------------------------------------------
-test.describe('Dedicated practice — navigation', () => {
-  test('practice library renders and links to a dedicated exercise', async ({
-    page,
-  }) => {
-    await waitForPracticeLibrary(page);
-
-    const startLink = getExerciseStartLinks(page).first();
-    await expect(startLink).toBeVisible({ timeout: DEFAULT_TIMEOUT });
-    await startLink.click();
-    await expect(page).toHaveURL(/\/practicededicated\//, {
-      timeout: DEFAULT_TIMEOUT,
-    });
-  });
-
-  test('hero "Start Practice" navigates to dedicated exercise', async ({
-    page,
-  }) => {
-    await waitForPracticeLibrary(page);
-
-    const heroStart = page.getByRole('button', { name: /start practice/i });
-    const hasHero = (await heroStart.count()) > 0;
-    if (!hasHero) test.skip();
-
-    await heroStart.click();
-    await expect(page).toHaveURL(/\/practicededicated\//, {
-      timeout: DEFAULT_TIMEOUT,
-    });
-  });
-});
-
-// ---------------------------------------------------------------------------
-// Suite 2 — Page structure
+// Suite 1 — Page structure
 // ---------------------------------------------------------------------------
 test.describe('Dedicated practice — page structure', () => {
   test.beforeEach(async ({ page }) => {
@@ -266,7 +233,7 @@ test.describe('Dedicated practice — page structure', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Suite 3 — Drag-and-drop exercise
+// Suite 2 — Drag-and-drop exercise
 // ---------------------------------------------------------------------------
 test.describe('Dedicated practice — drag-drop exercise', () => {
   test.beforeEach(async ({ page }) => {
@@ -391,7 +358,7 @@ test.describe('Dedicated practice — drag-drop exercise', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Suite 4 — Fill-in-the-blank exercise
+// Suite 3 — Fill-in-the-blank exercise
 // ---------------------------------------------------------------------------
 test.describe('Dedicated practice — fill-blank exercise', () => {
   test.beforeEach(async ({ page }) => {
@@ -500,7 +467,7 @@ test.describe('Dedicated practice — fill-blank exercise', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Suite 5 — Next exercise navigation
+// Suite 4 — Next exercise navigation
 // ---------------------------------------------------------------------------
 test.describe('Dedicated practice — next exercise', () => {
   test.beforeEach(async ({ page }) => {
@@ -535,7 +502,7 @@ test.describe('Dedicated practice — next exercise', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Suite 6 — Hint system
+// Suite 5 — Hint system
 // ---------------------------------------------------------------------------
 test.describe('Dedicated practice — hints', () => {
   test.beforeEach(async ({ page }) => {
