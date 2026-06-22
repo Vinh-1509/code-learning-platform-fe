@@ -58,7 +58,15 @@ const NEW_USER = {
 // ---------------------------------------------------------------------------
 test.describe('Login page', () => {
   test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+
+    await page.evaluate(() => {
+      localStorage.clear();
+    });
+
     await page.goto('/login');
+
+    console.log(await page.locator('body').textContent());
   });
 
   test('renders the login form', async ({ page }) => {
@@ -121,7 +129,15 @@ test.describe('Login page', () => {
 // ---------------------------------------------------------------------------
 test.describe('Sign-up page', () => {
   test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+
+    await page.evaluate(() => {
+      localStorage.clear();
+    });
+
     await page.goto('/signup');
+
+    console.log(await page.locator('body').textContent());
   });
 
   test('renders the sign-up form', async ({ page }) => {

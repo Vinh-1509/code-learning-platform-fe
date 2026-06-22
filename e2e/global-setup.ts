@@ -9,12 +9,12 @@ async function globalSetup(_: FullConfig) {
 
   await page
     .getByLabel(/email/i)
-    .fill(process.env.TEST_USER_EMAIL ?? 'testuser@codestep.dev');
+    .fill(process.env.TEST_USER_EMAIL ?? 'minh@gmail.com');
 
   await page
     .getByLabel(/password/i)
     .first()
-    .fill(process.env.TEST_USER_PASSWORD ?? 'Password123!');
+    .fill(process.env.TEST_USER_PASSWORD ?? 'Netngo2007!');
   await page.getByRole('button', { name: /sign in/i }).click();
 
   // Wait for the dashboard to ensure the backend responded and token is set
