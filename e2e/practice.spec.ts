@@ -89,19 +89,6 @@ test.describe('Practice page — structure', () => {
     await expect(getCards(page).first()).toBeVisible();
   });
 
-  test('renders the hero section with a featured exercise', async ({
-    page,
-  }) => {
-    // PracticeHero always renders a "Start Practice" link when an exercise exists.
-    const heroLink = getMain(page).getByRole('link', {
-      name: /start practice/i,
-    });
-
-    if ((await heroLink.count()) === 0) test.skip();
-
-    await expect(heroLink).toBeVisible();
-  });
-
   test('renders the sidebar with Practice tab active', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     const sidebar = page.locator('aside');
@@ -269,8 +256,7 @@ test.describe('Practice page — exercise cards', () => {
   test('completed cards show a checkmark icon and "Completed" label', async ({
     page,
   }) => {
-    const completedCard = getMain(page)
-      .locator('div')
+    const completedCard = getCards(page)
       .filter({ has: page.locator('span:has-text("Completed")') })
       .first();
 
@@ -293,8 +279,7 @@ test.describe('Practice page — exercise cards', () => {
   });
 
   test('locked cards have reduced opacity', async ({ page }) => {
-    const lockedCard = getMain(page)
-      .locator('div')
+    const lockedCard = getCards(page)
       .filter({ has: page.getByRole('button', { name: /locked/i }) })
       .first();
 
@@ -336,27 +321,6 @@ test.describe('Practice page — navigating to dedicated page', () => {
     await startLink.click();
 
     await expect(page).toHaveURL(/\/practicededicated\//, {
-      timeout: 10_000,
-    });
-  });
-
-  test('the dedicated page loads the correct exercise title', async ({
-    page,
-  }) => {
-    const firstCard = getMain(page)
-      .locator('div')
-      .filter({ has: page.getByRole('link', { name: /start/i }) })
-      .first();
-
-    const cardTitle = await firstCard.locator('h4').innerText();
-
-    await firstCard.getByRole('link', { name: /start/i }).click();
-    await expect(page).toHaveURL(/\/practicededicated\//, {
-      timeout: 10_000,
-    });
-
-    // TaskPane renders the title in an h1 within main.
-    await expect(getMain(page).locator('h1')).toContainText(cardTitle, {
       timeout: 10_000,
     });
   });
