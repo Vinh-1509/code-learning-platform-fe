@@ -31,7 +31,7 @@ export function PracticeHero({ exercise, isWeak }: PracticeHeroProps) {
       <div className="flex flex-col justify-center gap-3 p-8">
         {isWeak ? (
           <span className="inline-flex w-fit rounded-full bg-amber-500 px-3 py-1 text-xs font-semibold text-white ">
-            RECOMMENDED TO FIX WEAKNESS
+            Review Needed
           </span>
         ) : (
           <span className="inline-flex w-fit rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">

@@ -69,6 +69,7 @@ export function ExerciseCard({
 
   return (
     <div
+      data-testid="exercise-card"
       className={cn(
         'flex min-h-45 flex-col justify-between rounded-xl border border-border bg-card p-5 transition-all relative overflow-hidden',
         isLocked

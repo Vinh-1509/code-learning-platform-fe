@@ -5,17 +5,21 @@ async function globalSetup(_: FullConfig) {
   const page = await browser.newPage();
 
   // Navigate to your app and log in
-  await page.goto('http://localhost:5173/login');
+  await page.goto(process.env.BASE_URL ?? 'http://localhost:5173/login');
 
   await page
     .getByLabel(/email/i)
-    .fill(process.env.TEST_USER_EMAIL ?? 'testuser@codestep.dev');
+    .fill(process.env.TEST_USER_EMAIL ?? 'minh@gmail.com');
 
   await page
     .getByLabel(/password/i)
     .first()
-    .fill(process.env.TEST_USER_PASSWORD ?? 'Password123!');
+    .fill(process.env.TEST_USER_PASSWORD ?? 'Netngo2007!');
   await page.getByRole('button', { name: /sign in/i }).click();
+
+  await page.waitForTimeout(3000);
+
+  console.log('Current URL:', page.url());
 
   // Wait for the dashboard to ensure the backend responded and token is set
   await page.waitForURL('**/dashboard');
