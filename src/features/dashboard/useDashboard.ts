@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { fetchDashboardData, type DashboardResponse } from '@/lib/axios';
+import { fetchDashboardData } from '@/features/dashboard/api/dashboard.api';
+import type { DashboardResponse } from '@/types/api/dashboard.types';
 
 /**
  * Custom hook to handle fetching and state management for the user dashboard data.
@@ -16,7 +17,6 @@ export function useDashboardData() {
       try {
         setLoading(true);
         const data = await fetchDashboardData();
-        console.log('dashboard payload:', data); // ← add this
         setDashboardData(data);
         setError(null);
       } catch (err) {

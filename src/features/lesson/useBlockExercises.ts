@@ -4,15 +4,15 @@ import {
   submitExerciseAnswer,
   getExerciseHint,
   explainExerciseAnswer,
-} from '@/lib/axios';
-import { convertExerciseResponse } from '@/components/practice_utils/utils/exercise.converter';
-import type { PracticeExercise } from '@/components/practice_utils/types/practiceTypes';
+} from '@/features/lesson/api/exercise.api';
 import type {
   SubmitAnswerResponse,
   HintResponse,
-  Block,
   ExplainAnswerResponse,
-} from '@/lib/axios';
+} from '@/types/api/exercise.types';
+import type { Block } from '@/types/api/learning.types';
+import type { PracticeExercise } from '@/components/practice_utils/types/practiceTypes';
+import { convertExerciseResponse } from '@/components/practice_utils/utils/exercise.converter';
 
 interface UseBlockExercisesOptions {
   block: Block | undefined;

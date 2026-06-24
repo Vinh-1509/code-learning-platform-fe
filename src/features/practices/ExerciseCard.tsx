@@ -3,7 +3,7 @@ import { CheckCircle2, Lock, AlertTriangle } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import type { Exercise } from '@/lib/axios';
+import type { Exercise } from '@/types/api/exercise.types';
 
 const difficultyStyles: Record<string, string> = {
   easy: 'text-green-foreground bg-green-mint border border-green-mint/30',

@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import Navbar from '@/components/navbar/Navbar';
 import { PracticePanel } from '@/components/practice_utils/PracticePanel';
 import { useDedicatedPractice } from './useDedicatedPractice';
-import { fetchExercises } from '@/lib/axios';
+import { fetchExercises } from '@/features/practices/api/practice.api';
 
 import { TaskPane } from './TaskPanel';
 

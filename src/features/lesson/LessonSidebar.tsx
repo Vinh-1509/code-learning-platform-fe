@@ -1,4 +1,4 @@
-import type { Block } from '@/lib/axios';
+import type { Block } from '@/types/api/learning.types';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 

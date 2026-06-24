@@ -9,8 +9,8 @@ import {
   fetchFeynmanQuestion,
   fetchFeynmanHistory,
   sendFeynmanMessage,
-  type FeynmanChatMessage,
-} from '@/lib/axios';
+} from '@/features/interview/api/feynman.api';
+import type { FeynmanChatMessage } from '@/types/api/feynman.types';
 
 // ---------------------------------------------------------------------------
 // Map backend chat history → FeynmanMessage[]

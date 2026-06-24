@@ -10,7 +10,7 @@ import type {
   DragDropExerciseResponse,
   FillBlankExerciseResponse,
   ExerciseResponse,
-} from '@/lib/axios';
+} from '@/types/api/exercise.types';
 
 /**
  * Convert a raw drag-drop exercise from the API response into the UI exercise type.

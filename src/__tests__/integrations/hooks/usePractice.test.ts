@@ -8,13 +8,16 @@ vi.mock('@/features/auth/useAuth', () => ({
 }));
 
 // Mock the Axios Layer
-vi.mock('@/lib/axios', () => ({
+vi.mock('@/features/practices/api/practice.api', () => ({
   fetchExercises: vi.fn(),
   fetchWeaknessTags: vi.fn(),
 }));
 
 import { usePractice } from '@/features/practices/usePractice';
-import { fetchExercises, fetchWeaknessTags } from '@/lib/axios';
+import {
+  fetchExercises,
+  fetchWeaknessTags,
+} from '@/features/practices/api/practice.api';
 
 type ExercisePageResponse = Awaited<ReturnType<typeof fetchExercises>>;
 type WeaknessTagListResponse = Awaited<ReturnType<typeof fetchWeaknessTags>>;

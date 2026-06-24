@@ -2,9 +2,9 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { useSidebarLanguage } from '@/components/sidebar/useSidebarLanguage';
-import { getMe } from '@/lib/axios';
+import { getMe } from '@/features/auth/api/auth.api';
 
-vi.mock('@/lib/axios', () => ({
+vi.mock('@/features/auth/api/auth.api', () => ({
   getMe: vi.fn(),
 }));
 

@@ -1,5 +1,5 @@
 import { redirect } from '@tanstack/react-router';
-import { fetchLessonById } from './axios';
+import { fetchLessonById } from '@/features/lesson/api/lesson.api';
 
 /**
  * Ensures the requested lesson is accessible.

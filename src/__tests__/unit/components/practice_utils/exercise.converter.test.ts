@@ -8,7 +8,7 @@ import {
 import type {
   DragDropExerciseResponse,
   FillBlankExerciseResponse,
-} from '@/lib/axios';
+} from '@/types/api/exercise.types';
 
 // ── Fixtures ─────────────────────────────────────────────────────────────────
 

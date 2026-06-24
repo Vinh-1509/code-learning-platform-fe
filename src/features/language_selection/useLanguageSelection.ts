@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { fetchLanguages, saveLanguage } from '@/lib/axios';
+import {
+  fetchLanguages,
+  saveLanguage,
+} from '@/features/language_selection/api/languages.api';
 import type { LanguageOption } from '@/types/languageSelection';
 
 /**

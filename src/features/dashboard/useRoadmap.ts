@@ -1,6 +1,12 @@
 import { useState, useEffect } from 'react';
-import { fetchMilestones, fetchLessonsByMilestone } from '../../lib/axios';
-import type { MilestoneResponse, LessonResponse } from '../../lib/axios';
+import {
+  fetchMilestones,
+  fetchLessonsByMilestone,
+} from '@/features/dashboard/api/dashboard.api';
+import type {
+  MilestoneResponse,
+  LessonResponse,
+} from '@/types/api/learning.types';
 import { useStartLesson } from '@/features/dashboard/useStartLesson';
 
 export type LessonStatus = 'active' | 'completed' | 'locked';

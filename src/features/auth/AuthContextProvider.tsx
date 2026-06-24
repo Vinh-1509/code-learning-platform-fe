@@ -2,7 +2,7 @@ import { useState, type ReactNode, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import axios from 'axios';
 import type { ApiError } from '@/lib/axios';
-import { loginUser, registerUser, getMe } from '@/lib/axios';
+import { loginUser, registerUser, getMe } from '@/features/auth/api/auth.api';
 import type { AuthResponse, AuthPayload, AuthUserResponse } from '@/types/auth';
 import { AuthContext } from './authContext';
 /**

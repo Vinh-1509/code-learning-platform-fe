@@ -1,14 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 
-// Mock the axios API layer module where the fetch function lives
-vi.mock('@/lib/axios', () => ({
+// Mock the dashboard API layer module where the fetch function lives
+vi.mock('@/features/dashboard/api/dashboard.api', () => ({
   fetchDashboardData: vi.fn(),
 }));
 
 import { useDashboardData } from '@/features/dashboard/useDashboard';
-import { fetchDashboardData } from '@/lib/axios';
-import type { DashboardResponse } from '@/lib/axios';
+import { fetchDashboardData } from '@/features/dashboard/api/dashboard.api';
+import type { DashboardResponse } from '@/types/api/dashboard.types';
 
 describe('useDashboardData()', () => {
   const mockDashboardData = {

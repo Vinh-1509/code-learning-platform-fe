@@ -8,18 +8,17 @@ vi.mock('@tanstack/react-router', () => ({
   })),
 }));
 
-// Mock the axios file/module where fetchLessonById lives
-vi.mock('@/lib/axios', () => ({
+// Mock the lesson API file/module where fetchLessonById lives
+vi.mock('@/features/lesson/api/lesson.api', () => ({
   fetchLessonById: vi.fn(),
 }));
 
 import { requireAccessibleLesson } from '@/lib/lessonGuard';
-import { fetchLessonById } from '@/lib/axios';
+import { fetchLessonById } from '@/features/lesson/api/lesson.api';
 import { redirect } from '@tanstack/react-router';
 
-// Import the actual type from your axios file or types definitions
-// (Adjust the import path below if it lives in a separate types file)
-import type { LessonDetailResponse } from '@/lib/axios';
+// Import the actual type from types definitions
+import type { LessonDetailResponse } from '@/types/api/learning.types';
 
 describe('requireAccessibleLesson()', () => {
   beforeEach(() => {

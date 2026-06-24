@@ -3,10 +3,12 @@ import { useAuth } from '@/features/auth/useAuth';
 import {
   fetchExercises,
   fetchWeaknessTags,
-  type Exercise,
-  type FetchExercisesParams,
-  type WeaknessTagResponse,
-} from '@/lib/axios';
+} from '@/features/practices/api/practice.api';
+import type {
+  Exercise,
+  FetchExercisesParams,
+  WeaknessTagResponse,
+} from '@/types/api/exercise.types';
 
 interface UsePracticeResult {
   exercises: Exercise[];

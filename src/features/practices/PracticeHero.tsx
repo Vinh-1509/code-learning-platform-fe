@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
-import type { Exercise } from '@/lib/axios';
+import type { Exercise } from '@/types/api/exercise.types';
 
 interface PracticeHeroProps {
   exercise: Exercise | null;

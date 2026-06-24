@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { fetchLessonById } from '@/lib/axios';
-import type { LessonDetailResponse } from '@/lib/axios';
+import { fetchLessonById } from '@/features/lesson/api/lesson.api';
+import type { LessonDetailResponse } from '@/types/api/learning.types';
 
 interface UseBlockLessonsOptions {
   lessonId: string;

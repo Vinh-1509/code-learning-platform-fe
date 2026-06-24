@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { getMe } from '@/lib/axios';
+import { getMe } from '@/features/auth/api/auth.api';
 
 export function useSidebarLanguage() {
   const [languageLabel, setLanguageLabel] = useState('');

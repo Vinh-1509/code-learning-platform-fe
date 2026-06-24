@@ -1,5 +1,5 @@
 import { redirect } from '@tanstack/react-router';
-import { getMe } from './axios';
+import { getMe } from '@/features/auth/api/auth.api';
 
 export const getAccessToken = (): string | null => {
   return localStorage.getItem('token');

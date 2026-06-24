@@ -14,7 +14,7 @@ vi.mock('@tanstack/react-router', () => ({
   redirect: (opts: unknown) => mockRedirect(opts),
 }));
 
-vi.mock('@/lib/axios', () => ({
+vi.mock('@/features/auth/api/auth.api', () => ({
   getMe: vi.fn(),
 }));
 
@@ -23,7 +23,7 @@ import {
   checkLanguageSelection,
   getAccessToken,
 } from '@/lib/auth';
-import { getMe } from '@/lib/axios';
+import { getMe } from '@/features/auth/api/auth.api';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 

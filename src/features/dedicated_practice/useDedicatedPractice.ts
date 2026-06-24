@@ -4,8 +4,8 @@ import {
   fetchExerciseById,
   getExerciseHint,
   submitExerciseAnswer,
-  type ExerciseResponse,
-} from '@/lib/axios';
+} from '@/features/lesson/api/exercise.api';
+import type { ExerciseResponse } from '@/types/api/exercise.types';
 import { convertExerciseResponse } from '@/components/practice_utils/utils/exercise.converter';
 import type { PracticeExercise } from '@/components/practice_utils/types/practiceTypes';
 
