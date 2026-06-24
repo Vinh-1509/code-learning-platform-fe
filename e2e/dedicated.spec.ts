@@ -47,7 +47,7 @@ async function openFirstExerciseOfType(
   for (let i = 0; i < count; i++) {
     await waitForPracticeLibrary(page);
     await startLinks.nth(i).click();
-    await page.waitForURL(/\/practicededicated\//, {
+    await page.waitForURL(/\/practice-dedicated\//, {
       timeout: DEFAULT_TIMEOUT,
     });
     await waitForDedicatedExercise(page);
@@ -88,7 +88,7 @@ async function openFirstDedicatedExercise(page: Page) {
   await expect(startLink).toBeVisible({ timeout: DEFAULT_TIMEOUT });
   await startLink.click();
 
-  await page.waitForURL(/\/practicededicated\//, {
+  await page.waitForURL(/\/practice-dedicated\//, {
     timeout: DEFAULT_TIMEOUT,
   });
   await waitForDedicatedExercise(page);

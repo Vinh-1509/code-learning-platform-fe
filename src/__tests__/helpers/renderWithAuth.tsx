@@ -44,7 +44,7 @@ export async function renderWithAuth(
 
   const languageSelectionRoute = createRoute({
     getParentRoute: () => rootRoute,
-    path: '/languageselection',
+    path: '/language-selection',
     component: () => <div>Language selection</div>,
   });
 

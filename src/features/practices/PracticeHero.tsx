@@ -47,7 +47,7 @@ export function PracticeHero({ exercise, isWeak }: PracticeHeroProps) {
         </div>
 
         <Link
-          to="/practicededicated/$exerciseId"
+          to="/practice-dedicated/$exerciseId"
           params={{ exerciseId: exercise._id }}
           className="w-fit"
         >

@@ -58,7 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const res = await loginUser(data);
       setAuth(res);
-      void navigate({ to: '/languageselection' });
+      void navigate({ to: '/language-selection' });
     } catch (err) {
       if (axios.isAxiosError<ApiError>(err) && err.response?.data?.message) {
         const errorMessage = err.response?.data?.message;
@@ -81,7 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const token = res.access_token;
       if (token) {
         setAuth(res);
-        void navigate({ to: '/languageselection' });
+        void navigate({ to: '/language-selection' });
       } else {
         void navigate({ to: '/login' });
       }

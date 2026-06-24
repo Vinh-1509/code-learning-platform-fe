@@ -271,8 +271,8 @@ import { getMe } from '@/lib/axios';
 | ------------------------------------------------------ | ------------------------------------------------------------ |
 | No token in localStorage                               | throws redirect to `/login`                                  |
 | Token present, `getMe()` throws (expired)              | clears token from localStorage + throws redirect to `/login` |
-| Token present, user has no `selectedLanguage`          | throws redirect to `/languageselection`                      |
-| Token present, user has empty `selectedLanguage` array | throws redirect to `/languageselection`                      |
+| Token present, user has no `selectedLanguage`          | throws redirect to `/language-selection`                     |
+| Token present, user has empty `selectedLanguage` array | throws redirect to `/language-selection`                     |
 | Token present, user has valid `selectedLanguage`       | resolves without throwing                                    |
 
 **Test cases for `checkLanguageSelection()`:**
@@ -297,11 +297,11 @@ File: `src/features/auth/AuthContextProvider.tsx`
 | Scenario                                               | Expected                                              |
 | ------------------------------------------------------ | ----------------------------------------------------- |
 | `login()` success → token stored                       | `localStorage.getItem('token')` equals returned token |
-| `login()` success → navigate called                    | router history moves to `/languageselection`          |
+| `login()` success → navigate called                    | router history moves to `/language-selection`         |
 | `login()` API error with message                       | `error` state is set to the API message string        |
 | `login()` network failure (no message)                 | `error` state is set to fallback string               |
 | `login()` sets `loading` true during call, false after | `loading` transitions correctly                       |
-| `register()` success with token                        | stores token + navigates to `/languageselection`      |
+| `register()` success with token                        | stores token + navigates to `/language-selection`     |
 | `register()` success without token in response         | navigates to `/login` without storing token           |
 | `register()` API error                                 | `error` state set correctly                           |
 | `logout()` clears token from localStorage              | `localStorage.getItem('token')` is null               |

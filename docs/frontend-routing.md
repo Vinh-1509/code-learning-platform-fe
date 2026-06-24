@@ -10,16 +10,16 @@
 
 ## Route Map
 
-| Route                            | File                                | Component               | Protected              |
-| -------------------------------- | ----------------------------------- | ----------------------- | ---------------------- |
-| `/`                              | `index.tsx`                         | Redirect only           | —                      |
-| `/login`                         | `login.lazy.tsx`                    | `LoginPage`             | No                     |
-| `/signup`                        | `signup.lazy.tsx`                   | `SignUpPage`            | No                     |
-| `/languageselection`             | `languageselection.tsx`             | `LanguageSelectionPage` | Partial                |
-| `/dashboard`                     | `dashboard.tsx`                     | `DashboardPage`         | ✅ Full                |
-| `/practice`                      | `practice.tsx`                      | `PracticePage`          | ✅ Full                |
-| `/lesson/$lessonId`              | `lesson.$lessonId.tsx`              | `LessonPage`            | ✅ Full + lesson guard |
-| `/practicededicated/$exerciseId` | `practicededicated.$exerciseId.tsx` | `DedicatedPracticePage` | ✅ Full                |
+| Route                             | File                                 | Component               | Protected              |
+| --------------------------------- | ------------------------------------ | ----------------------- | ---------------------- |
+| `/`                               | `index.tsx`                          | Redirect only           | —                      |
+| `/login`                          | `login.lazy.tsx`                     | `LoginPage`             | No                     |
+| `/signup`                         | `signup.lazy.tsx`                    | `SignUpPage`            | No                     |
+| `/language-selection`             | `languageselection.tsx`              | `LanguageSelectionPage` | Partial                |
+| `/dashboard`                      | `dashboard.tsx`                      | `DashboardPage`         | ✅ Full                |
+| `/practice`                       | `practice.tsx`                       | `PracticePage`          | ✅ Full                |
+| `/lesson/$lessonId`               | `lesson.$lessonId.tsx`               | `LessonPage`            | ✅ Full + lesson guard |
+| `/practice-dedicated/$exerciseId` | `practice-dedicated.$exerciseId.tsx` | `DedicatedPracticePage` | ✅ Full                |
 
 ---
 
@@ -27,7 +27,7 @@
 
 ### `requireAuth` — `src/lib/auth.ts`
 
-Used by: `/dashboard`, `/practice`, `/lesson/$lessonId`, `/practicededicated/$exerciseId`
+Used by: `/dashboard`, `/practice`, `/lesson/$lessonId`, `/practice-dedicated/$exerciseId`
 
 ```
 1. Read token from localStorage
@@ -37,12 +37,12 @@ Used by: `/dashboard`, `/practice`, `/lesson/$lessonId`, `/practicededicated/$ex
    └─ API error → clear token → redirect /login
 
 3. Check user.selectedLanguage exists and is non-empty
-   └─ No language selected → redirect /languageselection
+   └─ No language selected → redirect /language-selection
 ```
 
 ### `checkLanguageSelection` — `src/lib/auth.ts`
 
-Used by: `/languageselection`
+Used by: `/language-selection`
 
 ```
 1. Read token from localStorage
@@ -75,7 +75,7 @@ Used by: `/lesson/$lessonId` (runs after `requireAuth`)
 
 ```
 Has localStorage token?
-├─ Yes → /languageselection
+├─ Yes → /language-selection
 │         (languageselection guard then redirects to /dashboard if language set)
 └─ No  → /login
 ```
@@ -84,13 +84,13 @@ Has localStorage token?
 
 ```
 Has localStorage token?
-├─ Yes → /languageselection   (avoids double-login; guard handles rest)
+├─ Yes → /language-selection   (avoids double-login; guard handles rest)
 └─ No  → render the form
 ```
 
 These are **lazy routes** — their JS bundle is only loaded when needed, not on initial app load.
 
-### `/languageselection`
+### `/language-selection`
 
 ```
 beforeLoad: checkLanguageSelection
@@ -108,7 +108,7 @@ On confirm → POST /api/languages/select → navigate /dashboard
 beforeLoad: requireAuth
 ├─ No token           → /login
 ├─ API error          → /login
-├─ No language        → /languageselection
+├─ No language        → /language-selection
 └─ OK                 → render DashboardPage
 ```
 
@@ -120,10 +120,10 @@ Lesson start (roadmap click) → `useStartLesson` → `navigate /lesson/$lessonI
 beforeLoad: requireAuth
 ├─ No token           → /login
 ├─ API error          → /login
-├─ No language        → /languageselection
+├─ No language        → /language-selection
 └─ OK                 → render PracticePage
 
-Exercise card click   → Link /practicededicated/$exerciseId
+Exercise card click   → Link /practice-dedicated/$exerciseId
 ```
 
 ### `/lesson/$lessonId`
@@ -143,17 +143,17 @@ Inside LessonPage:
   "Back" button      → /dashboard (via Navbar)
 ```
 
-### `/practicededicated/$exerciseId`
+### `/practice-dedicated/$exerciseId`
 
 ```
 beforeLoad: requireAuth
 ├─ No token           → /login
 ├─ API error          → /login
-├─ No language        → /languageselection
+├─ No language        → /language-selection
 └─ OK                 → render DedicatedPracticePage
 
-Exercise tab click    → navigate /practicededicated/$exerciseId  (different ID)
-"Next Exercise" btn   → navigate /practicededicated/$nextExerciseId
+Exercise tab click    → navigate /practice-dedicated/$exerciseId  (different ID)
+"Next Exercise" btn   → navigate /practice-dedicated/$nextExerciseId
 "Back" button         → /practice (via Navbar)
 ```
 
@@ -179,7 +179,7 @@ POST /api/auth/login
     └─ Success → store token in localStorage
                      │
                      ▼
-              navigate → /languageselection
+              navigate → /language-selection
                      │
                      ▼
               checkLanguageSelection guard
@@ -205,7 +205,7 @@ User visits /
 Token found in localStorage
     │
     ▼
-Redirect → /languageselection
+Redirect → /language-selection
     │
     ▼
 checkLanguageSelection guard calls getMe()
@@ -267,9 +267,9 @@ These interactions update local component state without touching the router:
 ```
 /login          → open (redirect away if already authed)
 /signup         → open (redirect away if already authed)
-/languageselection → token required; redirect away if language already set
+/language-selection → token required; redirect away if language already set
 /dashboard      → token + language required
 /practice       → token + language required
 /lesson/:id     → token + language + lesson not fully locked
-/practicededicated/:id → token + language required
+/practice-dedicated/:id → token + language required
 ```
