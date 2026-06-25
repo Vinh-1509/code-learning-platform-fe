@@ -91,23 +91,23 @@ describe('requireAuth()', () => {
     expect(localStorage.getItem('token')).toBeNull();
   });
 
-  it('should throw redirect to /languageselection when user has no selectedLanguage property', async () => {
+  it('should throw redirect to /language-selection when user has no selectedLanguage property', async () => {
     localStorage.setItem('token', 'valid-token');
     mockGetMe.mockResolvedValueOnce(
       partialUser({ selectedLanguage: undefined })
     );
 
     await expect(requireAuth()).rejects.toMatchObject({
-      to: '/languageselection',
+      to: '/language-selection',
     });
   });
 
-  it('should throw redirect to /languageselection when selectedLanguage is an empty array', async () => {
+  it('should throw redirect to /language-selection when selectedLanguage is an empty array', async () => {
     localStorage.setItem('token', 'valid-token');
     mockGetMe.mockResolvedValueOnce(makeUser([]));
 
     await expect(requireAuth()).rejects.toMatchObject({
-      to: '/languageselection',
+      to: '/language-selection',
     });
   });
 

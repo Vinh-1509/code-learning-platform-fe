@@ -42,7 +42,7 @@ async function signUpNewUser(page: Page, emailPrefix = 'lang-select') {
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
       // Give the app a brief window to auto-redirect to the destination
-      await page.waitForURL('**/languageselection', { timeout: 5_000 });
+      await page.waitForURL('**/language-selection', { timeout: 5_000 });
       break; // Successfully reached the target page, exit loop
     } catch {
       if (page.url().includes('/login')) {
@@ -51,12 +51,12 @@ async function signUpNewUser(page: Page, emailPrefix = 'lang-select') {
     }
   }
 
-  await expect(page).toHaveURL('/languageselection', { timeout: 5_000 });
+  await expect(page).toHaveURL('/language-selection', { timeout: 5_000 });
   return { email, password };
 }
 
 /**
- * Navigate to /languageselection as a freshly-registered user:
+ * Navigate to /language-selection as a freshly-registered user:
  * has a valid token but no selectedLanguage yet.
  */
 async function gotoAsFirstTimeUser(page: Page) {
@@ -66,9 +66,9 @@ async function gotoAsFirstTimeUser(page: Page) {
 /**
  * Produce a "returning user" — i.e. an account that already has a
  * selectedLanguage saved — entirely through real UI flows:
- *   1. Sign up a fresh account (lands on /languageselection)
+ *   1. Sign up a fresh account (lands on /language-selection)
  *   2. Pick a language and confirm (redirects to /dashboard)
- *   3. Re-visit /languageselection to exercise the redirect guard
+ *   3. Re-visit /language-selection to exercise the redirect guard
  */
 async function gotoAsReturningUser(page: Page) {
   await page.goto('/login');
@@ -78,12 +78,12 @@ async function gotoAsReturningUser(page: Page) {
     process.env.TEST_USER_PASSWORD ?? 'Password123!'
   );
 
-  // After login, AuthContextProvider navigates to /languageselection,
+  // After login, AuthContextProvider navigates to /language-selection,
   // then checkLanguageSelection sees selectedLanguage is set → /dashboard
   await expect(page).toHaveURL('/dashboard', { timeout: 15_000 });
 
   await page.evaluate(() => {
-    window.history.pushState({}, '', '/languageselection');
+    window.history.pushState({}, '', '/language-selection');
     window.dispatchEvent(new PopStateEvent('popstate'));
   });
 }
@@ -290,14 +290,14 @@ test.describe('Language selection page — redirect guard', () => {
     await expect(page).toHaveURL('/dashboard', { timeout: 10_000 });
   });
 
-  test('unauthenticated user visiting /languageselection is redirected to /login', async ({
+  test('unauthenticated user visiting /language-selection is redirected to /login', async ({
     page,
   }) => {
     // Clear any existing token
     await page.goto('/login');
     await page.evaluate(() => localStorage.removeItem('token'));
 
-    await page.goto('/languageselection');
+    await page.goto('/language-selection');
 
     // requireAuth fires first → /login
     await expect(page).toHaveURL('/login', { timeout: 8_000 });

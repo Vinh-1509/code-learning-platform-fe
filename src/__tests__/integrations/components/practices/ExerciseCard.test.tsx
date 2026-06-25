@@ -87,7 +87,7 @@ describe('ExerciseCard Component', () => {
 
       const linkWrapper = startButton.closest('a');
       expect(linkWrapper).toBeInTheDocument();
-      expect(linkWrapper).toHaveAttribute('href', '/practicededicated/ex-123');
+      expect(linkWrapper).toHaveAttribute('href', '/practice-dedicated/ex-123');
 
       expect(screen.queryByText('Completed')).not.toBeInTheDocument();
       expect(screen.queryByText('Locked')).not.toBeInTheDocument();

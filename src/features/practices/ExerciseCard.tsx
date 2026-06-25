@@ -47,7 +47,7 @@ export function ExerciseCard({
 
   let actionButton = (
     <Link
-      to="/practicededicated/$exerciseId"
+      to="/practice-dedicated/$exerciseId"
       params={{ exerciseId: exercise._id }}
     >
       <Button size="sm">Start</Button>

@@ -115,8 +115,8 @@ test.describe('Login page', () => {
     await submitLoginForm(page, EXISTING_USER.email, EXISTING_USER.password);
 
     // A user who has already selected a language goes to /dashboard;
-    // a brand-new account goes to /languageselection first.
-    await expect(page).toHaveURL(/\/(dashboard|languageselection)/, {
+    // a brand-new account goes to /language-selection first.
+    await expect(page).toHaveURL(/\/(dashboard|language-selection)/, {
       timeout: 10_000,
     });
   });
@@ -200,7 +200,7 @@ test.describe('Sign-up page', () => {
     await submitLoginForm(page, localNewUser.email, localNewUser.password);
 
     // 4. Kiểm tra xem có vào đúng trang chọn ngôn ngữ không
-    await expect(page).toHaveURL('/languageselection', { timeout: 10_000 });
+    await expect(page).toHaveURL('/language-selection', { timeout: 10_000 });
   });
 
   test('mismatched passwords prevent submission', async ({ page }) => {
@@ -267,7 +267,7 @@ test.describe('Auth redirect guards', () => {
     await injectAuthToken(page);
     await page.goto('/login');
 
-    await expect(page).toHaveURL(/\/(languageselection|dashboard)/, {
+    await expect(page).toHaveURL(/\/(language-selection|dashboard)/, {
       timeout: 8_000,
     });
   });
@@ -289,7 +289,7 @@ test.describe('Auth redirect guards', () => {
     await injectAuthToken(page);
     await page.goto('/signup');
 
-    await expect(page).toHaveURL(/\/(languageselection|dashboard)/, {
+    await expect(page).toHaveURL(/\/(language-selection|dashboard)/, {
       timeout: 8_000,
     });
   });

@@ -310,7 +310,7 @@ test.describe('Practice page — navigating to dedicated page', () => {
     await waitForLibrarySettled(page);
   });
 
-  test('clicking Start on an unlocked card navigates to /practicededicated/:id', async ({
+  test('clicking Start on an unlocked card navigates to /practice-dedicated/:id', async ({
     page,
   }) => {
     const startLink = getMain(page)
@@ -320,14 +320,14 @@ test.describe('Practice page — navigating to dedicated page', () => {
 
     await startLink.click();
 
-    await expect(page).toHaveURL(/\/practicededicated\//, {
+    await expect(page).toHaveURL(/\/practice-dedicated\//, {
       timeout: 10_000,
     });
   });
 
   test('browser back button returns to /practice', async ({ page }) => {
     await getMain(page).getByRole('link', { name: /start/i }).first().click();
-    await expect(page).toHaveURL(/\/practicededicated\//, {
+    await expect(page).toHaveURL(/\/practice-dedicated\//, {
       timeout: 10_000,
     });
 
@@ -345,7 +345,7 @@ test.describe('Practice page — navigating to dedicated page', () => {
     if ((await heroLink.count()) === 0) return test.skip();
 
     await heroLink.click();
-    await expect(page).toHaveURL(/\/practicededicated\//, {
+    await expect(page).toHaveURL(/\/practice-dedicated\//, {
       timeout: 10_000,
     });
   });

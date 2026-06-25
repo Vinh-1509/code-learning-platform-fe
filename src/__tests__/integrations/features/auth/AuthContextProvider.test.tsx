@@ -115,7 +115,7 @@ describe('AuthProvider — login()', () => {
       expect(localStorage.getItem('token')).toBe('fake-jwt');
     });
     await waitFor(() => {
-      expect(router.state.location.pathname).toBe('/languageselection');
+      expect(router.state.location.pathname).toBe('/language-selection');
     });
   });
 
@@ -219,7 +219,7 @@ describe('AuthProvider — register()', () => {
     localStorage.clear();
   });
 
-  it('stores the token and navigates to /languageselection when the response includes a token', async () => {
+  it('stores the token and navigates to /language-selection when the response includes a token', async () => {
     const user = userEvent.setup();
     const { router } = await renderWithAuth(<AuthProbe />);
 
@@ -229,7 +229,7 @@ describe('AuthProvider — register()', () => {
       expect(localStorage.getItem('token')).toBe('fake-jwt-register');
     });
     await waitFor(() => {
-      expect(router.state.location.pathname).toBe('/languageselection');
+      expect(router.state.location.pathname).toBe('/language-selection');
     });
   });
 

@@ -11,7 +11,7 @@ import { TaskPane } from './TaskPanel';
 
 import { cn } from '@/lib/utils';
 
-const PracticeRouteApi = getRouteApi('/practicededicated/$exerciseId');
+const PracticeRouteApi = getRouteApi('/practice-dedicated/$exerciseId');
 
 interface ExerciseResponse {
   _id: string;
@@ -95,7 +95,7 @@ export function DedicatedPracticePage() {
   const handleNextExercise = () => {
     if (nextExerciseId) {
       void navigate({
-        to: '/practicededicated/$exerciseId',
+        to: '/practice-dedicated/$exerciseId',
         params: { exerciseId: nextExerciseId },
       });
     }

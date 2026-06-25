@@ -22,7 +22,7 @@ export const requireAuth = async () => {
   }
 
   if (!user || !user.selectedLanguage || user.selectedLanguage.length === 0) {
-    throw redirect({ to: '/languageselection' });
+    throw redirect({ to: '/language-selection' });
   }
 };
 export const checkLanguageSelection = async () => {
