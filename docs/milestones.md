@@ -63,6 +63,7 @@ Thực hiện khảo sát dùng thử với người dùng thật thuộc nhóm 
 Thông tin khác:
 - Các nhóm tiếp tục cải thiện MVP của dự án, đồng thời liên tục thực hiện việc kiểm thử và deploy song song với bài khảo sát (tận dụng CI/CD).
 - Lưu lại change log, version sau mỗi lần deploy, nắm rõ người dùng đang dùng thử (và feedback) version nào, điều chỉnh nội dung/kết quả khảo sát tương ứng để tránh việc phát triển MVP làm ảnh hưởng đến khảo sát. Việc cải thiện MVP sẽ dừng lại khi BTC có thông báo mới.
+
 📌 Chung kết DemoDay sẽ diễn ra vào Thứ 7 ngày 25/7/2026.
 
 **Milestone 5 (28/06 - 12/07): Prepare presentation for DemoDay**
