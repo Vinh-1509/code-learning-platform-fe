@@ -9,6 +9,8 @@ import { PracticeHero } from './PracticeHero';
 export function PracticeLibrary() {
   const [search, setSearch] = useState('');
   const [diffFilter, setDiffFilter] = useState('All Levels');
+  // Thêm state lưu giá trị sort để truyền xuống các bên
+  const [sortBy, setSortBy] = useState('default');
 
   const handleSearchChange = (value: string) => {
     setSearch(value);
@@ -16,6 +18,11 @@ export function PracticeLibrary() {
 
   const handleDifficultyChange = (value: string) => {
     setDiffFilter(value);
+  };
+
+  // Thêm hàm handler bắt sự kiện thay đổi select sort
+  const handleSortChange = (value: string) => {
+    setSortBy(value);
   };
 
   // Connect layout directly to the orchestrated practice query domain stream
@@ -29,6 +36,7 @@ export function PracticeLibrary() {
   } = usePractice({
     q: search,
     difficulty: diffFilter,
+    sortBy: sortBy, // Truyền sortBy xuống hook xử lý logic
     page: 1,
     limit: 15,
   });
@@ -41,13 +49,21 @@ export function PracticeLibrary() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-4  sm:p-8">
+      {/* Truyền cả sortBy lẫn onSortChange vào đây để dập tắt lỗi TypeScript thiếu prop */}
       <PracticeFilters
         diffFilter={diffFilter}
         onDiffChange={handleDifficultyChange}
         onSearchChange={handleSearchChange}
         search={search}
+        sortBy={sortBy}
+        onSortChange={handleSortChange}
       />
-
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="flex items-center gap-1.5 text-base font-bold text-foreground">
+          <Star className="size-4 fill-amber-400 text-amber-400" />
+          Recommended for You
+        </h3>
+      </div>
       {/* Renders the top priority item, passing down if it's an actual weakness recommendation */}
       {!loading && !error && (
         <PracticeHero
@@ -58,13 +74,6 @@ export function PracticeLibrary() {
 
       {/* Target Content Feed Frame */}
       <div>
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="flex items-center gap-1.5 text-base font-bold text-foreground">
-            <Star className="size-4 fill-amber-400 text-amber-400" />
-            Recommended for You
-          </h3>
-        </div>
-
         {showLoading && (
           <div className="flex flex-col items-center justify-center gap-2 py-20">
             <Loader2 className="size-8 animate-spin text-primary" />
