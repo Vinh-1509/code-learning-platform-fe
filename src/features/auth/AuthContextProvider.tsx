@@ -7,7 +7,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { loginUser, registerUser, getMe } from '@/features/auth/api/auth.api';
 import type { AuthResponse, AuthPayload } from '@/types/auth';
 import { AuthContext } from './authContext';
-
+import { queryClient } from '@/lib/queryClient';
 function getInitialToken() {
   return localStorage.getItem('token');
 }
@@ -83,6 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     localStorage.removeItem('token');
     setToken(null);
+    queryClient.clear();
     void navigate({ to: '/login' });
   };
 

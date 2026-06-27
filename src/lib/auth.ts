@@ -1,4 +1,4 @@
-import { redirect } from '@tanstack/react-router';
+import { isRedirect, redirect } from '@tanstack/react-router';
 import { queryClient } from '@/lib/queryClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { getMe } from '@/features/auth/api/auth.api';
@@ -9,10 +9,9 @@ export const getAccessToken = (): string | null => {
 
 export const requireAuth = async () => {
   const token = getAccessToken();
+  console.log('requireAuth token:', token);
 
-  if (!token) {
-    throw redirect({ to: '/login' });
-  }
+  if (!token) throw redirect({ to: '/login' });
 
   try {
     const user = await queryClient.ensureQueryData({
@@ -20,12 +19,14 @@ export const requireAuth = async () => {
       queryFn: getMe,
       staleTime: 5 * 60_000,
     });
+    console.log('requireAuth user:', user);
 
-    if (!user || !user.selectedLanguage || user.selectedLanguage.length === 0) {
+    if (!user?.selectedLanguage || user.selectedLanguage.length === 0) {
       throw redirect({ to: '/language-selection' });
     }
   } catch (err) {
-    if (err instanceof Error && 'to' in err) throw err;
+    console.log('requireAuth catch:', err); // ← xem err là gì
+    if (isRedirect(err)) throw err;
     localStorage.removeItem('token');
     throw redirect({ to: '/login' });
   }
@@ -34,9 +35,7 @@ export const requireAuth = async () => {
 export const checkLanguageSelection = async () => {
   const token = getAccessToken();
 
-  if (!token) {
-    throw redirect({ to: '/login' });
-  }
+  if (!token) throw redirect({ to: '/login' });
 
   try {
     const user = await queryClient.ensureQueryData({
@@ -49,7 +48,7 @@ export const checkLanguageSelection = async () => {
       throw redirect({ to: '/dashboard' });
     }
   } catch (err) {
-    if (err instanceof Error && 'to' in err) throw err;
+    if (isRedirect(err)) throw err;
     localStorage.removeItem('token');
     throw redirect({ to: '/login' });
   }
