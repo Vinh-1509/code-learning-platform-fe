@@ -27,16 +27,14 @@ describe('CurrentLessonBanner', () => {
     expect(screen.getByText('76% Completed')).toBeInTheDocument();
   });
 
-  it('calls onStartLesson with the correct lessonId when the "Continue lesson" button is clicked', async () => {
+  it('calls onStartLesson with the correct lessonId when the "Click here to continue" link is clicked', async () => {
     const user = userEvent.setup();
     render(<CurrentLessonBanner {...mockProps} />);
 
-    // Target the specific button by its accessible name (ignoring the chevron icons which are also buttons)
-    const continueButton = screen.getByRole('button', {
-      name: /continue lesson/i,
-    });
+    // Target the link text and click it (click bubbles up to Card container)
+    const continueText = screen.getByText(/click here to continue/i);
 
-    await user.click(continueButton);
+    await user.click(continueText);
 
     expect(mockProps.onStartLesson).toHaveBeenCalledOnce();
     expect(mockProps.onStartLesson).toHaveBeenCalledWith('lesson-42');

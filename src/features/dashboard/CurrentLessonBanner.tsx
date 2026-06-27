@@ -1,6 +1,4 @@
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 
 interface CurrentLessonBannerProps {
@@ -35,46 +33,33 @@ export function CurrentLessonBanner({
   };
 
   return (
-    <Card className="bg-card drop-shadow-lg border border-border shadow-sm transition-all duration-300 ease-in-out hover:bg-muted/40 hover:shadow-lg hover:scale-[1.01] hover:border-border/80 cursor-pointer">
-      <CardContent className="p-6">
+    <Card
+      onClick={handleContinue}
+      className="bg-card border border-border/80 shadow-sm rounded-2xl transition-all duration-300 ease-in-out hover:bg-muted/30 hover:shadow-md hover:scale-[1.008] hover:border-border cursor-pointer"
+    >
+      <CardContent className="p-5 sm:p-6">
         <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <span className="inline-flex items-center px-3 py-1 rounded-full bg-primary-second text-primary text-xs font-medium mb-3">
+          <div className="flex-1 min-w-0">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-primary-second text-primary text-[10px] uppercase font-bold tracking-wider mb-2 border border-primary-second-border/20">
               In progress
             </span>
-            <h2 className="text-2xl font-bold text-foreground">{lessonName}</h2>
-            <p className="text-sm text-muted-foreground mt-1">{moduleName}</p>
-          </div>
-          <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-8 text-muted-foreground hover:text-foreground"
-            >
-              <ChevronLeft className="size-5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-8 text-muted-foreground hover:text-foreground"
-            >
-              <ChevronRight className="size-5" />
-            </Button>
+            <h2 className="text-xl sm:text-2xl font-extrabold text-slate-800 tracking-tight truncate sm:whitespace-normal">
+              {lessonName}
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500 font-semibold mt-1 truncate sm:whitespace-normal">
+              {moduleName}
+            </p>
           </div>
         </div>
-        <div className="mt-6">
+        <div className="mt-5">
           <Progress value={progress} className="h-2.5" />
-          <div className="flex items-center justify-between mt-4">
-            <span className="text-sm text-muted-foreground">
+          <div className="flex items-center justify-between mt-4 gap-2">
+            <span className="text-xs sm:text-sm text-slate-600 font-bold">
               {progress.toFixed(0)}% Completed
             </span>
-            <Button
-              type="button"
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
-              onClick={handleContinue}
-            >
-              Continue lesson
-            </Button>
+            <span className="text-xs sm:text-sm font-bold text-primary hover:underline flex items-center gap-1 transition-all duration-200">
+              Click here to continue &rarr;
+            </span>
           </div>
         </div>
       </CardContent>

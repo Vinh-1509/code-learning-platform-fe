@@ -18,11 +18,17 @@ interface StatCardProps {
  */
 function StatCard({ icon, value, label }: StatCardProps) {
   return (
-    <Card className="bg-white border-2 border-primary shadow-sm rounded-xl transition-all duration-300 ease-in-out hover:shadow-md hover:border-primary/80">
-      <CardContent className="p-6 flex flex-col items-center justify-center text-center">
-        <div className="text-primary mb-2">{icon}</div>
-        <span className="text-4xl font-semibold text-foreground">{value}</span>
-        <span className="text-sm text-muted-foreground mt-1">{label}</span>
+    <Card className="bg-card border border-border/85 shadow-sm rounded-2xl transition-all duration-300 ease-in-out hover:shadow-md hover:border-primary/40">
+      <CardContent className="p-4 sm:p-6 flex flex-col items-center justify-center text-center">
+        <div className="text-primary mb-2.5 shrink-0 size-6 sm:size-7 flex items-center justify-center">
+          {icon}
+        </div>
+        <span className="text-2xl sm:text-4xl font-extrabold text-slate-800 tracking-tight">
+          {value}
+        </span>
+        <span className="text-[11px] sm:text-sm text-slate-500 font-bold mt-1.5 leading-normal">
+          {label}
+        </span>
       </CardContent>
     </Card>
   );
@@ -43,14 +49,14 @@ interface StatsGridProps {
  */
 export function StatsGrid({ lessonsLearned, problemsSolved }: StatsGridProps) {
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid grid-cols-2 gap-3.5 sm:gap-6">
       <StatCard
-        icon={<CheckCircle2 className="size-7" />}
+        icon={<CheckCircle2 className="size-5 sm:size-6 text-primary" />}
         value={lessonsLearned}
         label="Lessons Learned"
       />
       <StatCard
-        icon={<Target className="size-7" />}
+        icon={<Target className="size-5 sm:size-6 text-primary" />}
         value={problemsSolved}
         label="Problems Solved"
       />

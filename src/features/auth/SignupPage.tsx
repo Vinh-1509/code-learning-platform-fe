@@ -6,7 +6,13 @@ export default function SignUpPage() {
   const { register, loading, error } = useAuth();
 
   return (
-    <div className="grid min-h-screen lg:grid-cols-2 bg-card">
+    <div
+      className="grid min-h-screen lg:grid-cols-2"
+      style={{
+        background:
+          'radial-gradient(circle at bottom right, #DBEAFE 0%, rgba(219, 234, 254, 0) 60%), radial-gradient(circle at top left, #DBEAFE 0%, rgba(219, 234, 254, 0) 40%), #ffffff',
+      }}
+    >
       <div className="hidden lg:flex bg-bluedark p-16 flex-col justify-center items-center text-primary-foreground relative overflow-hidden select-none">
         <div className="relative flex flex-col gap-8 w-full">
           <div className="flex items-center gap-2">
@@ -24,7 +30,7 @@ export default function SignUpPage() {
               the <span className="text-bluelight">right way</span>
             </h1>
 
-            <p className="text-muted-foreground text-sm leading-relaxed">
+            <p className="text-muted-foreground font-semibold text-sm leading-relaxed">
               Structured roadmaps, AI-powered explanations, and daily spaced
               repetition — so what you learn actually sticks.
             </p>
@@ -52,9 +58,11 @@ export default function SignUpPage() {
         </div>
       </div>
 
-      <div className="flex flex-col justify-center p-6 sm:p-10">
+      <div className="flex flex-col justify-center p-6 sm:p-10 bg-transparent lg:bg-card">
         <div className="w-full flex items-center justify-center">
-          <SignUpForm onSubmit={register} loading={loading} error={error} />
+          <div className="w-full max-w-md bg-transparent p-0 border-none shadow-none">
+            <SignUpForm onSubmit={register} loading={loading} error={error} />
+          </div>
         </div>
       </div>
     </div>
@@ -79,7 +87,9 @@ function FeatureItem({
         <h3 className="font-semibold text-primary-foreground text-base">
           {title}
         </h3>
-        <p className="text-sm text-darker-gray leading-normal">{desc}</p>
+        <p className="text-sm font-semibold text-darker-gray leading-normal">
+          {desc}
+        </p>
       </div>
     </div>
   );

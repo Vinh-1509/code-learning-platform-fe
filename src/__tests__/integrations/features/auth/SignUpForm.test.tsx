@@ -16,11 +16,11 @@ describe('SignUpForm', () => {
     await user.type(screen.getByLabelText(/email/i), 'new@hcmut.edu.vn');
     await user.type(
       screen.getByPlaceholderText(/min\. 8 characters/i),
-      '12345678'
+      'Password123!'
     );
     await user.type(
       screen.getByPlaceholderText(/repeat your password/i),
-      '87654321'
+      'DifferentPassword123!'
     );
     await user.click(screen.getByRole('button', { name: /create account/i }));
 
@@ -36,18 +36,18 @@ describe('SignUpForm', () => {
     await user.type(screen.getByLabelText(/email/i), 'new@hcmut.edu.vn');
     await user.type(
       screen.getByPlaceholderText(/min\. 8 characters/i),
-      '12345678'
+      'Password123!'
     );
     await user.type(
       screen.getByPlaceholderText(/repeat your password/i),
-      '12345678'
+      'Password123!'
     );
     await user.click(screen.getByRole('button', { name: /create account/i }));
 
     await waitFor(() => {
       expect(onSubmit).toHaveBeenCalledWith({
         email: 'new@hcmut.edu.vn',
-        password: '12345678',
+        password: 'Password123!',
       });
     });
   });
