@@ -1,45 +1,25 @@
-import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { queryKeys } from '@/lib/queryKeys';
 import { fetchLessonById } from '@/features/lesson/api/lesson.api';
-import type { LessonDetailResponse } from '@/types/api/learning.types';
 
 interface UseBlockLessonsOptions {
   lessonId: string;
 }
 
+/**
+ * Handles fetching and state management for a single lesson's details.
+ * Upgraded to TanStack Query to leverage shared cache and automatic refetching.
+ */
 export function useBlockLessons({ lessonId }: UseBlockLessonsOptions) {
-  const [currentLesson, setCurrentLesson] =
-    useState<LessonDetailResponse | null>(null);
-
-  useEffect(() => {
-    if (!lessonId) return;
-
-    const loadLesson = async () => {
-      try {
-        const data = await fetchLessonById(lessonId);
-        setCurrentLesson(data);
-      } catch (error) {
-        console.error('Lỗi:', error);
-        setCurrentLesson(null);
-      }
-    };
-
-    void loadLesson();
-  }, [lessonId]);
-
-  const refetchLesson = async () => {
-    if (!lessonId) return;
-
-    try {
-      const data = await fetchLessonById(lessonId);
-      setCurrentLesson(data);
-    } catch (error) {
-      console.error('Lỗi:', error);
-      setCurrentLesson(null);
-    }
-  };
+  const { data, refetch } = useQuery({
+    queryKey: queryKeys.lessons.detail(lessonId),
+    queryFn: () => fetchLessonById(lessonId),
+    enabled: Boolean(lessonId),
+    staleTime: 30_000,
+  });
 
   return {
-    currentLesson,
-    refetchLesson,
+    currentLesson: data ?? null,
+    refetchLesson: refetch,
   };
 }

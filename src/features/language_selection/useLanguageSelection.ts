@@ -1,24 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
+import { queryClient } from '@/lib/queryClient';
+import { queryKeys } from '@/lib/queryKeys';
 import {
   fetchLanguages,
   saveLanguage,
 } from '@/features/language_selection/api/languages.api';
 import type { LanguageOption } from '@/types/languageSelection';
 
-/**
- * useLanguageSelection is a custom React hook managing the state and flow of language selection.
- * Handles fetching available languages from the database, tracking user selection,
- * and saving the selected language preference to the profile before navigating to the dashboard.
- *
- * @returns {Object} State and handler functions:
- *   - languages: List of fetched language options.
- *   - fetching: Loading state of languages query.
- *   - selected: Selected language ID.
- *   - setSelected: Setter function for selecting a language.
- *   - saving: Saving indicator during preference confirmation.
- *   - handleConfirm: Async function to submit the selection.
- */
 export function useLanguageSelection() {
   const navigate = useNavigate();
   const [languages, setLanguages] = useState<LanguageOption[]>([]);
@@ -43,6 +32,7 @@ export function useLanguageSelection() {
     setSaving(true);
     try {
       await saveLanguage(selectedLanguage.language);
+      await queryClient.invalidateQueries({ queryKey: queryKeys.auth.all });
       void navigate({ to: '/dashboard' });
     } finally {
       setSaving(false);
