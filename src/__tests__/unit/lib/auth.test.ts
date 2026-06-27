@@ -5,17 +5,30 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 
-// TanStack Router redirect() ném ra Exception — ta giả lập hành vi ném object target để bắt trong test
+// TanStack Router: redirect() throws, isRedirect() checks if the thrown value was a redirect
 const mockRedirect = vi.fn((opts: unknown) => {
   throw opts;
+});
+const mockIsRedirect = vi.fn((err: unknown) => {
+  return typeof err === 'object' && err !== null && 'to' in err;
 });
 
 vi.mock('@tanstack/react-router', () => ({
   redirect: (opts: unknown) => mockRedirect(opts),
+  isRedirect: (err: unknown) => mockIsRedirect(err),
 }));
 
 vi.mock('@/features/auth/api/auth.api', () => ({
   getMe: vi.fn(),
+}));
+
+// Mock queryClient: ensureQueryData delegates to the queryFn directly (no retry, no cache)
+vi.mock('@/lib/queryClient', () => ({
+  queryClient: {
+    ensureQueryData: vi.fn(({ queryFn }: { queryFn: () => Promise<unknown> }) =>
+      queryFn()
+    ),
+  },
 }));
 
 import {
@@ -70,6 +83,7 @@ describe('requireAuth()', () => {
     localStorage.clear();
     mockGetMe.mockReset();
     mockRedirect.mockClear();
+    mockIsRedirect.mockClear();
   });
 
   it('should throw redirect to /login when localStorage has no token', async () => {
@@ -134,6 +148,7 @@ describe('checkLanguageSelection()', () => {
     localStorage.clear();
     mockGetMe.mockReset();
     mockRedirect.mockClear();
+    mockIsRedirect.mockClear();
   });
 
   it('should throw redirect to /login when localStorage has no token', async () => {

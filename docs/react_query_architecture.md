@@ -6,34 +6,33 @@
 
 ## Executive Summary
 
-The codebase is **pre-React Query**. Every single API call is managed through the classic `useEffect + useState` pattern — 9 distinct async data-fetching hooks, all rolling their own `loading`, `error`, and `data` state. React Query is **not installed**. The `msw` devDependency exists in `package.json` but is unused, suggesting the team intends to invest in proper infrastructure.
+The codebase is currently in a **transition state to React Query**. TanStack Query v5 is installed, the global `queryClient` and hierarchical `queryKeys` factory have been established, and several high-priority fetches and routes have been successfully migrated. However, some sections still rely on the legacy `useEffect + useState` pattern.
 
-The architecture works but is **not scalable**. Critical problems include:
+The current implementation status is:
 
-- **Duplicate network calls**: `getMe()` is called independently in `AuthContextProvider`, `requireAuth` (route guard), `checkLanguageSelection` (route guard), and `lessonGuard` — every protected navigation fires 2–3 `/api/auth/me` requests with no shared cache.
-- **No cache invalidation mechanism**: After a Feynman pass or exercise submit, stale UI data is never refreshed except via an ad-hoc `refetchLesson()` callback.
-- **Manual loading/error state boilerplate** in every hook — each adds ~10 lines of identical plumbing.
-- **All response types are co-located in `lib/axios.ts`** — a 467-line god file mixing Axios config, API functions, and TypeScript interfaces.
-- **`console.log('dashboard payload:', data)`** is present in production-bound code.
+- **Foundational Infrastructure**: ✅ Completed. React Query and Devtools are fully integrated, and the large `lib/axios.ts` file has been split, with TypeScript interfaces moved to dedicated files under `src/types/api/`.
+- **Auth and Session caching**: ✅ Completed. `getMe` duplicate call issues are resolved, and route guards now leverage `queryClient.ensureQueryData` to reuse cached profile queries.
+- **Core Dashboard & Lesson queries**: ✅ Completed. Core dashboard statistics and single lesson retrieval are converted to query hooks (`useDashboardData` and `useBlockLessons`).
+- **Remaining migrations**: ⏳ In Progress. Several components and utility hooks (such as exercise lists, roadmap, language selection, and Feynman chat) still need migration to queries and mutations.
 
-The recommended action is to install TanStack Query and migrate over 3 phases, starting with the highest-pain points (auth + dashboard).
+The recommended next steps are to focus on Phase 2 structural improvements—including parallel queries for roadmap and lesson exercises, writing mutations with invalidation rules, and configuring route loaders.
 
 ---
 
 ## Critical Issues
 
-| #   | Issue                                                                                                                                | Severity    | File                                     |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------ | ----------- | ---------------------------------------- |
-| 1   | `getMe()` called 3+ times on every protected route navigation with no shared cache                                                   | 🔴 Critical | `lib/auth.ts`, `AuthContextProvider.tsx` |
-| 2   | `console.log('dashboard payload:', data)` shipped in production code                                                                 | 🔴 Critical | `useDashboard.ts:19`                     |
-| 3   | No React Query installed despite `msw` already present                                                                               | 🔴 Critical | `package.json`                           |
-| 4   | `useRoadmap` fires N+1 sequential requests (1 milestone fetch → N lesson fetches)                                                    | 🔴 Critical | `useRoadmap.ts:74–90`                    |
-| 5   | `requireAccessibleLesson` fetches the full lesson on every navigation only to throw it away                                          | 🟠 High     | `lessonGuard.ts`                         |
-| 6   | `AuthContextProvider` has `navigate` in the `useEffect` dependency array for language fetch — the effect re-runs on every navigation | 🟠 High     | `useLanguageSelection.ts:33`             |
-| 7   | 0% error boundary coverage — any thrown error in a page crashes silently                                                             | 🟠 High     | All route files                          |
-| 8   | No retry logic on any fetch                                                                                                          | 🟡 Medium   | All hooks                                |
-| 9   | No `staleTime` anywhere — would cause infinite refetch loops if React Query is adopted naively                                       | 🟡 Medium   | Future                                   |
-| 10  | `lib/axios.ts` is a 467-line god file mixing config, types, and all API functions                                                    | 🟡 Medium   | `lib/axios.ts`                           |
+| #   | Issue                                                                                                                                | Severity    | Status      | File                                     |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------ | ----------- | ----------- | ---------------------------------------- |
+| 1   | `getMe()` called 3+ times on every protected route navigation with no shared cache                                                   | 🔴 Critical | ✅ Resolved | `lib/auth.ts`, `AuthContextProvider.tsx` |
+| 2   | `console.log('dashboard payload:', data)` shipped in production code                                                                 | 🔴 Critical | ✅ Resolved | `useDashboard.ts:19`                     |
+| 3   | No React Query installed despite `msw` already present                                                                               | 🔴 Critical | ✅ Resolved | `package.json`                           |
+| 4   | `useRoadmap` fires N+1 sequential requests (1 milestone fetch → N lesson fetches)                                                    | 🔴 Critical | ⏳ Pending  | `useRoadmap.ts:74–90`                    |
+| 5   | `requireAccessibleLesson` fetches the full lesson on every navigation only to throw it away                                          | 🟠 High     | ⏳ Pending  | `lessonGuard.ts`                         |
+| 6   | `AuthContextProvider` has `navigate` in the `useEffect` dependency array for language fetch — the effect re-runs on every navigation | 🟠 High     | ✅ Resolved | `useLanguageSelection.ts:33`             |
+| 7   | 0% error boundary coverage — any thrown error in a page crashes silently                                                             | 🟠 High     | ⏳ Pending  | All route files                          |
+| 8   | No retry logic on any fetch                                                                                                          | 🟡 Medium   | ⏳ Pending  | All hooks                                |
+| 9   | No `staleTime` anywhere — would cause infinite refetch loops if React Query is adopted naively                                       | 🟡 Medium   | ✅ Resolved | Future                                   |
+| 10  | `lib/axios.ts` is a 467-line god file mixing config, types, and all API functions                                                    | 🟡 Medium   | ✅ Resolved | `lib/axios.ts`                           |
 
 ---
 
@@ -1097,62 +1096,62 @@ export const queryClient = new QueryClient({
 
 ## 14. Final Refactoring Roadmap
 
-### Phase 1 — Quick Wins (Est. 2–3 days, 🟢 Low Risk)
+### Phase 1 — Quick Wins (Est. 2–3 days, 🟢 Low Risk) — ✅ COMPLETED
 
 > Goal: Install React Query, eliminate the most painful duplicate-fetch and boilerplate problems.
 
-| Task                                                      | Effort | Risk      | Benefit                         |
-| --------------------------------------------------------- | ------ | --------- | ------------------------------- |
-| Install `@tanstack/react-query` and `devtools`            | 30 min | 🟢 None   | Unlocks everything              |
-| Create `lib/queryClient.ts` with global defaults          | 1 hr   | 🟢 None   | Foundation                      |
-| Create `lib/queryKeys.ts` factory                         | 1 hr   | 🟢 None   | Foundation                      |
-| Wrap `App.tsx` in `<QueryClientProvider>`                 | 30 min | 🟢 None   | Foundation                      |
-| Remove `console.log` from `useDashboard.ts`               | 5 min  | 🟢 None   | Production hygiene              |
-| Convert `useDashboard.ts` → `useDashboardQuery`           | 1 hr   | 🟢 Low    | Immediate boilerplate reduction |
-| Convert `useBlockLessons.ts` → `useLessonQuery`           | 1 hr   | 🟢 Low    | Shared cache                    |
-| Convert `AuthContextProvider` useEffect → `useMeQuery`    | 2 hr   | 🟡 Medium | Eliminate 3x duplicate calls    |
-| Update `requireAuth` to use `queryClient.ensureQueryData` | 1 hr   | 🟡 Medium | Kills 2 redundant `getMe` calls |
+| Task                                                      | Effort | Risk      | Benefit                         | Status  |
+| --------------------------------------------------------- | ------ | --------- | ------------------------------- | ------- |
+| Install `@tanstack/react-query` and `devtools`            | 30 min | 🟢 None   | Unlocks everything              | ✅ Done |
+| Create `lib/queryClient.ts` with global defaults          | 1 hr   | 🟢 None   | Foundation                      | ✅ Done |
+| Create `lib/queryKeys.ts` factory                         | 1 hr   | 🟢 None   | Foundation                      | ✅ Done |
+| Wrap `App.tsx` in `<QueryClientProvider>`                 | 30 min | 🟢 None   | Foundation                      | ✅ Done |
+| Remove `console.log` from `useDashboard.ts`               | 5 min  | 🟢 None   | Production hygiene              | ✅ Done |
+| Convert `useDashboard.ts` → `useDashboardQuery`           | 1 hr   | 🟢 Low    | Immediate boilerplate reduction | ✅ Done |
+| Convert `useBlockLessons.ts` → `useLessonQuery`           | 1 hr   | 🟢 Low    | Shared cache                    | ✅ Done |
+| Convert `AuthContextProvider` useEffect → `useMeQuery`    | 2 hr   | 🟡 Medium | Eliminate 3x duplicate calls    | ✅ Done |
+| Update `requireAuth` to use `queryClient.ensureQueryData` | 1 hr   | 🟡 Medium | Kills 2 redundant `getMe` calls | ✅ Done |
 
-**Expected outcome:** `getMe` goes from 3+ calls → 1 call per 5 minutes. Dashboard boilerplate removed. Foundation set.
+**Expected outcome:** `getMe` goes from 3+ calls → 1 call per 5 minutes. Dashboard boilerplate removed. Foundation set. All Phase 1 tasks are fully verified and operational.
 
 ---
 
-### Phase 2 — Structural Improvements (Est. 1 week, 🟡 Medium Risk)
+### Phase 2 — Structural Improvements (Est. 1 week, 🟡 Medium Risk) — ⏳ IN PROGRESS
 
 > Goal: Convert all remaining hooks, implement mutations, set up invalidation.
 
-| Task                                                                     | Effort | Risk      | Benefit                                 |
-| ------------------------------------------------------------------------ | ------ | --------- | --------------------------------------- |
-| Split `lib/axios.ts` — move API fns to feature `api/` dirs               | 3 hr   | 🟡 Medium | Maintainability                         |
-| Convert `useRoadmap` → `useQueries` parallel fetch                       | 2 hr   | 🟡 Medium | Eliminates N+1, roadmap loads 3x faster |
-| Convert `useBlockExercises` fetch → `useQueries`                         | 2 hr   | 🟡 Medium | Exercise caching across blocks          |
-| Convert `useDedicatedPractice` → `useDedicatedExerciseQuery`             | 1 hr   | 🟢 Low    |                                         |
-| Convert `usePractice` → `useExercisesListQuery` + `useWeaknessTagsQuery` | 2 hr   | 🟡 Medium |                                         |
-| Convert `useLanguageSelection` fetch → `useLanguagesQuery`               | 1 hr   | 🟢 Low    |                                         |
-| Implement all 8 mutations (`useLogin`, `useRegister`, etc.)              | 4 hr   | 🟡 Medium | Structured error/success handling       |
-| Implement cache invalidation matrix                                      | 2 hr   | 🟡 Medium | Data consistency after mutations        |
-| Add route loaders with `prefetchQuery`                                   | 2 hr   | 🟡 Medium | Perceived performance improvement       |
-| Update lesson route loader to replace `lessonGuard.ts`                   | 1 hr   | 🟡 Medium | Eliminate redundant lesson fetch        |
-| Add `QueryErrorBoundary` per route                                       | 2 hr   | 🟢 Low    | Error UX                                |
-| Install Sonner + wire mutation toasts                                    | 1 hr   | 🟢 Low    | UX improvement                          |
+| Task                                                                     | Effort | Risk      | Benefit                                 | Status     |
+| ------------------------------------------------------------------------ | ------ | --------- | --------------------------------------- | ---------- |
+| Split `lib/axios.ts` — move API fns to feature `api/` dirs               | 3 hr   | 🟡 Medium | Maintainability                         | ✅ Done    |
+| Convert `useRoadmap` → `useQueries` parallel fetch                       | 2 hr   | 🟡 Medium | Eliminates N+1, roadmap loads 3x faster | ✅ Done    |
+| Convert `useBlockExercises` fetch → `useQueries`                         | 2 hr   | 🟡 Medium | Exercise caching across blocks          | ✅ Done    |
+| Convert `useDedicatedPractice` → `useDedicatedExerciseQuery`             | 1 hr   | 🟢 Low    |                                         | ✅ Done    |
+| Convert `usePractice` → `useExercisesListQuery` + `useWeaknessTagsQuery` | 2 hr   | 🟡 Medium |                                         | ✅ Done    |
+| Convert `useLanguageSelection` fetch → `useLanguagesQuery`               | 1 hr   | 🟢 Low    |                                         | ✅ Done    |
+| Implement all 8 mutations (`useLogin`, `useRegister`, etc.)              | 4 hr   | 🟡 Medium | Structured error/success handling       | ⏳ Pending |
+| Implement cache invalidation matrix                                      | 2 hr   | 🟡 Medium | Data consistency after mutations        | ⏳ Pending |
+| Add route loaders with `prefetchQuery`                                   | 2 hr   | 🟡 Medium | Perceived performance improvement       | ⏳ Pending |
+| Update lesson route loader to replace `lessonGuard.ts`                   | 1 hr   | 🟡 Medium | Eliminate redundant lesson fetch        | ✅ Done    |
+| Add `QueryErrorBoundary` per route                                       | 2 hr   | 🟢 Low    | Error UX                                | ⏳ Pending |
+| Install Sonner + wire mutation toasts                                    | 1 hr   | 🟢 Low    | UX improvement                          | ⏳ Pending |
 
 ---
 
-### Phase 3 — Advanced Optimization (Est. 3–5 days, 🟠 Medium-High Risk)
+### Phase 3 — Advanced Optimization (Est. 3–5 days, 🟠 Medium-High Risk) — ⏳ IN PROGRESS
 
 > Goal: Performance polish, developer tooling, test infrastructure.
 
-| Task                                                           | Effort | Risk      | Benefit                       |
-| -------------------------------------------------------------- | ------ | --------- | ----------------------------- |
-| Feynman history → `useFeynmanHistoryQuery` (complex merge)     | 4 hr   | 🟠 High   | Standardized loading + retry  |
-| Implement `useDebouncedValue` utility + refactor `usePractice` | 2 hr   | 🟡 Medium | Cleaner debounce              |
-| Extract all response types to `src/types/api/`                 | 2 hr   | 🟢 Low    | Maintainability               |
-| Slim down `AuthContext` — remove mutation fns                  | 2 hr   | 🟡 Medium | Context is read-only; simpler |
-| Add Zod schemas for API responses                              | 4 hr   | 🟡 Medium | Runtime safety                |
-| Wire up MSW for unit tests                                     | 3 hr   | 🟡 Medium | Test isolation                |
-| Write query hook tests with `renderHook` + MSW                 | 4 hr   | 🟡 Medium | Confidence                    |
-| Evaluate optimistic updates for exercise submit                | 2 hr   | 🟠 High   | UX (minor — backend is fast)  |
-| Enable `@tanstack/react-query-devtools` behind `DEV` flag      | 30 min | 🟢 None   | DX                            |
+| Task                                                           | Effort | Risk      | Benefit                       | Status     |
+| -------------------------------------------------------------- | ------ | --------- | ----------------------------- | ---------- |
+| Feynman history → `useFeynmanHistoryQuery` (complex merge)     | 4 hr   | 🟠 High   | Standardized loading + retry  | ⏳ Pending |
+| Implement `useDebouncedValue` utility + refactor `usePractice` | 2 hr   | 🟡 Medium | Cleaner debounce              | ⏳ Pending |
+| Extract all response types to `src/types/api/`                 | 2 hr   | 🟢 Low    | Maintainability               | ✅ Done    |
+| Slim down `AuthContext` — remove mutation fns                  | 2 hr   | 🟡 Medium | Context is read-only; simpler | ⏳ Pending |
+| Add Zod schemas for API responses                              | 4 hr   | 🟡 Medium | Runtime safety                | ⏳ Pending |
+| Wire up MSW for unit tests                                     | 3 hr   | 🟡 Medium | Test isolation                | ⏳ Pending |
+| Write query hook tests with `renderHook` + MSW                 | 4 hr   | 🟡 Medium | Confidence                    | ⏳ Pending |
+| Evaluate optimistic updates for exercise submit                | 2 hr   | 🟠 High   | UX (minor — backend is fast)  | ⏳ Pending |
+| Enable `@tanstack/react-query-devtools` behind `DEV` flag      | 30 min | 🟢 None   | DX                            | ✅ Done    |
 
 ---
 
@@ -1182,21 +1181,21 @@ Use `loader` for prefetching and **replace** `lessonGuard.ts` with `queryClient.
 
 ## Prioritized Action List
 
-| Priority | Action                                       | Effort | Impact                                         |
-| -------- | -------------------------------------------- | ------ | ---------------------------------------------- |
-| 1        | Install `@tanstack/react-query`              | 30 min | 🔴 Blocking all other work                     |
-| 2        | Create `queryClient.ts` + `queryKeys.ts`     | 1.5 hr | 🔴 Foundation                                  |
-| 3        | Wrap app in `<QueryClientProvider>`          | 30 min | 🔴 Blocking all other work                     |
-| 4        | Remove `console.log` in `useDashboard`       | 5 min  | 🟠 Production hygiene                          |
-| 5        | Convert `AuthContextProvider` → `useMeQuery` | 2 hr   | 🔴 3x duplicate call elimination               |
-| 6        | Update route guards to `ensureQueryData`     | 1 hr   | 🔴 Eliminates 2 more duplicate calls           |
-| 7        | Convert `useDashboard` → `useDashboardQuery` | 1 hr   | 🟠 Boilerplate + caching                       |
-| 8        | Convert `useBlockLessons` → `useLessonQuery` | 1 hr   | 🟠 Lesson cache for route preload              |
-| 9        | Update lesson route loader                   | 1 hr   | 🟠 Data already in cache when component mounts |
-| 10       | Convert `useRoadmap` → `useQueries` parallel | 2 hr   | 🟠 N+1 elimination                             |
-| 11       | Implement all 8 mutations with invalidation  | 4 hr   | 🟠 Data consistency                            |
-| 12       | Convert remaining 4 hooks to `useQuery`      | 4 hr   | 🟡 Consistency                                 |
-| 13       | Add error boundaries per route               | 2 hr   | 🟡 Error UX                                    |
-| 14       | Add Sonner + toast on mutations              | 1 hr   | 🟡 Feedback UX                                 |
-| 15       | Extract types from `lib/axios.ts`            | 2 hr   | 🟡 Maintainability                             |
-| 16       | Add Zod + MSW + query hook tests             | 8 hr   | 🟡 Confidence                                  |
+| Priority | Action                                       | Effort | Impact                                         | Status     |
+| -------- | -------------------------------------------- | ------ | ---------------------------------------------- | ---------- |
+| 1        | Install `@tanstack/react-query`              | 30 min | 🔴 Blocking all other work                     | ✅ Done    |
+| 2        | Create `queryClient.ts` + `queryKeys.ts`     | 1.5 hr | 🔴 Foundation                                  | ✅ Done    |
+| 3        | Wrap app in `<QueryClientProvider>`          | 30 min | 🔴 Blocking all other work                     | ✅ Done    |
+| 4        | Remove `console.log` in `useDashboard`       | 5 min  | 🟠 Production hygiene                          | ✅ Done    |
+| 5        | Convert `AuthContextProvider` → `useMeQuery` | 2 hr   | 🔴 3x duplicate call elimination               | ✅ Done    |
+| 6        | Update route guards to `ensureQueryData`     | 1 hr   | 🔴 Eliminates 2 more duplicate calls           | ✅ Done    |
+| 7        | Convert `useDashboard` → `useDashboardQuery` | 1 hr   | 🟠 Boilerplate + caching                       | ✅ Done    |
+| 8        | Convert `useBlockLessons` → `useLessonQuery` | 1 hr   | 🟠 Lesson cache for route preload              | ✅ Done    |
+| 9        | Update lesson route loader                   | 1 hr   | 🟠 Data already in cache when component mounts | ✅ Done    |
+| 10       | Convert `useRoadmap` → `useQueries` parallel | 2 hr   | 🟠 N+1 elimination                             | ✅ Done    |
+| 11       | Implement all 8 mutations with invalidation  | 4 hr   | 🟠 Data consistency                            | ⏳ Pending |
+| 12       | Convert remaining 4 hooks to `useQuery`      | 4 hr   | 🟡 Consistency                                 | ⏳ Pending |
+| 13       | Add error boundaries per route               | 2 hr   | 🟡 Error UX                                    | ⏳ Pending |
+| 14       | Add Sonner + toast on mutations              | 1 hr   | 🟡 Feedback UX                                 | ⏳ Pending |
+| 15       | Extract types from `lib/axios.ts`            | 2 hr   | 🟡 Maintainability                             | ✅ Done    |
+| 16       | Add Zod + MSW + query hook tests             | 8 hr   | 🟡 Confidence                                  | ⏳ Pending |

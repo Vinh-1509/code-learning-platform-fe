@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { QueryClient } from '@tanstack/react-query';
 
 // Mock TanStack redirect so it throws a trackable object instead of performing real navigation
 vi.mock('@tanstack/react-router', () => ({
@@ -11,6 +12,15 @@ vi.mock('@tanstack/react-router', () => ({
 // Mock the lesson API file/module where fetchLessonById lives
 vi.mock('@/features/lesson/api/lesson.api', () => ({
   fetchLessonById: vi.fn(),
+}));
+
+// Replace the global singleton with a test-scoped QueryClient (retry: false so errors propagate immediately)
+vi.mock('@/lib/queryClient', () => ({
+  queryClient: new QueryClient({
+    defaultOptions: {
+      queries: { retry: false, gcTime: 0 },
+    },
+  }),
 }));
 
 import { requireAccessibleLesson } from '@/lib/lessonGuard';
@@ -32,7 +42,7 @@ describe('requireAccessibleLesson()', () => {
         { id: 'b1', status: 'completed' },
         { id: 'b2', status: 'locked' },
       ],
-    } as unknown as LessonDetailResponse; // <-- Type cast here to satisfy TS
+    } as unknown as LessonDetailResponse;
 
     vi.mocked(fetchLessonById).mockResolvedValueOnce(mockLesson);
 

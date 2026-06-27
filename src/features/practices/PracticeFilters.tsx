@@ -56,7 +56,6 @@ export function PracticeFilters({
             value={sortBy}
             onChange={(e) => onSortChange(e.target.value)}
           >
-            {/* FIXED: Bỏ chữ Weakness First thừa thãi, đổi sang option sort độ khó thực tế */}
             <option value="default">Default</option>
             <option value="level-asc">Difficulty: Easy to Hard</option>
             <option value="level-desc">Difficulty: Hard to Easy</option>
