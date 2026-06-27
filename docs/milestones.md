@@ -49,4 +49,24 @@ Milestone 3 được chia thành 2 giai đoạn chính:
 
 **Milestone 4 (21/06 - 28/06): User Feedback**
 
+Thực hiện khảo sát dùng thử với người dùng thật thuộc nhóm đối tượng mục tiêu của sản phẩm. Cụ thể:
+
+- Thu thập feedback về trải nghiệm sử dụng, tính năng, UI/UX và các vấn đề gặp phải.
+- Tổng hợp và phân tích feedback để rút ra các insight quan trọng.
+- Thực hiện các thay đổi/cải tiến dựa trên feedback đã thu thập. Ưu tiên các vấn đề dựa trên mức độ ảnh hưởng đến người dùng.
+- Cung cấp minh chứng cho quá trình thu thập feedback người dùng (ảnh, ghi chú, form khảo sát,...), và các cải tiến đã thực hiện (before/after, demo, commit,...) bằng báo cáo cuối Milestone.
+
+⚠️ Lưu ý:
+
+- Người dùng phải sử dụng MVP đã được deploy thành công ở Milestone 3.
+- Bài khảo sát phải yêu cầu người dùng sử dụng toàn bộ tính năng hiện có của MVP, tối thiểu gồm 1 tính năng/flow học tập hoàn chỉnh (Code Learning Platform), và 1 tính năng - AI cá nhân hóa quá trình học tập (Personalized).
+- Có thể khảo sát người dùng bằng nhiều hình thức khác nhau (trực tiếp có quay video hoặc ghi âm, gián tiếp thông qua form khảo sát,...)
+
+Thông tin khác:
+
+- Các nhóm tiếp tục cải thiện MVP của dự án, đồng thời liên tục thực hiện việc kiểm thử và deploy song song với bài khảo sát (tận dụng CI/CD).
+- Lưu lại change log, version sau mỗi lần deploy, nắm rõ người dùng đang dùng thử (và feedback) version nào, điều chỉnh nội dung/kết quả khảo sát tương ứng để tránh việc phát triển MVP làm ảnh hưởng đến khảo sát. Việc cải thiện MVP sẽ dừng lại khi BTC có thông báo mới.
+
+📌 Chung kết DemoDay sẽ diễn ra vào Thứ 7 ngày 25/7/2026.
+
 **Milestone 5 (28/06 - 12/07): Prepare presentation for DemoDay**
