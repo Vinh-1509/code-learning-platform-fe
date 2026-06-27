@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 
+import { queryClient } from '@/lib/queryClient';
 import { queryKeys } from '@/lib/queryKeys';
 import {
   fetchLanguages,
@@ -19,18 +20,22 @@ export function useLanguageSelection() {
   const navigate = useNavigate();
 
   // ── Fetch available languages ─────────────────────────────────────────────
+  // staleTime: Infinity because language options are static — they never
+  // change between sessions.
   const { data: languages = [], isLoading: fetching } = useQuery<
     LanguageOption[]
   >({
     queryKey: queryKeys.languages.list(),
     queryFn: fetchLanguages,
     staleTime: Infinity,
-    gcTime: 60 * 60_000, // 1 hour — language list is effectively static
+    gcTime: 60 * 60_000,
   });
 
+  // ── Local UI state ────────────────────────────────────────────────────────
   const [selected, setSelected] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
+  // ── Confirm selection ─────────────────────────────────────────────────────
   const handleConfirm = async () => {
     if (!selected) return;
 
@@ -40,6 +45,14 @@ export function useLanguageSelection() {
     setSaving(true);
     try {
       await saveLanguage(selectedLanguage.language);
+
+      // Invalidate auth.me BEFORE navigating so the dashboard route guard
+      // (requireAuth → queryClient.ensureQueryData) fetches fresh user data
+      // that includes the newly saved selectedLanguage.
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.auth.me(),
+      });
+
       void navigate({ to: '/dashboard' });
     } finally {
       setSaving(false);
