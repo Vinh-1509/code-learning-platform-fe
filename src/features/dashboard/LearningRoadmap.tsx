@@ -47,44 +47,27 @@ interface LessonItemProps {
  * @returns {JSX.Element} The rendered LessonItem.
  */
 function LessonItem({ lesson, onStart }: LessonItemProps) {
-  const showStartButton = lesson.status !== 'locked';
-  const startButtonLabel = lesson.status === 'completed' ? 'Continue' : 'Start';
-
-  const startButton = showStartButton ? (
-    <Button
-      type="button"
-      onClick={onStart}
-      className="bg-primary hover:bg-primary/90 text-white px-4 h-7 text-xs rounded-md shadow-sm font-semibold transition-all duration-200"
-    >
-      {startButtonLabel}
-    </Button>
-  ) : null;
-
   return (
     <div
+      onClick={lesson.status !== 'locked' ? onStart : undefined}
       className={cn(
-        'flex items-center justify-between p-4 border rounded-xl transition-all duration-200',
+        'flex items-center gap-2.5 sm:gap-3 p-3 sm:p-4 border rounded-xl transition-all duration-200',
         lesson.status === 'completed'
-          ? 'bg-green-mint/20 border-green-mint/40'
+          ? 'bg-green-mint/20 border-green-mint/40 hover:bg-green-mint/30 hover:border-green-mint/60 hover:scale-[1.01] hover:shadow-sm active:scale-[0.995] cursor-pointer'
           : lesson.status === 'active'
-            ? 'bg-primary-second/20 border-primary-second-border/40 shadow-sm'
+            ? 'bg-primary-second/20 border-primary-second-border/40 shadow-sm hover:bg-primary-second/35 hover:border-primary-second-border/60 hover:scale-[1.01] hover:shadow-md active:scale-[0.995] cursor-pointer'
             : 'bg-muted/40 border-border/60 opacity-80'
       )}
     >
-      <div className="flex items-center gap-3">
-        <LessonIcon status={lesson.status} />
-        <span
-          className={cn(
-            'text-sm font-medium',
-            lesson.status === 'locked'
-              ? 'text-muted-foreground'
-              : 'text-foreground'
-          )}
-        >
-          {lesson.name}
-        </span>
-      </div>
-      {startButton}
+      <LessonIcon status={lesson.status} />
+      <span
+        className={cn(
+          'text-xs sm:text-sm font-semibold tracking-tight',
+          lesson.status === 'locked' ? 'text-slate-400' : 'text-slate-700'
+        )}
+      >
+        {lesson.name}
+      </span>
     </div>
   );
 }
@@ -123,20 +106,20 @@ function ModuleItem({
     switch (status) {
       case 'completed':
         return (
-          <span className="text-[10px] uppercase font-bold text-green-foreground bg-green-mint px-2.5 py-0.5 rounded-full border border-green-mint/30">
+          <span className="text-[9px] sm:text-[10px] uppercase font-bold text-green-foreground bg-green-mint px-2 py-0.5 rounded-full border border-green-mint/30 shrink-0">
             Done
           </span>
         );
       case 'active':
         return (
-          <span className="text-[10px] uppercase font-bold text-primary bg-primary-second px-2.5 py-0.5 rounded-full border border-primary-second-border/30">
+          <span className="text-[9px] sm:text-[10px] uppercase font-bold text-primary bg-primary-second px-2 py-0.5 rounded-full border border-primary-second-border/30 shrink-0">
             Active
           </span>
         );
       case 'locked':
       default:
         return (
-          <span className="text-[10px] uppercase font-bold text-muted-foreground bg-muted px-2.5 py-0.5 rounded-full border border-border/30">
+          <span className="text-[9px] sm:text-[10px] uppercase font-bold text-muted-foreground bg-muted px-2 py-0.5 rounded-full border border-border/30 shrink-0">
             Locked
           </span>
         );
@@ -148,11 +131,11 @@ function ModuleItem({
   ));
 
   return (
-    <div className="flex gap-4">
-      <div className="flex flex-col items-center w-9 shrink-0">
+    <div className="flex gap-3 sm:gap-4">
+      <div className="flex flex-col items-center w-8 sm:w-9 shrink-0">
         <div
           className={cn(
-            'size-9 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300',
+            'size-8 sm:size-9 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold transition-all duration-300',
             module.status === 'completed'
               ? 'bg-success text-white shadow-sm shadow-success/10'
               : module.status === 'active'
@@ -172,12 +155,12 @@ function ModuleItem({
         )}
       </div>
 
-      <div className="flex-1 pb-6">
+      <div className="flex-1 pb-5 sm:pb-6 min-w-0">
         <Button
           variant="ghost"
           onClick={onToggle}
           className={cn(
-            'w-full flex items-center justify-between p-4 border rounded-xl text-left transition-all h-auto text-foreground shadow-sm font-normal cursor-pointer hover:shadow-md duration-200 whitespace-normal',
+            'w-full flex items-center justify-between p-3.5 sm:p-4 border rounded-xl text-left transition-all h-auto text-foreground shadow-sm font-normal cursor-pointer hover:shadow-md duration-200 whitespace-normal',
             module.status === 'active'
               ? 'bg-primary-second/30 border-primary-second-border hover:bg-primary-second/50'
               : module.status === 'completed'
@@ -185,21 +168,23 @@ function ModuleItem({
                 : 'bg-muted/50 border-border/50 hover:bg-muted/30 opacity-70'
           )}
         >
-          <div className="flex flex-wrap items-center gap-2 min-w-0 mr-2">
-            <span className="font-semibold text-foreground">{module.name}</span>
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 min-w-0 mr-2">
+            <span className="font-extrabold text-sm sm:text-base text-slate-800 tracking-tight">
+              {module.name}
+            </span>
             {getStatusBadge(module.status)}
           </div>
           {isExpanded ? (
-            <ChevronUp className="text-muted-foreground shrink-0" />
+            <ChevronUp className="text-muted-foreground shrink-0 size-4 sm:size-5" />
           ) : (
-            <ChevronDown className="text-muted-foreground shrink-0" />
+            <ChevronDown className="text-muted-foreground shrink-0 size-4 sm:size-5" />
           )}
         </Button>
 
         {isExpanded && (
-          <div className="mt-4 space-y-3 animate-in slide-in-from-top-2 duration-200">
+          <div className="mt-3.5 sm:mt-4 space-y-2.5 sm:space-y-3 animate-in slide-in-from-top-2 duration-200">
             {lessonItems}
-            <div className="h-1.5 bg-muted rounded-full overflow-hidden mt-4 border border-border/60">
+            <div className="h-1.5 bg-muted rounded-full overflow-hidden mt-3.5 sm:mt-4 border border-border/60">
               <div
                 className={cn(
                   'h-full transition-all duration-500',
@@ -259,7 +244,7 @@ export function LearningRoadmap({
   ));
 
   return (
-    <Card className="bg-card border border-border shadow-md p-6 rounded-2xl">
+    <Card className="bg-card border border-border shadow-md p-4 sm:p-6 rounded-2xl">
       <CardContent className="p-0">
         <div className="flex items-center gap-3 mb-6">
           <div className="p-2 rounded-xl bg-primary-second text-primary shadow-sm">

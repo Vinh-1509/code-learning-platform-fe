@@ -85,7 +85,7 @@ describe('LearningRoadmap', () => {
       />
     );
 
-    await user.click(screen.getByRole('button', { name: 'Start' }));
+    await user.click(screen.getByText('Intro to Loops'));
     expect(handleStartLesson).toHaveBeenCalledWith('lesson-1');
   });
 });
