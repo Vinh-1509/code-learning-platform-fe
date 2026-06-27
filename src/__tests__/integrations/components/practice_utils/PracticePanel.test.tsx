@@ -9,9 +9,11 @@ import {
   fillBlankExerciseFixture,
 } from '../../../fixtures/practiceExercises';
 
-import * as api from '@/lib/axios';
+import * as api from '@/features/lesson/api/exercise.api';
 
-vi.spyOn(api, 'getExerciseHistory');
+vi.mock('@/features/lesson/api/exercise.api', () => ({
+  getExerciseHistory: vi.fn(),
+}));
 
 describe('PracticePanel', () => {
   beforeEach(() => {

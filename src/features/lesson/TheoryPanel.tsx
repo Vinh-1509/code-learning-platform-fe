@@ -1,4 +1,4 @@
-import type { Block, ContentItem } from '@/lib/axios';
+import type { Block, ContentItem } from '@/types/api/learning.types';
 import { CodeEditor } from '@/components/ui/CodeEditor';
 import { Separator } from '@/components/ui/separator';
 

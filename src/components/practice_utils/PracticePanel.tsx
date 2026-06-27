@@ -11,8 +11,8 @@ import type {
   SubmitAnswerResponse,
   HintResponse,
   ExplainAnswerResponse,
-} from '@/lib/axios';
-import { getExerciseHistory } from '@/lib/axios';
+} from '@/types/api/exercise.types';
+import { getExerciseHistory } from '@/features/lesson/api/exercise.api';
 import { prepareAnswerForSubmission } from '../practice_utils/utils/exercise.converter';
 
 interface PracticePanelProps {

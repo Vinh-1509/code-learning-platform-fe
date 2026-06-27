@@ -1,38 +1,21 @@
-import { useState, useEffect } from 'react';
-import { fetchDashboardData, type DashboardResponse } from '@/lib/axios';
+import { useQuery } from '@tanstack/react-query';
+import { queryKeys } from '@/lib/queryKeys';
+import { fetchDashboardData } from '@/features/dashboard/api/dashboard.api';
 
 /**
- * Custom hook to handle fetching and state management for the user dashboard data.
+ * Handles fetching and state management for the user dashboard data.
+ * Upgraded to TanStack Query for optimal caching and performance.
  */
 export function useDashboardData() {
-  const [dashboardData, setDashboardData] = useState<DashboardResponse | null>(
-    null
-  );
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function getDetails() {
-      try {
-        setLoading(true);
-        const data = await fetchDashboardData();
-        console.log('dashboard payload:', data); // ← add this
-        setDashboardData(data);
-        setError(null);
-      } catch (err) {
-        console.error('Error fetching dashboard data:', err);
-        setError('Failed to load dashboard statistics.');
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    void getDetails();
-  }, []);
+  const { data, isLoading, error } = useQuery({
+    queryKey: queryKeys.dashboard.data(),
+    queryFn: fetchDashboardData,
+    staleTime: 60_000,
+  });
 
   return {
-    dashboardData,
-    loading,
-    error,
+    dashboardData: data ?? null,
+    loading: isLoading,
+    error: error ? 'Failed to load dashboard statistics.' : null,
   };
 }

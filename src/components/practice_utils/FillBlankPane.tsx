@@ -1,4 +1,4 @@
-import type { ExplainAnswerResponse } from '@/lib/axios';
+import type { ExplainAnswerResponse } from '@/types/api/exercise.types';
 import { CodeEditor } from '@/components/ui/CodeEditor';
 
 import type { BlankLine } from './types/practiceTypes';

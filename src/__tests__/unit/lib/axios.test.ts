@@ -3,24 +3,29 @@ import { http, HttpResponse } from 'msw';
 
 import { server } from '../../mocks/server';
 
+import { loginUser, registerUser, getMe } from '@/features/auth/api/auth.api';
 import {
-  loginUser,
-  registerUser,
-  getMe,
   fetchLanguages,
   saveLanguage,
-  fetchMilestones,
-  fetchLessonsByMilestone,
-  fetchLessonById,
+} from '@/features/language_selection/api/languages.api';
+import { fetchLessonById } from '@/features/lesson/api/lesson.api';
+import {
   fetchExerciseById,
   submitExerciseAnswer,
   getExerciseHint,
   getExerciseHistory,
   explainExerciseAnswer,
+} from '@/features/lesson/api/exercise.api';
+import {
   fetchWeaknessTags,
   fetchExercises,
+} from '@/features/practices/api/practice.api';
+import {
+  fetchMilestones,
+  fetchLessonsByMilestone,
   fetchDashboardData,
-} from '@/lib/axios';
+} from '@/features/dashboard/api/dashboard.api';
+import type { LanguageOption } from '@/types/languageSelection';
 
 describe('axios.ts — auth wrapper functions', () => {
   it('loginUser posts credentials and returns the access token', async () => {
@@ -55,7 +60,7 @@ describe('axios.ts — language selection wrapper functions', () => {
 
     expect(result).toHaveLength(2);
 
-    const cpp = result.find((item) => item.language === 'C++');
+    const cpp = result.find((item: LanguageOption) => item.language === 'C++');
     expect(cpp).toBeDefined();
     expect(cpp).toMatchObject({
       id: 'lang-cpp',
@@ -67,7 +72,9 @@ describe('axios.ts — language selection wrapper functions', () => {
     // Language-specific color mapping logic in the wrapper
     expect(cpp?.color.background).toBe('bg-purple-cpp');
 
-    const java = result.find((item) => item.language === 'Java');
+    const java = result.find(
+      (item: LanguageOption) => item.language === 'Java'
+    );
     expect(java?.color.background).toBe('bg-orange-jv');
   });
 

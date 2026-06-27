@@ -4,7 +4,7 @@ import { http, HttpResponse } from 'msw';
 
 import { server } from '../../mocks/server';
 import { useBlockExercises } from '@/features/lesson/useBlockExercises';
-import type { Block, ContentItem } from '@/lib/axios';
+import type { Block, ContentItem } from '@/types/api/learning.types';
 
 // ── Mock Helpers ──
 

@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { Play, AlertTriangle, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { Exercise } from '@/lib/axios';
+import type { Exercise } from '@/types/api/exercise.types';
 
 // Định nghĩa màu sắc đồng bộ hoàn toàn với bộ màu của ExerciseCard ở dưới
 const difficultyStyles: Record<string, string> = {

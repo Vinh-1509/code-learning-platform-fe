@@ -10,13 +10,16 @@ vi.mock('@tanstack/react-router', () => ({
 }));
 
 // Mock the API layer functions
-vi.mock('@/lib/axios', () => ({
+vi.mock('@/features/language_selection/api/languages.api', () => ({
   fetchLanguages: vi.fn(),
   saveLanguage: vi.fn(),
 }));
 
 import { useLanguageSelection } from '@/features/language_selection/useLanguageSelection';
-import { fetchLanguages, saveLanguage } from '@/lib/axios';
+import {
+  fetchLanguages,
+  saveLanguage,
+} from '@/features/language_selection/api/languages.api';
 import type { LanguageOption } from '@/types/languageSelection';
 
 describe('useLanguageSelection()', () => {

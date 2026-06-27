@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 
 import { ExerciseCard } from '@/features/practices/ExerciseCard';
-import type { Exercise } from '@/lib/axios';
+import type { Exercise } from '@/types/api/exercise.types';
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 

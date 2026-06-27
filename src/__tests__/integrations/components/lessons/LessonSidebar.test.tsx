@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { LessonSidebar } from '@/features/lesson/LessonSidebar';
-import type { Block } from '@/lib/axios';
+import type { Block } from '@/types/api/learning.types';
 
 // ── Mock Data ──
 

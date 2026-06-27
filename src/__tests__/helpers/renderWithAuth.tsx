@@ -8,6 +8,7 @@ import {
   createMemoryHistory,
   Outlet,
 } from '@tanstack/react-router';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { AuthProvider } from '@/features/auth/AuthContextProvider';
 
@@ -64,8 +65,22 @@ export async function renderWithAuth(
 
   await router.load();
 
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+        gcTime: 0,
+      },
+    },
+  });
+
   return {
-    ...render(<RouterProvider router={router} />),
+    ...render(
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
+    ),
     router,
+    queryClient,
   };
 }

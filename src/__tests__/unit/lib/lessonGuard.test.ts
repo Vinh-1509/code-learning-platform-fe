@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { QueryClient } from '@tanstack/react-query';
 
 // Mock TanStack redirect so it throws a trackable object instead of performing real navigation
 vi.mock('@tanstack/react-router', () => ({
@@ -8,18 +9,26 @@ vi.mock('@tanstack/react-router', () => ({
   })),
 }));
 
-// Mock the axios file/module where fetchLessonById lives
-vi.mock('@/lib/axios', () => ({
+// Mock the lesson API file/module where fetchLessonById lives
+vi.mock('@/features/lesson/api/lesson.api', () => ({
   fetchLessonById: vi.fn(),
 }));
 
+// Replace the global singleton with a test-scoped QueryClient (retry: false so errors propagate immediately)
+vi.mock('@/lib/queryClient', () => ({
+  queryClient: new QueryClient({
+    defaultOptions: {
+      queries: { retry: false, gcTime: 0 },
+    },
+  }),
+}));
+
 import { requireAccessibleLesson } from '@/lib/lessonGuard';
-import { fetchLessonById } from '@/lib/axios';
+import { fetchLessonById } from '@/features/lesson/api/lesson.api';
 import { redirect } from '@tanstack/react-router';
 
-// Import the actual type from your axios file or types definitions
-// (Adjust the import path below if it lives in a separate types file)
-import type { LessonDetailResponse } from '@/lib/axios';
+// Import the actual type from types definitions
+import type { LessonDetailResponse } from '@/types/api/learning.types';
 
 describe('requireAccessibleLesson()', () => {
   beforeEach(() => {
@@ -33,7 +42,7 @@ describe('requireAccessibleLesson()', () => {
         { id: 'b1', status: 'completed' },
         { id: 'b2', status: 'locked' },
       ],
-    } as unknown as LessonDetailResponse; // <-- Type cast here to satisfy TS
+    } as unknown as LessonDetailResponse;
 
     vi.mocked(fetchLessonById).mockResolvedValueOnce(mockLesson);
 

@@ -1,6 +1,14 @@
-import { useState, useEffect } from 'react';
-import { fetchMilestones, fetchLessonsByMilestone } from '../../lib/axios';
-import type { MilestoneResponse, LessonResponse } from '../../lib/axios';
+import { useState, useMemo } from 'react';
+import { useQuery, useQueries } from '@tanstack/react-query';
+import { queryKeys } from '@/lib/queryKeys';
+import {
+  fetchMilestones,
+  fetchLessonsByMilestone,
+} from '@/features/dashboard/api/dashboard.api';
+import type {
+  MilestoneResponse,
+  LessonResponse,
+} from '@/types/api/learning.types';
 import { useStartLesson } from '@/features/dashboard/useStartLesson';
 
 export type LessonStatus = 'active' | 'completed' | 'locked';
@@ -49,7 +57,11 @@ export function getCurrentLesson(modules: Module[]): CurrentLessonInfo | null {
 
 /**
  * useRoadmap is a custom React hook that manages data fetching and expansion state for the dashboard learning roadmap.
- * Handles fetching milestones and their lessons from the API and sorting them to construct modules.
+ *
+ * Upgraded to TanStack Query:
+ *  - useMilestonesQuery: fetches the list of milestones (staleTime: 2 min).
+ *  - useQueries (parallel): once milestone IDs are known, fires all lesson requests
+ *    simultaneously instead of sequentially — eliminating the N+1 problem.
  *
  * @returns {Object} State and handler functions:
  *   - modules: Array of sorted module data structures.
@@ -57,51 +69,59 @@ export function getCurrentLesson(modules: Module[]): CurrentLessonInfo | null {
  *   - toggleModule: Function to toggle a module's accordion expansion state.
  *   - handleStartLesson: Callback trigger when starting/resuming a lesson.
  *   - currentLesson: Shortcut info of the user's active lesson.
- *   - loading: Boolean indicating if fetch queries are active.
+ *   - loading: Boolean indicating if any fetch queries are still in-flight.
  */
 export function useRoadmap() {
-  const [modules, setModules] = useState<Module[]>([]);
   const [expandedModules, setExpandedModules] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
   const startLesson = useStartLesson();
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        setLoading(true);
-        const milestones = await fetchMilestones();
+  // ── Step 1: Fetch the milestone list ──────────────────────────────────────
+  const { data: milestones = [], isLoading: milestonesLoading } = useQuery({
+    queryKey: queryKeys.milestones.list(),
+    queryFn: fetchMilestones,
+    staleTime: 2 * 60_000,
+    gcTime: 10 * 60_000,
+  });
 
-        const data: Module[] = await Promise.all(
-          milestones.map(async (m: MilestoneResponse) => {
-            const lessons = await fetchLessonsByMilestone(m._id);
+  // ── Step 2: Parallel-fetch lessons for every milestone ────────────────────
+  // useQueries fires all requests concurrently; each result is independently cached.
+  const lessonQueries = useQueries({
+    queries: milestones.map((milestone: MilestoneResponse) => ({
+      queryKey: queryKeys.milestones.lessons(milestone._id),
+      queryFn: () => fetchLessonsByMilestone(milestone._id),
+      staleTime: 2 * 60_000,
+      gcTime: 10 * 60_000,
+    })),
+  });
 
-            return {
-              id: m._id,
-              name: m.title,
-              status: m.progress.status,
-              progress: m.progress.completionPercentage,
-              lessons: lessons.map((l: LessonResponse) => ({
-                id: l._id,
-                name: l.title,
-                status: l.progress.status,
-              })),
-            };
-          })
-        );
+  const lessonsLoading = lessonQueries.some((q) => q.isLoading);
+  const loading = milestonesLoading || lessonsLoading;
 
-        setModules(
-          data.sort((a: Module, b: Module) => a.id.localeCompare(b.id))
-        );
-      } catch (error) {
-        console.error('Lỗi:', error);
-      } finally {
-        setLoading(false);
+  // ── Step 3: Combine milestones + lesson results into Module[] ─────────────
+  const modules = useMemo<Module[]>(() => {
+    if (milestones.length === 0) return [];
+
+    const assembled = milestones.map(
+      (m: MilestoneResponse, index: number): Module => {
+        const lessonsData: LessonResponse[] = lessonQueries[index]?.data ?? [];
+        return {
+          id: m._id,
+          name: m.title,
+          status: m.progress.status,
+          progress: m.progress.completionPercentage,
+          lessons: lessonsData.map((l: LessonResponse) => ({
+            id: l._id,
+            name: l.title,
+            status: l.progress.status,
+          })),
+        };
       }
-    }
+    );
 
-    void loadData();
-  }, []);
+    return assembled.sort((a: Module, b: Module) => a.id.localeCompare(b.id));
+  }, [milestones, lessonQueries]);
 
+  // ── Step 4: UI state handlers (unchanged) ─────────────────────────────────
   const toggleModule = (id: string) => {
     setExpandedModules((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]

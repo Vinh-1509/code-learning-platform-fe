@@ -3,7 +3,7 @@ import { useBlockLessons } from './useBlockLessons';
 import { LessonSidebar } from './LessonSidebar';
 import { TheoryPanel } from './TheoryPanel';
 import { useState, useEffect } from 'react';
-import type { Block } from '@/lib/axios';
+import type { Block } from '@/types/api/learning.types';
 import { PracticePanel } from '@/components/practice_utils/PracticePanel';
 import { FeynmanInterviewPane } from '../interview/FeynmanInterviewPane';
 import Navbar from '@/components/navbar/Navbar';

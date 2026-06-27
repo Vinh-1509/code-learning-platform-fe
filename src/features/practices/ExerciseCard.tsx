@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { CheckCircle2, Lock, AlertTriangle } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
-import type { Exercise } from '@/lib/axios';
+import type { Exercise } from '@/types/api/exercise.types';
 
 const difficultyStyles: Record<string, string> = {
   easy: 'text-green-700 bg-green-50 border border-green-200/60',

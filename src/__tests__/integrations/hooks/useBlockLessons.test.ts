@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { useBlockLessons } from '@/features/lesson/useBlockLessons';
-import { fetchLessonById } from '@/lib/axios';
-import type { LessonDetailResponse } from '@/lib/axios';
+import { fetchLessonById } from '@/features/lesson/api/lesson.api';
+import type { LessonDetailResponse } from '@/types/api/learning.types';
 
-// Mock the axios API layer module
-vi.mock('@/lib/axios', () => ({
+// Mock the lesson API layer module
+vi.mock('@/features/lesson/api/lesson.api', () => ({
   fetchLessonById: vi.fn(),
 }));
 

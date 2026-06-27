@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
 
 // Mock the API calls
-vi.mock('@/lib/axios', () => ({
+vi.mock('@/features/lesson/api/exercise.api', () => ({
   fetchExerciseById: vi.fn(),
   submitExerciseAnswer: vi.fn(),
   getExerciseHint: vi.fn(),
@@ -20,13 +20,13 @@ import {
   submitExerciseAnswer,
   getExerciseHint,
   explainExerciseAnswer,
-} from '@/lib/axios';
+} from '@/features/lesson/api/exercise.api';
 import { convertExerciseResponse } from '@/components/practice_utils/utils/exercise.converter';
 import type {
   ExerciseResponse,
   HintResponse,
   ExplainAnswerResponse,
-} from '@/lib/axios';
+} from '@/types/api/exercise.types';
 import type { PracticeExercise } from '@/components/practice_utils/types/practiceTypes';
 
 describe('useDedicatedPractice()', () => {

@@ -1,4 +1,4 @@
-import type { ExplainAnswerResponse } from '@/lib/axios';
+import type { ExplainAnswerResponse } from '@/types/api/exercise.types';
 
 import type { DraggableBlock } from './types/practiceTypes';
 import type { ExplanationStatus } from './types/asyncTypes';
