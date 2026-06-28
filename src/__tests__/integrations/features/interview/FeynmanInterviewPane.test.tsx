@@ -26,6 +26,7 @@ const BLOCK_COMPLETE_403_MSG =
 
 const defaultProps = {
   lessonBlockId: 'block-test',
+  lessonId: 'lesson-test',
   onComplete: vi.fn(),
   onNextBlock: vi.fn(),
   onBackToDashboard: vi.fn(),

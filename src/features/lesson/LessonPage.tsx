@@ -142,6 +142,7 @@ export function LessonPage() {
                     return (
                       <FeynmanInterviewPane
                         lessonBlockId={activeBlockId}
+                        lessonId={lessonId}
                         onComplete={() => {
                           if (activeBlockId) {
                             setSelectedBlockId(activeBlockId);

@@ -72,7 +72,7 @@ export function useFeynmanSession(lessonBlockId: string) {
 /**
  * Custom hook managing structural transactional updates for ongoing Feynman chat instances.
  */
-export function useSendFeynmanMessage(lessonBlockId: string) {
+export function useSendFeynmanMessage(lessonBlockId: string, lessonId: string) {
   const queryClient = useQueryClient();
 
   return useMutation<
@@ -82,6 +82,7 @@ export function useSendFeynmanMessage(lessonBlockId: string) {
   >({
     mutationFn: ({ content }) => sendFeynmanMessage(lessonBlockId, content),
     onSuccess: (result, variables) => {
+      // ── Always: write new messages directly into cache (no refetch needed) ──
       const historyKey = queryKeys.feynman.history(lessonBlockId);
       const previousSession =
         queryClient.getQueryData<ValidatedSessionCache>(historyKey);
@@ -105,10 +106,26 @@ export function useSendFeynmanMessage(lessonBlockId: string) {
         });
       }
 
-      void queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all });
+      // ── Always: stats sidebar may have changed ────────────────────────────
       void queryClient.invalidateQueries({
         queryKey: queryKeys.feynman.stats(lessonBlockId),
       });
+
+      // ── On pass only: lesson block status, roadmap progress, and dashboard ─
+      if (result.isPassed) {
+        // Block status changed from active → completed on the lesson
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.lessons.detail(lessonId),
+        });
+        // Milestone completion percentage and status may have changed
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.milestones.all,
+        });
+        // Dashboard stats (lessons learned counter) are now stale
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.dashboard.all,
+        });
+      }
     },
   });
 }

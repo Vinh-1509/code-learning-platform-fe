@@ -21,6 +21,7 @@ interface HintPayload {
   level?: number;
 }
 
+// useExerciseMutations.ts
 export function useSubmitAnswer(
   onSuccessCallback: (exerciseId: string, result: SubmitAnswerResponse) => void
 ) {
@@ -30,9 +31,24 @@ export function useSubmitAnswer(
     mutationFn: ({ exerciseId, answer }) =>
       submitExerciseAnswer(exerciseId, answer),
     onSuccess: (data, variables) => {
-      // Invalidate dashboard or milestones if a submission might alter high-level progress tracking
-      void queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all });
-      onSuccessCallback(variables.exerciseId, data);
+      const { exerciseId } = variables;
+
+      // Always: attempt history and weakness failure rates are stale after any submission
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.exercises.history(exerciseId),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.tags.weakness(),
+      });
+
+      // Only on correct: dashboard stats (lessons learned, problems solved) change
+      if (data.correct) {
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.dashboard.all,
+        });
+      }
+
+      onSuccessCallback(exerciseId, data);
     },
   });
 }

@@ -1,31 +1,7 @@
-import { useEffect, useState } from 'react';
-
-import { getMe } from '@/features/auth/api/auth.api';
+import { useAuth } from '@/features/auth/useAuth';
 
 export function useSidebarLanguage() {
-  const [languageLabel, setLanguageLabel] = useState('');
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadLanguage = async () => {
-      try {
-        const user = await getMe();
-        if (!isMounted) return;
-
-        setLanguageLabel(user.selectedLanguage?.join(', ') || 'Your Language');
-      } catch {
-        if (!isMounted) return;
-        setLanguageLabel('Your Language');
-      }
-    };
-
-    void loadLanguage();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
+  const { user } = useAuth();
+  const languageLabel = user?.selectedLanguage?.join(', ') || 'Your Language';
   return { languageLabel };
 }

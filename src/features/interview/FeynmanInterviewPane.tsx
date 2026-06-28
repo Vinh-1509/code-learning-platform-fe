@@ -12,6 +12,7 @@ import type { FeynmanInterviewProps } from './feynmanTypes';
 
 export function FeynmanInterviewPane({
   lessonBlockId,
+  lessonId,
   onComplete,
   onNextBlock,
   hasNextBlock,
@@ -29,7 +30,7 @@ export function FeynmanInterviewPane({
   } = useFeynmanSession(lessonBlockId);
 
   const { mutateAsync: sendMessage, isPending: isLoading } =
-    useSendFeynmanMessage(lessonBlockId);
+    useSendFeynmanMessage(lessonBlockId, lessonId);
 
   // Direct extraction avoids state sync discrepancies or unexpected UI shifts
   const messages = useMemo(
