@@ -10,9 +10,11 @@ import {
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Mail, Lock, Check, ArrowRight, Eye, EyeOff } from 'lucide-react';
+// Import the strongly-typed credential configuration from your auth architecture types
+import type { AuthPayload } from '@/types/auth';
 
 interface SignUpFormProps {
-  onSubmit: (data: { email: string; password: string }) => Promise<void>;
+  onSubmit: (data: AuthPayload) => void | Promise<unknown>;
   loading?: boolean;
   error?: string | null;
 }
@@ -67,10 +69,10 @@ export function SignUpForm({ onSubmit, loading, error }: SignUpFormProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!isPasswordMatching) return;
-    if (!isPasswordValid) return;
+    if (!isPasswordMatching || !isPasswordValid) return;
 
-    const payload = {
+    // Constructed payload strictly matches the required RegisterPayload entity fields
+    const payload: AuthPayload = {
       email: formData.email,
       password: formData.password,
     };
@@ -269,7 +271,7 @@ export function SignUpForm({ onSubmit, loading, error }: SignUpFormProps) {
             </div>
 
             {formData.confirmPassword.length > 0 && !isPasswordMatching && (
-              <p className="text-xs font-semibold text-red-foreground mt-1">
+              <p className="text-xs font-semibold text-slate-600 mt-1">
                 Mật khẩu không khớp
               </p>
             )}

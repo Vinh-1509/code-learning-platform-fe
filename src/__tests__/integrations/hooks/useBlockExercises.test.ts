@@ -3,7 +3,7 @@ import { renderHook, waitFor, act } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 
 import { server } from '../../mocks/server';
-import { useBlockExercises } from '@/features/lesson/useBlockExercises';
+import { useBlockExercises } from '@/features/lesson/hooks/useBlockExercises';
 import type { Block, ContentItem } from '@/types/api/learning.types';
 
 // ── Mock Helpers ──

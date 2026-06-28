@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 
 import { useSidebarLanguage } from './useSidebarLanguage';
-import { useAuth } from '@/features/auth/useAuth';
+import { useLogout } from '@/features/auth/hooks/useLogout';
 
 interface AppSidebarProps {
   variant?: 'dashboard' | 'lesson';
@@ -31,7 +31,7 @@ export function AppSidebar({
 }: AppSidebarProps) {
   const navigate = useNavigate();
   const { languageLabel } = useSidebarLanguage();
-  const { logout } = useAuth();
+  const { mutate: handleLogout } = useLogout();
 
   const progressPercent =
     totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
@@ -96,7 +96,7 @@ export function AppSidebar({
                     void navigate({
                       to: item.id === 'dashboard' ? '/dashboard' : '/practice',
                     });
-                    onClose?.(); // Close mobile drawer on navigation
+                    onClose?.();
                   }}
                   className={cn(
                     'mt-1 flex w-full items-center justify-start gap-3 rounded-l-lg rounded-r-none px-4 py-2.5 text-left text-sm font-medium shadow-none transition-colors h-auto cursor-pointer',
@@ -113,11 +113,10 @@ export function AppSidebar({
           </nav>
         </div>
 
-        {/* Sign Out Button at the very bottom */}
         <div className="p-4 border-t border-sidebar-border mt-auto md:hidden">
           <Button
             variant="ghost"
-            onClick={logout}
+            onClick={() => handleLogout()}
             className="w-full flex items-center justify-start gap-3 px-4 py-2.5 text-left text-sm font-semibold text-red-600 hover:bg-rose-50 hover:text-red-700 cursor-pointer shadow-none rounded-lg"
           >
             <LogOut className="size-5" />

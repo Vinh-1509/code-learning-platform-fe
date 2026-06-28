@@ -1,6 +1,6 @@
 import { createRootRoute, Outlet } from '@tanstack/react-router';
 // import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
-import { AuthProvider } from '@/features/auth/AuthContextProvider';
+import { AuthProvider } from '@/features/auth/hooks/AuthContextProvider';
 
 const RootLayout = () => (
   <>

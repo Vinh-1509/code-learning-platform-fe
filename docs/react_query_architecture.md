@@ -1128,7 +1128,7 @@ export const queryClient = new QueryClient({
 | Convert `useDedicatedPractice` → `useDedicatedExerciseQuery`             | 1 hr   | 🟢 Low    |                                         | ✅ Done    |
 | Convert `usePractice` → `useExercisesListQuery` + `useWeaknessTagsQuery` | 2 hr   | 🟡 Medium |                                         | ✅ Done    |
 | Convert `useLanguageSelection` fetch → `useLanguagesQuery`               | 1 hr   | 🟢 Low    |                                         | ✅ Done    |
-| Implement all 8 mutations (`useLogin`, `useRegister`, etc.)              | 4 hr   | 🟡 Medium | Structured error/success handling       | ⏳ Pending |
+| Implement all 8 mutations (`useLogin`, `useRegister`, etc.)              | 4 hr   | 🟡 Medium | Structured error/success handling       | ✅ Done    |
 | Implement cache invalidation matrix                                      | 2 hr   | 🟡 Medium | Data consistency after mutations        | ⏳ Pending |
 | Add route loaders with `prefetchQuery`                                   | 2 hr   | 🟡 Medium | Perceived performance improvement       | ⏳ Pending |
 | Update lesson route loader to replace `lessonGuard.ts`                   | 1 hr   | 🟡 Medium | Eliminate redundant lesson fetch        | ✅ Done    |

@@ -1,8 +1,9 @@
 import { createContext } from 'react';
-import type { AuthPayload, AuthUserResponse } from '@/types/auth';
+import type { AuthUserResponse } from '@/types/auth';
 
 /**
  * Authentication context value shared across the application.
+ * Slimmed down to be read-only, matching TanStack Query architecture.
  */
 export interface AuthContextValue {
   /** Current access token. Null if user is not authenticated. */
@@ -10,21 +11,6 @@ export interface AuthContextValue {
 
   /** Current authenticated user data. Null if not authenticated. */
   user: AuthUserResponse | null;
-
-  /** Indicates whether an auth request is in progress. */
-  loading: boolean;
-
-  /** Authentication error message. */
-  error: string | null;
-
-  /** Sign in an existing user. */
-  login: (data: AuthPayload) => Promise<void>;
-
-  /** Register a new user account. */
-  register: (data: AuthPayload) => Promise<void>;
-
-  /** Clear authentication state and sign out. */
-  logout: () => void;
 }
 
 /**

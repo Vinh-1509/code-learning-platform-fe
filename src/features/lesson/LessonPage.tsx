@@ -1,5 +1,5 @@
 import { getRouteApi, useNavigate } from '@tanstack/react-router';
-import { useBlockLessons } from './useBlockLessons';
+import { useBlockLessons } from './hooks/useBlockLessons';
 import { LessonSidebar } from './LessonSidebar';
 import { TheoryPanel } from './TheoryPanel';
 import { useState, useEffect } from 'react';
@@ -7,7 +7,7 @@ import type { Block } from '@/types/api/learning.types';
 import { PracticePanel } from '@/components/practice_utils/PracticePanel';
 import { FeynmanInterviewPane } from '../interview/FeynmanInterviewPane';
 import Navbar from '@/components/navbar/Navbar';
-import { useBlockExercises } from './useBlockExercises';
+import { useBlockExercises } from './hooks/useBlockExercises';
 import { ExerciseTabBar } from './ExerciseTabBar';
 import { cn } from '@/lib/utils';
 

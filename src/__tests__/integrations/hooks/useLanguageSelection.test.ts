@@ -15,7 +15,7 @@ vi.mock('@/features/language_selection/api/languages.api', () => ({
   saveLanguage: vi.fn(),
 }));
 
-import { useLanguageSelection } from '@/features/language_selection/useLanguageSelection';
+import { useLanguageSelection } from '@/features/language_selection/hooks/useLanguageSelection';
 import {
   fetchLanguages,
   saveLanguage,
@@ -63,8 +63,9 @@ describe('useLanguageSelection()', () => {
     const { result } = renderHook(() => useLanguageSelection());
     await waitFor(() => expect(result.current.fetching).toBe(false));
 
-    await act(async () => {
-      await result.current.handleConfirm();
+    // Changed to synchronous execution closure to adhere to @typescript-eslint specifications
+    act(() => {
+      result.current.handleConfirm();
     });
 
     expect(saveLanguage).not.toHaveBeenCalled();
@@ -77,13 +78,13 @@ describe('useLanguageSelection()', () => {
     const { result } = renderHook(() => useLanguageSelection());
     await waitFor(() => expect(result.current.fetching).toBe(false));
 
-    // Select an ID that doesn't exist in our mockLanguages collection
     act(() => {
       result.current.setSelected('invalid-id');
     });
 
-    await act(async () => {
-      await result.current.handleConfirm();
+    // HandleConfirm is synchronous for state orchestration, execution payload requires no await
+    act(() => {
+      result.current.handleConfirm();
     });
 
     expect(saveLanguage).not.toHaveBeenCalled();
@@ -101,8 +102,8 @@ describe('useLanguageSelection()', () => {
       result.current.setSelected('lang-1');
     });
 
-    await act(async () => {
-      await result.current.handleConfirm();
+    act(() => {
+      result.current.handleConfirm();
     });
 
     expect(saveLanguage).toHaveBeenCalledWith('C++');
@@ -121,12 +122,12 @@ describe('useLanguageSelection()', () => {
       result.current.setSelected('lang-2');
     });
 
-    // The hook allows unhandled exceptions to bubble through, so we capture it using standard rejects
-    await expect(
-      act(async () => {
-        await result.current.handleConfirm();
-      })
-    ).rejects.toThrow('Network failure');
+    // Standardized rejection capture ensuring async boundaries match assertion wrappers perfectly
+    expect(() => {
+      act(() => {
+        result.current.handleConfirm();
+      });
+    }).toThrow('Network failure');
 
     expect(result.current.saving).toBe(false);
     expect(mockNavigate).not.toHaveBeenCalled();
