@@ -14,15 +14,18 @@ import type { LanguageOption } from '@/types/languageSelection';
  */
 export function useLanguageSelection() {
   // ── Fetch available languages ─────────────────────────────────────────────
+  // staleTime: Infinity because language options are static — they never
+  // change between sessions.
   const { data: languages = [], isLoading: fetching } = useQuery<
     LanguageOption[]
   >({
     queryKey: queryKeys.languages.list(),
     queryFn: fetchLanguages,
     staleTime: Infinity,
-    gcTime: 60 * 60_000, // 1 hour — language list is effectively static
+    gcTime: 60 * 60_000,
   });
 
+  // ── Local UI state ────────────────────────────────────────────────────────
   const [selected, setSelected] = useState<string | null>(null);
 
   // ── Handle language saving mutation ────────────────────────────────────────
