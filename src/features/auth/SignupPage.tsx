@@ -1,9 +1,21 @@
+import axios from 'axios';
 import { SignUpForm } from './SignUpForm';
-import { useAuth } from './useAuth';
+import { useRegister } from './hooks/useRegister';
 import { ShieldCheck, Map, CheckCircle2 } from 'lucide-react';
 
 export default function SignUpPage() {
-  const { register, loading, error } = useAuth();
+  const { mutateAsync: register, isPending: loading, error } = useRegister();
+
+  // ── Compute Error Message safely without explicit 'any' casts ─────────────
+  let errorMessage: string | null = null;
+  if (error) {
+    if (axios.isAxiosError<{ message?: string }>(error)) {
+      errorMessage =
+        error.response?.data?.message || 'Signup failed, please try again';
+    } else {
+      errorMessage = error.message;
+    }
+  }
 
   return (
     <div
@@ -61,7 +73,12 @@ export default function SignUpPage() {
       <div className="flex flex-col justify-center p-6 sm:p-10 bg-transparent lg:bg-card">
         <div className="w-full flex items-center justify-center">
           <div className="w-full max-w-md bg-transparent p-0 border-none shadow-none">
-            <SignUpForm onSubmit={register} loading={loading} error={error} />
+            {/* The register function conforms completely with the new SignUpFormProps signatures */}
+            <SignUpForm
+              onSubmit={register}
+              loading={loading}
+              error={errorMessage}
+            />
           </div>
         </div>
       </div>

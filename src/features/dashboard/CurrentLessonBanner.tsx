@@ -12,14 +12,6 @@ interface CurrentLessonBannerProps {
 /**
  * CurrentLessonBanner displays a prominent card representing the user's active/in-progress lesson.
  * Includes lesson details (title, module), a progress bar, navigation arrows, and a button to resume.
- *
- * @param {CurrentLessonBannerProps} props - The component properties.
- * @param {string} props.lessonId - Unique ID of the current lesson.
- * @param {string} props.lessonName - Name/title of the current lesson.
- * @param {string} props.moduleName - Name of the parent module this lesson belongs to.
- * @param {number} props.progress - Numeric percentage (0-100) indicating current completion progress.
- * @param {Function} props.onStartLesson - Callback to redirect or launch the lesson content.
- * @returns {JSX.Element} The rendered CurrentLessonBanner card component.
  */
 export function CurrentLessonBanner({
   lessonId,

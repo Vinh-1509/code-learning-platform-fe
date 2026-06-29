@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { ChevronLeft, User, Menu, Code, LogOut } from 'lucide-react';
-import { useAuth } from '@/features/auth/useAuth';
+import { useAuth } from '@/features/auth/useAuth'; // Read-only context hook
+import { useLogout } from '@/features/auth/hooks/useLogout'; // Mutation hook for logout
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -19,7 +20,8 @@ const Navbar = ({
   activeTab,
   onChangeTab,
 }: NavbarProps) => {
-  const { logout, user } = useAuth();
+  const { user } = useAuth(); // Extracted only read-only state
+  const { mutate: handleLogout } = useLogout(); // Mutation handling state and side effects
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const activeLanguage = user?.selectedLanguage?.[0];
@@ -28,7 +30,6 @@ const Navbar = ({
     ? 'border border-purple-cpp text-purple-cpp bg-purple-jv-background/20 shadow-sm font-bold'
     : 'border border-orange-jv text-orange-jv bg-orange-jv-background/20 shadow-sm font-bold';
 
-  // Quick config for back buttons to reduce repetitive JSX
   const isLesson = variant === 'lesson';
   const isPractice = variant === 'practice';
   const backTo = isPractice ? '/practice' : '/dashboard';
@@ -38,7 +39,6 @@ const Navbar = ({
     <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 h-14 bg-card border-b border-border select-none">
       {/* LEFT: Logo & Sidebar Toggles */}
       <div className="flex items-center gap-2">
-        {/* Lesson Sidebar Toggle */}
         {variant === 'lesson' && onToggleSidebar && (
           <Button
             type="button"
@@ -49,12 +49,10 @@ const Navbar = ({
           </Button>
         )}
 
-        {/* Clickable Logo with smooth Hover & Click (Active) animation */}
         <Link
           to="/dashboard"
           className="inline-block transition-all duration-200 ease-out transform hover:scale-105 active:scale-95 active:opacity-80 cursor-pointer"
         >
-          {/* Mobile View: Logo Icon */}
           <div
             className={cn(
               'flex items-center justify-center size-9 bg-primary text-primary-foreground rounded-xl shadow-md shadow-primary/30 md:hidden',
@@ -64,7 +62,6 @@ const Navbar = ({
             <Code className="size-5" />
           </div>
 
-          {/* PC View: Text "CodeStep" in primary blue */}
           <span
             className={cn(
               'hidden md:inline-block font-extrabold text-xl text-primary tracking-tight',
@@ -76,7 +73,7 @@ const Navbar = ({
         </Link>
       </div>
 
-      {/* MIDDLE: Mobile View Switcher (Learn / Code or Description / Code) */}
+      {/* MIDDLE: Mobile View Switcher */}
       {(isLesson || isPractice) && activeTab && onChangeTab && (
         <div className="lg:hidden flex border border-border rounded-lg p-0.5 bg-card select-none">
           <button
@@ -109,9 +106,9 @@ const Navbar = ({
           </button>
         </div>
       )}
+
       {/* RIGHT: Actions / Profile Menu */}
       <div className="flex items-center gap-3">
-        {/* Desktop Back Buttons (Shared Logic) */}
         {(isLesson || isPractice) && (
           <Link to={backTo} className="hidden lg:block">
             <Button
@@ -125,7 +122,6 @@ const Navbar = ({
           </Link>
         )}
 
-        {/* Mobile Dropdown Menu for Lesson & Practice View */}
         {(isLesson || isPractice) && (
           <div className="lg:hidden relative">
             <Button
@@ -157,7 +153,7 @@ const Navbar = ({
                     type="button"
                     onClick={() => {
                       setIsMenuOpen(false);
-                      logout();
+                      handleLogout(); // Clean structural invocation
                     }}
                     className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-slate-50 cursor-pointer"
                   >
@@ -169,15 +165,13 @@ const Navbar = ({
           </div>
         )}
 
-        {/* Dashboard Actions: Sign Out & Avatar */}
         {variant === 'dashboard' && (
           <>
-            {/* Desktop Actions */}
             <div className="hidden md:flex items-center gap-3">
               <Button
                 type="button"
                 variant="ghost"
-                onClick={logout}
+                onClick={() => handleLogout()} // Clean structural invocation
                 className="flex items-center gap-2 px-3 h-9 text-sm font-semibold text-red-600 hover:bg-rose-50 hover:text-red-700 cursor-pointer shadow-none rounded-lg"
               >
                 <LogOut className="size-4" />
@@ -190,7 +184,6 @@ const Navbar = ({
               </Avatar>
             </div>
 
-            {/* Mobile Actions: Sidebar Toggle */}
             {onToggleSidebar && (
               <div className="md:hidden">
                 <Button

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
-import { useBlockLessons } from '@/features/lesson/useBlockLessons';
+import { useBlockLessons } from '@/features/lesson/hooks/useBlockLessons';
 import { fetchLessonById } from '@/features/lesson/api/lesson.api';
 import type { LessonDetailResponse } from '@/types/api/learning.types';
 

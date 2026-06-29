@@ -10,7 +10,7 @@ import {
 } from '@tanstack/react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-import { AuthProvider } from '@/features/auth/AuthContextProvider';
+import { AuthProvider } from '@/features/auth/hooks/AuthContextProvider';
 
 // Wraps a component with TanStack Router + AuthProvider for auth flow tests
 export async function renderWithAuth(

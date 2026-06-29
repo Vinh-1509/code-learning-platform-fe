@@ -1,8 +1,27 @@
+import Axios from 'axios';
 import { LoginForm } from './LoginForm';
-import { useAuth } from './useAuth';
+import { useLogin } from './hooks/useLogin';
 import { ShieldCheck, Map, CheckCircle2 } from 'lucide-react';
+// Assuming AuthPayload is exported from your auth types folder
+import type { AuthPayload } from '@/types/auth';
+
 export function LoginPage() {
-  const { login, loading, error } = useAuth();
+  const { mutateAsync: login, isPending: loading, error } = useLogin();
+
+  let errorMessage: string | null = null;
+  if (error) {
+    if (Axios.isAxiosError<{ message?: string }>(error)) {
+      errorMessage =
+        error.response?.data?.message || 'Login failed, please try again';
+    } else {
+      errorMessage = error.message;
+    }
+  }
+
+  // ── Strongly-typed Submit Handler ─────────────────────────────────────────
+  const handleLoginSubmit = async (data: AuthPayload) => {
+    await login(data);
+  };
 
   return (
     <div
@@ -58,7 +77,11 @@ export function LoginPage() {
       <div className="flex flex-col justify-center p-6 sm:p-10 bg-transparent lg:bg-card">
         <div className="w-full flex items-center justify-center">
           <div className="w-full max-w-md bg-transparent p-0 border-none shadow-none">
-            <LoginForm onSubmit={login} loading={loading} error={error} />
+            <LoginForm
+              onSubmit={handleLoginSubmit}
+              loading={loading}
+              error={errorMessage}
+            />
           </div>
         </div>
       </div>

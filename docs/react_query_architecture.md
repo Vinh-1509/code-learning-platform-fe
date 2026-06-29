@@ -975,14 +975,13 @@ export function useLessonQuery(lessonId: string) {
 
 ### Responsibility Assignment
 
-| Concern                    | Owner                            | Implementation                                                    |
-| -------------------------- | -------------------------------- | ----------------------------------------------------------------- |
-| **401 Unauthorized**       | Axios interceptor                | Clear token, call `queryClient.clear()`, let route guard redirect |
-| **Query errors (non-401)** | `QueryErrorBoundary` per route   | Wrap each route in a boundary with a "Retry" fallback             |
-| **Mutation errors**        | Mutation `onError` callback      | Set local error state in the form/component                       |
-| **Toast notifications**    | Mutation `onError` / `onSuccess` | Use a toast library (e.g., Sonner) — call from mutation callbacks |
-| **Network errors**         | React Query retry config         | Global: retry 2 times with exponential backoff, skip 401          |
-| **Parsing errors**         | Zod validation (future)          | Validate response shape at API layer                              |
+| Concern                    | Owner                          | Implementation                                                    |
+| -------------------------- | ------------------------------ | ----------------------------------------------------------------- |
+| **401 Unauthorized**       | Axios interceptor              | Clear token, call `queryClient.clear()`, let route guard redirect |
+| **Query errors (non-401)** | `QueryErrorBoundary` per route | Wrap each route in a boundary with a "Retry" fallback             |
+| **Mutation errors**        | Mutation `onError` callback    | Set local error state in the form/component                       |
+| **Network errors**         | React Query retry config       | Global: retry 2 times with exponential backoff, skip 401          |
+| **Parsing errors**         | Zod validation (future)        | Validate response shape at API layer                              |
 
 ### Global Error Configuration
 
@@ -1076,7 +1075,6 @@ export const queryClient = new QueryClient({
 
 | Item                            | Description                                                                      |
 | ------------------------------- | -------------------------------------------------------------------------------- |
-| **Toast library (Sonner)**      | Centralized mutation feedback — `yarn add sonner`                                |
 | **`useDebouncedValue` utility** | Replace the manual 400ms timer in `usePractice`                                  |
 | **Response type extraction**    | Move all `interface *Response` types from `lib/axios.ts` to `src/types/api/`     |
 | **MSW integration**             | Already installed — wire up handlers for unit tests                              |
@@ -1120,20 +1118,19 @@ export const queryClient = new QueryClient({
 
 > Goal: Convert all remaining hooks, implement mutations, set up invalidation.
 
-| Task                                                                     | Effort | Risk      | Benefit                                 | Status     |
-| ------------------------------------------------------------------------ | ------ | --------- | --------------------------------------- | ---------- |
-| Split `lib/axios.ts` — move API fns to feature `api/` dirs               | 3 hr   | 🟡 Medium | Maintainability                         | ✅ Done    |
-| Convert `useRoadmap` → `useQueries` parallel fetch                       | 2 hr   | 🟡 Medium | Eliminates N+1, roadmap loads 3x faster | ✅ Done    |
-| Convert `useBlockExercises` fetch → `useQueries`                         | 2 hr   | 🟡 Medium | Exercise caching across blocks          | ✅ Done    |
-| Convert `useDedicatedPractice` → `useDedicatedExerciseQuery`             | 1 hr   | 🟢 Low    |                                         | ✅ Done    |
-| Convert `usePractice` → `useExercisesListQuery` + `useWeaknessTagsQuery` | 2 hr   | 🟡 Medium |                                         | ✅ Done    |
-| Convert `useLanguageSelection` fetch → `useLanguagesQuery`               | 1 hr   | 🟢 Low    |                                         | ✅ Done    |
-| Implement all 8 mutations (`useLogin`, `useRegister`, etc.)              | 4 hr   | 🟡 Medium | Structured error/success handling       | ⏳ Pending |
-| Implement cache invalidation matrix                                      | 2 hr   | 🟡 Medium | Data consistency after mutations        | ⏳ Pending |
-| Add route loaders with `prefetchQuery`                                   | 2 hr   | 🟡 Medium | Perceived performance improvement       | ⏳ Pending |
-| Update lesson route loader to replace `lessonGuard.ts`                   | 1 hr   | 🟡 Medium | Eliminate redundant lesson fetch        | ✅ Done    |
-| Add `QueryErrorBoundary` per route                                       | 2 hr   | 🟢 Low    | Error UX                                | ⏳ Pending |
-| Install Sonner + wire mutation toasts                                    | 1 hr   | 🟢 Low    | UX improvement                          | ⏳ Pending |
+| Task                                                                     | Effort | Risk      | Benefit                                 | Status  |
+| ------------------------------------------------------------------------ | ------ | --------- | --------------------------------------- | ------- |
+| Split `lib/axios.ts` — move API fns to feature `api/` dirs               | 3 hr   | 🟡 Medium | Maintainability                         | ✅ Done |
+| Convert `useRoadmap` → `useQueries` parallel fetch                       | 2 hr   | 🟡 Medium | Eliminates N+1, roadmap loads 3x faster | ✅ Done |
+| Convert `useBlockExercises` fetch → `useQueries`                         | 2 hr   | 🟡 Medium | Exercise caching across blocks          | ✅ Done |
+| Convert `useDedicatedPractice` → `useDedicatedExerciseQuery`             | 1 hr   | 🟢 Low    |                                         | ✅ Done |
+| Convert `usePractice` → `useExercisesListQuery` + `useWeaknessTagsQuery` | 2 hr   | 🟡 Medium |                                         | ✅ Done |
+| Convert `useLanguageSelection` fetch → `useLanguagesQuery`               | 1 hr   | 🟢 Low    |                                         | ✅ Done |
+| Implement all 8 mutations (`useLogin`, `useRegister`, etc.)              | 4 hr   | 🟡 Medium | Structured error/success handling       | ✅ Done |
+| Implement cache invalidation matrix                                      | 2 hr   | 🟡 Medium | Data consistency after mutations        | ✅ Done |
+| Add route loaders with `prefetchQuery`                                   | 2 hr   | 🟡 Medium | Perceived performance improvement       | ✅ Done |
+| Update lesson route loader to replace `lessonGuard.ts`                   | 1 hr   | 🟡 Medium | Eliminate redundant lesson fetch        | ✅ Done |
+| Add `QueryErrorBoundary` per route                                       | 2 hr   | 🟢 Low    | Error UX                                | ✅ Done |
 
 ---
 
@@ -1193,9 +1190,8 @@ Use `loader` for prefetching and **replace** `lessonGuard.ts` with `queryClient.
 | 8        | Convert `useBlockLessons` → `useLessonQuery` | 1 hr   | 🟠 Lesson cache for route preload              | ✅ Done    |
 | 9        | Update lesson route loader                   | 1 hr   | 🟠 Data already in cache when component mounts | ✅ Done    |
 | 10       | Convert `useRoadmap` → `useQueries` parallel | 2 hr   | 🟠 N+1 elimination                             | ✅ Done    |
-| 11       | Implement all 8 mutations with invalidation  | 4 hr   | 🟠 Data consistency                            | ⏳ Pending |
+| 11       | Implement all 8 mutations with invalidation  | 4 hr   | 🟠 Data consistency                            | ✅ Done    |
 | 12       | Convert remaining 4 hooks to `useQuery`      | 4 hr   | 🟡 Consistency                                 | ⏳ Pending |
 | 13       | Add error boundaries per route               | 2 hr   | 🟡 Error UX                                    | ⏳ Pending |
-| 14       | Add Sonner + toast on mutations              | 1 hr   | 🟡 Feedback UX                                 | ⏳ Pending |
 | 15       | Extract types from `lib/axios.ts`            | 2 hr   | 🟡 Maintainability                             | ✅ Done    |
 | 16       | Add Zod + MSW + query hook tests             | 8 hr   | 🟡 Confidence                                  | ⏳ Pending |

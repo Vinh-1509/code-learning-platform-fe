@@ -2,30 +2,23 @@ import { useState, useRef, useMemo, useEffect } from 'react';
 import { useQueries } from '@tanstack/react-query';
 
 import { queryKeys } from '@/lib/queryKeys';
+import { fetchExerciseById } from '@/features/lesson/api/exercise.api';
 import {
-  fetchExerciseById,
-  submitExerciseAnswer,
-  getExerciseHint,
-  explainExerciseAnswer,
-} from '@/features/lesson/api/exercise.api';
+  useSubmitAnswer,
+  useGetHint,
+  useExplainAnswer,
+} from './useExerciseMutations';
 
 import { convertExerciseResponse } from '@/components/practice_utils/utils/exercise.converter';
 
 import type { PracticeExercise } from '@/components/practice_utils/types/practiceTypes';
-import type {
-  SubmitAnswerResponse,
-  HintResponse,
-  ExplainAnswerResponse,
-} from '@/types/api/exercise.types';
 import type { Block } from '@/types/api/learning.types';
+import type { SubmitAnswerResponse } from '@/types/api/exercise.types';
 
 interface UseBlockExercisesOptions {
   block: Block | undefined;
 }
 
-// ---------------------------------------------------------------------------
-// Helper: extract exercise IDs + required ID set from a block synchronously.
-// ---------------------------------------------------------------------------
 function deriveExerciseMeta(block: Block | undefined) {
   if (!block) {
     return {
@@ -43,7 +36,6 @@ function deriveExerciseMeta(block: Block | undefined) {
       return orderA - orderB;
     });
 
-  // No practice content at all → Feynman gate immediately open
   if (practiceItems.length === 0) {
     return {
       exerciseIds: [] as string[],
@@ -56,7 +48,6 @@ function deriveExerciseMeta(block: Block | undefined) {
     .map((item) => item.data.exerciseId as string)
     .filter(Boolean);
 
-  // Practice items exist but none carry an exerciseId → treat as no gate
   if (exerciseIds.length === 0) {
     return {
       exerciseIds: [] as string[],
@@ -79,26 +70,19 @@ function deriveExerciseMeta(block: Block | undefined) {
   };
 }
 
-// ---------------------------------------------------------------------------
-// Hook
-// ---------------------------------------------------------------------------
 export function useBlockExercises({ block }: UseBlockExercisesOptions) {
   const blockId = block?._id;
 
-  // ── Derive exercise IDs + required set synchronously ──────────────────────
   const { exerciseIds, requiredIds, immediatelyComplete } = useMemo(
     () => deriveExerciseMeta(block),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [blockId]
+    [block]
   );
 
-  // ── Keep requiredIds accessible in submitAnswer without re-creating it ─────
   const requiredIdsRef = useRef<Set<string>>(requiredIds);
   useEffect(() => {
     requiredIdsRef.current = requiredIds;
   }, [requiredIds]);
 
-  // ── Local pass-tracking state ──────────────────────────────────────────────
   const [prevBlockId, setPrevBlockId] = useState<string | undefined>(blockId);
   const [exercisePassMap, setExercisePassMap] = useState<
     Record<string, boolean>
@@ -111,13 +95,12 @@ export function useBlockExercises({ block }: UseBlockExercisesOptions) {
     setBlockCompleted(immediatelyComplete);
   }
 
-  // ── Parallel exercise fetches via useQueries ───────────────────────────────
   const exerciseResults = useQueries({
     queries: exerciseIds.map((id) => ({
       queryKey: queryKeys.exercises.detail(id),
       queryFn: () => fetchExerciseById(id),
-      staleTime: Infinity, // Exercise definitions never change mid-session
-      gcTime: 30 * 60_000, // Keep in cache 30 min so revisiting a block is instant
+      staleTime: Infinity,
+      gcTime: 30 * 60_000,
     })),
     combine: (results) => ({
       exercises: results
@@ -135,17 +118,14 @@ export function useBlockExercises({ block }: UseBlockExercisesOptions) {
 
   const { exercises, loading, error } = exerciseResults;
 
-  // ── Submission (pass-tracking stays local) ────────────────────────────────
-  async function submitAnswer(
+  // ── Success callback proxy to maintain local tracking maps ────────────────
+  const handleSubmissionSuccess = (
     exerciseId: string,
-    answer: unknown
-  ): Promise<SubmitAnswerResponse> {
-    const result = await submitExerciseAnswer(exerciseId, answer);
-
+    result: SubmitAnswerResponse
+  ) => {
     if (result.correct) {
       setExercisePassMap((prev) => {
         const next = { ...prev, [exerciseId]: true };
-
         const allRequiredPassed =
           requiredIdsRef.current.size === 0 ||
           [...requiredIdsRef.current].every((id) => next[id]);
@@ -153,27 +133,28 @@ export function useBlockExercises({ block }: UseBlockExercisesOptions) {
         if (allRequiredPassed) {
           setBlockCompleted(true);
         }
-
         return next;
       });
     }
+  };
 
-    return result;
-  }
+  // ── Instantiating TanStack Mutations ───────────────────────────────────────
+  const submitMutation = useSubmitAnswer(handleSubmissionSuccess);
+  const hintMutation = useGetHint();
+  const explainMutation = useExplainAnswer();
 
-  async function getHint(
-    exerciseId: string,
-    level?: number
-  ): Promise<HintResponse> {
-    return getExerciseHint(exerciseId, level);
-  }
+  // ── Strongly-typed adaptations matching original method interface structures
+  const submitAnswer = async (exerciseId: string, answer: unknown) => {
+    return submitMutation.mutateAsync({ exerciseId, answer });
+  };
 
-  async function explainAnswer(
-    exerciseId: string,
-    answer: unknown
-  ): Promise<ExplainAnswerResponse> {
-    return explainExerciseAnswer(exerciseId, answer);
-  }
+  const getHint = async (exerciseId: string, level?: number) => {
+    return hintMutation.mutateAsync({ exerciseId, level });
+  };
+
+  const explainAnswer = async (exerciseId: string, answer: unknown) => {
+    return explainMutation.mutateAsync({ exerciseId, answer });
+  };
 
   return {
     exercises,
@@ -184,5 +165,9 @@ export function useBlockExercises({ block }: UseBlockExercisesOptions) {
     submitAnswer,
     getHint,
     explainAnswer,
+    // Optional: expose mutation pending flags to the UI if needed later
+    isSubmitting: submitMutation.isPending,
+    isGettingHint: hintMutation.isPending,
+    isExplaining: explainMutation.isPending,
   };
 }

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { queryClient } from '@/lib/queryClient';
 
 export interface ApiError {
   message?: string;
@@ -19,16 +20,8 @@ api.interceptors.response.use(
   (response) => response,
   (error: unknown) => {
     if (axios.isAxiosError(error) && error.response?.status === 401) {
-      const hasToken = Boolean(localStorage.getItem('token'));
-      if (hasToken) {
-        localStorage.removeItem('token');
-      }
-      // Trigger global cache clear when queryClient is fully integrated
-      import('./queryClient')
-        .then(({ queryClient }) => {
-          queryClient.clear();
-        })
-        .catch((err) => console.error('Failed to import queryClient', err));
+      localStorage.removeItem('token');
+      queryClient.clear();
     }
     return Promise.reject(
       error instanceof Error ? error : new Error('Unknown error')

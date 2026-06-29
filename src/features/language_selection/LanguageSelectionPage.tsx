@@ -1,6 +1,6 @@
 import { Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useLanguageSelection } from './useLanguageSelection';
+import { useLanguageSelection } from './hooks/useLanguageSelection';
 import { LanguageCard } from './LanguageCard';
 import { SkeletonCard } from './SkeletonCard';
 
