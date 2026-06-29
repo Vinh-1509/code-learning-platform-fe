@@ -52,20 +52,22 @@ export function FeynmanInterviewPane({
   }, [messages, isLoading]);
 
   // ── Error Boundary Payload Computation ────────────────────────────────────
-  const activeError = queryError || customError;
   let errorMessage: string | null = null;
-  if (activeError) {
-    if (Axios.isAxiosError<{ message?: string }>(activeError)) {
+
+  if (queryError) {
+    if (Axios.isAxiosError<{ message?: string }>(queryError)) {
+      const status = queryError.response?.status;
+      const backendMessage = queryError.response?.data?.message;
       errorMessage =
-        activeError.response?.status === 403
-          ? activeError.response.data?.message ||
-            'Feynman is available only after the block is completed.'
+        status === 403
+          ? (backendMessage ??
+            'Feynman is available only after the block is completed.')
           : 'Failed to process Feynman session. Please try again.';
-    } else if (activeError instanceof Error) {
-      errorMessage = activeError.message;
     } else {
-      errorMessage = String(activeError);
+      errorMessage = queryError.message;
     }
+  } else if (customError) {
+    errorMessage = customError;
   }
 
   const handleSubmitResponse = async () => {
@@ -78,11 +80,32 @@ export function FeynmanInterviewPane({
     try {
       await sendMessage({ content: text });
     } catch (err) {
-      setCustomError(
-        err instanceof Error
-          ? err.message
-          : 'Something went wrong. Please try again.'
-      );
+      if (Axios.isAxiosError<{ message?: string }>(err)) {
+        const status = err.response?.status;
+        const backendMessage = err.response?.data?.message;
+
+        if (status === 429) {
+          setCustomError(
+            backendMessage ??
+              'Too many failed attempts. Please try again later.'
+          );
+        } else if (status === 403) {
+          setCustomError(
+            backendMessage ??
+              'Feynman is available only after the block is completed.'
+          );
+        } else {
+          setCustomError(
+            'Failed to process Feynman session. Please try again.'
+          );
+        }
+      } else {
+        setCustomError(
+          err instanceof Error
+            ? err.message
+            : 'Something went wrong. Please try again.'
+        );
+      }
     }
   };
 
