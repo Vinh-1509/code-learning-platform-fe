@@ -4,7 +4,6 @@ import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-// Import the thin context hook alongside the new React Query mutations
 import { useAuth } from '@/features/auth/useAuth';
 import { useLogin } from '@/features/auth/hooks/useLogin';
 import { useRegister } from '@/features/auth/hooks/useRegister';
@@ -81,16 +80,6 @@ function AuthProbe() {
     loginMutation.isPending ||
     registerMutation.isPending ||
     logoutMutation.isPending;
-
-  // Extract statuses from individual mutations to satisfy old test assertions
-  const loading =
-    loginMutation.isPending ||
-    registerMutation.isPending ||
-    logoutMutation.isPending;
-
-  // Fallback string matching your old tests
-  const error =
-    loginMutation.error?.message || registerMutation.error?.message || 'none';
 
   return (
     <div>
