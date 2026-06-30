@@ -1,6 +1,6 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-
+import { createQueryWrapper } from '@/__tests__/helpers/queryWrapper';
 import { useSidebarLanguage } from '@/components/sidebar/useSidebarLanguage';
 import { getMe } from '@/features/auth/api/auth.api';
 
@@ -18,12 +18,13 @@ describe('useSidebarLanguage', () => {
       _id: 'user-1',
       email: 'test@example.com',
       username: 'testuser',
-      fullName: 'Test User',
+
       selectedLanguage: ['Java'],
       createdAt: '2026-01-01T00:00:00.000Z',
     });
 
-    const { result } = renderHook(() => useSidebarLanguage());
+    const { wrapper } = createQueryWrapper();
+    const { result } = renderHook(() => useSidebarLanguage(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.languageLabel).toBe('Java');
@@ -37,12 +38,12 @@ describe('useSidebarLanguage', () => {
       _id: 'user-1',
       email: 'test@example.com',
       username: 'testuser',
-      fullName: 'Test User',
-      selectedLanguage: undefined,
+      selectedLanguage: ['Java'],
       createdAt: '2026-01-01T00:00:00.000Z',
     });
 
-    const { result } = renderHook(() => useSidebarLanguage());
+    const { wrapper } = createQueryWrapper();
+    const { result } = renderHook(() => useSidebarLanguage(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.languageLabel).toBe('Your Language');
@@ -54,12 +55,12 @@ describe('useSidebarLanguage', () => {
       _id: 'user-1',
       email: 'test@example.com',
       username: 'testuser',
-      fullName: 'Test User',
       selectedLanguage: [],
       createdAt: '2026-01-01T00:00:00.000Z',
     });
 
-    const { result } = renderHook(() => useSidebarLanguage());
+    const { wrapper } = createQueryWrapper();
+    const { result } = renderHook(() => useSidebarLanguage(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.languageLabel).toBe('Your Language');
@@ -69,7 +70,8 @@ describe('useSidebarLanguage', () => {
   it('falls back to "Your Language" when getMe fails', async () => {
     vi.mocked(getMe).mockRejectedValue(new Error('API Error'));
 
-    const { result } = renderHook(() => useSidebarLanguage());
+    const { wrapper } = createQueryWrapper();
+    const { result } = renderHook(() => useSidebarLanguage(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.languageLabel).toBe('Your Language');

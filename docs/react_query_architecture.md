@@ -1144,10 +1144,10 @@ export const queryClient = new QueryClient({
 | Implement `useDebouncedValue` utility + refactor `usePractice` | 2 hr   | 🟡 Medium | Cleaner debounce              | ✅ Done    |
 | Extract all response types to `src/types/api/`                 | 2 hr   | 🟢 Low    | Maintainability               | ✅ Done    |
 | Slim down `AuthContext` — remove mutation fns                  | 2 hr   | 🟡 Medium | Context is read-only; simpler | ✅ Done    |
-| Add Zod schemas for API responses                              | 4 hr   | 🟡 Medium | Runtime safety                | ⏳ Pending |
-| Wire up MSW for unit tests                                     | 3 hr   | 🟡 Medium | Test isolation                | ⏳ Pending |
+| Add Zod schemas for API responses                              | 4 hr   | 🟡 Medium | Runtime safety                | ✅ Done    |
+| Wire up MSW for unit tests                                     | 3 hr   | 🟡 Medium | Test isolation                | ✅ Done.   |
 | Write query hook tests with `renderHook` + MSW                 | 4 hr   | 🟡 Medium | Confidence                    | ⏳ Pending |
-| Evaluate optimistic updates for exercise submit                | 2 hr   | 🟠 High   | UX (minor — backend is fast)  | ⏳ Pending |
+| Evaluate optimistic updates for exercise submit                | 2 hr   | 🟠 High   | UX (minor — backend is fast)  | ✅ Done.   |
 | Enable `@tanstack/react-query-devtools` behind `DEV` flag      | 30 min | 🟢 None   | DX                            | ✅ Done    |
 
 ---
