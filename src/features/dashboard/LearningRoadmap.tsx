@@ -206,6 +206,7 @@ interface LearningRoadmapProps {
   toggleModule: (id: string) => void;
   handleStartLesson: (lessonId: string) => void;
   loading: boolean;
+  className?: string;
 }
 
 /**
@@ -218,6 +219,7 @@ interface LearningRoadmapProps {
  * @param {Function} props.toggleModule - Callback to toggle expansion of a specific module.
  * @param {Function} props.handleStartLesson - Callback triggered when clicking start/continue on any lesson.
  * @param {boolean} props.loading - Loading state indicator.
+ * @param {string} props.className - Custom styling class names.
  * @returns {JSX.Element} The rendered LearningRoadmap dashboard view.
  */
 export function LearningRoadmap({
@@ -226,6 +228,7 @@ export function LearningRoadmap({
   toggleModule,
   handleStartLesson,
   loading,
+  className,
 }: LearningRoadmapProps) {
   const loadingContent = <div>Loading...</div>;
 
@@ -244,7 +247,12 @@ export function LearningRoadmap({
   ));
 
   return (
-    <Card className="bg-card border border-border shadow-md p-4 sm:p-6 rounded-2xl">
+    <Card
+      className={cn(
+        'bg-card border border-border shadow-md p-4 sm:p-6 rounded-2xl',
+        className
+      )}
+    >
       <CardContent className="p-0">
         <div className="flex items-center gap-3 mb-6">
           <div className="p-2 rounded-xl bg-primary-second text-primary shadow-sm">
