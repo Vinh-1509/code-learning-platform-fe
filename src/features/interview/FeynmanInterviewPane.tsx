@@ -236,7 +236,7 @@ export function FeynmanInterviewPane({
               }}
               placeholder="Type your explanation…"
               disabled={isLoading}
-              className="flex-1 px-3 py-1.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-muted disabled:text-muted-foreground min-h-[36px] max-h-[200px]"
+              className="flex-1 px-3 py-1.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-muted disabled:text-muted-foreground min-h-[36px] max-h-[60px]"
             />
             <Button
               onClick={() => void handleSubmitResponse()}

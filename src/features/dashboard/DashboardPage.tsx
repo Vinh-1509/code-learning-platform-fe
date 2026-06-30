@@ -71,7 +71,7 @@ export function DashboardPage() {
 
       {/* CONTENT */}
       <main className="ml-0 md:ml-64 pt-14 h-screen overflow-y-auto">
-        <div className="p-4 sm:p-8 max-w-7xl mx-auto space-y-6">
+        <div className="p-4 sm:p-8 max-w-7xl mx-auto space-y-6 min-h-[calc(100vh-3.5rem)] flex flex-col">
           {!isPageLoading && currentLessonBanner}
 
           {/* Connected real dynamic statistics from dashboardData payload */}
@@ -92,6 +92,7 @@ export function DashboardPage() {
             toggleModule={toggleModule}
             handleStartLesson={handleStartLesson}
             loading={roadmapLoading}
+            className="flex-1"
           />
         </div>
       </main>
