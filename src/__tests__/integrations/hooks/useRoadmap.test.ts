@@ -8,6 +8,7 @@ import {
   type Module,
 } from '@/features/dashboard/useRoadmap';
 import { server } from '../../mocks/server';
+import { createQueryWrapper } from '../../helpers/queryWrapper';
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 
@@ -99,7 +100,8 @@ describe('useRoadmap', () => {
       )
     );
 
-    const { result } = renderHook(() => useRoadmap());
+    const { wrapper } = createQueryWrapper();
+    const { result } = renderHook(() => useRoadmap(), { wrapper });
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     expect(result.current.modules[0].id).toBe('a-01');
@@ -135,7 +137,8 @@ describe('useRoadmap', () => {
       })
     );
 
-    const { result } = renderHook(() => useRoadmap());
+    const { wrapper } = createQueryWrapper();
+    const { result } = renderHook(() => useRoadmap(), { wrapper });
 
     // Initially loading
     expect(result.current.loading).toBe(true);
@@ -165,15 +168,15 @@ describe('useRoadmap', () => {
       })
     );
 
-    const { result } = renderHook(() => useRoadmap());
+    const { wrapper } = createQueryWrapper();
+    const { result } = renderHook(() => useRoadmap(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
     });
 
-    // Should catch the error, log it, but not crash (modules remains empty)
+    // TanStack Query exposes failures via isError/error, not a manual console.error log
     expect(result.current.modules).toEqual([]);
-    expect(console.error).toHaveBeenCalledWith('Lỗi:', expect.any(Error));
   });
 
   it('toggles module expansion correctly', async () => {
@@ -185,7 +188,8 @@ describe('useRoadmap', () => {
       )
     );
 
-    const { result } = renderHook(() => useRoadmap());
+    const { wrapper } = createQueryWrapper();
+    const { result } = renderHook(() => useRoadmap(), { wrapper });
 
     // Wait for init to finish
     await waitFor(() => {
@@ -217,7 +221,8 @@ describe('useRoadmap', () => {
       )
     );
 
-    const { result } = renderHook(() => useRoadmap());
+    const { wrapper } = createQueryWrapper();
+    const { result } = renderHook(() => useRoadmap(), { wrapper });
 
     act(() => {
       result.current.handleStartLesson('lesson-123');

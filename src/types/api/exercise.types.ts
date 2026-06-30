@@ -104,7 +104,7 @@ export interface Exercise {
   type: ExerciseType;
   level: Difficulty;
   order: number;
-  status?: 'completed' | 'not_started' | 'locked';
+  status?: 'completed' | 'active' | 'locked';
 }
 
 export interface ExercisePageResponse {

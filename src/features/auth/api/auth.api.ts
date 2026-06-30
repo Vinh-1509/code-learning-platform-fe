@@ -1,19 +1,34 @@
 import { api } from '@/lib/axios';
-import type { AuthPayload, AuthResponse, AuthUserResponse } from '@/types/auth';
-
+import type { AuthPayload } from '@/types/auth';
+import {
+  AuthResponseSchema,
+  AuthUserResponseSchema,
+  type AuthResponse,
+  type AuthUserResponse,
+} from '../auth.schema';
+/**
+ * Authenticates a user and validates the token payload at runtime.
+ */
 export async function loginUser(payload: AuthPayload): Promise<AuthResponse> {
-  const { data } = await api.post<AuthResponse>('/api/auth/login', payload);
-  return data;
+  // Pass 'unknown' to axios generic to prevent ESLint 'any' destructuring rule violations
+  const { data } = await api.post<unknown>('/api/auth/login', payload);
+  return AuthResponseSchema.parse(data);
 }
 
+/**
+ * Registers a new user account and guarantees validation of the session token.
+ */
 export async function registerUser(
   payload: AuthPayload
 ): Promise<AuthResponse> {
-  const { data } = await api.post<AuthResponse>('/api/auth/register', payload);
-  return data;
+  const { data } = await api.post<unknown>('/api/auth/register', payload);
+  return AuthResponseSchema.parse(data);
 }
 
+/**
+ * Retrieves and strictly verifies the currently logged-in user profile.
+ */
 export async function getMe(): Promise<AuthUserResponse> {
-  const { data } = await api.get<AuthUserResponse>('/api/auth/me');
-  return data;
+  const { data } = await api.get<unknown>('/api/auth/me');
+  return AuthUserResponseSchema.parse(data);
 }
