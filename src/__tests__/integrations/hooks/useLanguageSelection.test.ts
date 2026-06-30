@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
-
+import { createQueryWrapper } from '@/__tests__/helpers/queryWrapper';
 // Create a mock navigation tracking function
 const mockNavigate = vi.fn();
 
@@ -36,7 +36,8 @@ describe('useLanguageSelection()', () => {
     // Return a hanging promise to intercept the hook during initialization phase
     vi.mocked(fetchLanguages).mockReturnValueOnce(new Promise(() => {}));
 
-    const { result } = renderHook(() => useLanguageSelection());
+    const { wrapper } = createQueryWrapper();
+    const { result } = renderHook(() => useLanguageSelection(), { wrapper });
 
     expect(result.current.fetching).toBe(true);
     expect(result.current.languages).toEqual([]);
@@ -47,7 +48,8 @@ describe('useLanguageSelection()', () => {
   it('populates available languages and clears fetching flag upon successful load', async () => {
     vi.mocked(fetchLanguages).mockResolvedValueOnce(mockLanguages);
 
-    const { result } = renderHook(() => useLanguageSelection());
+    const { wrapper } = createQueryWrapper();
+    const { result } = renderHook(() => useLanguageSelection(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.fetching).toBe(false);
@@ -60,7 +62,8 @@ describe('useLanguageSelection()', () => {
   it('safely breaks early out of confirmation routine if no selection has been made', async () => {
     vi.mocked(fetchLanguages).mockResolvedValueOnce(mockLanguages);
 
-    const { result } = renderHook(() => useLanguageSelection());
+    const { wrapper } = createQueryWrapper();
+    const { result } = renderHook(() => useLanguageSelection(), { wrapper });
     await waitFor(() => expect(result.current.fetching).toBe(false));
 
     // Changed to synchronous execution closure to adhere to @typescript-eslint specifications
@@ -75,7 +78,8 @@ describe('useLanguageSelection()', () => {
   it('safely breaks early if chosen language selection string does not map to list indices', async () => {
     vi.mocked(fetchLanguages).mockResolvedValueOnce(mockLanguages);
 
-    const { result } = renderHook(() => useLanguageSelection());
+    const { wrapper } = createQueryWrapper();
+    const { result } = renderHook(() => useLanguageSelection(), { wrapper });
     await waitFor(() => expect(result.current.fetching).toBe(false));
 
     act(() => {
@@ -95,7 +99,8 @@ describe('useLanguageSelection()', () => {
     vi.mocked(fetchLanguages).mockResolvedValueOnce(mockLanguages);
     vi.mocked(saveLanguage).mockResolvedValueOnce(undefined);
 
-    const { result } = renderHook(() => useLanguageSelection());
+    const { wrapper } = createQueryWrapper();
+    const { result } = renderHook(() => useLanguageSelection(), { wrapper });
     await waitFor(() => expect(result.current.fetching).toBe(false));
 
     act(() => {
@@ -115,7 +120,8 @@ describe('useLanguageSelection()', () => {
     vi.mocked(fetchLanguages).mockResolvedValueOnce(mockLanguages);
     vi.mocked(saveLanguage).mockRejectedValueOnce(new Error('Network failure'));
 
-    const { result } = renderHook(() => useLanguageSelection());
+    const { wrapper } = createQueryWrapper();
+    const { result } = renderHook(() => useLanguageSelection(), { wrapper });
     await waitFor(() => expect(result.current.fetching).toBe(false));
 
     act(() => {

@@ -1,152 +1,146 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
-import { useBlockLessons } from '@/features/lesson/hooks/useBlockLessons';
-import { fetchLessonById } from '@/features/lesson/api/lesson.api';
-import type { LessonDetailResponse } from '@/types/api/learning.types';
+import { http, HttpResponse } from 'msw';
 
-// Mock the lesson API layer module
-vi.mock('@/features/lesson/api/lesson.api', () => ({
-  fetchLessonById: vi.fn(),
-}));
+import { useBlockLessons } from '@/features/lesson/hooks/useBlockLessons';
+import { server } from '../../mocks/server';
+import { createQueryWrapper } from '../../helpers/queryWrapper';
 
 describe('useBlockLessons()', () => {
-  const mockLessonData = {
-    _id: 'lesson-123',
-    title: 'Introduction to C++',
-    blocks: [],
-  } as unknown as LessonDetailResponse;
-
   beforeEach(() => {
-    vi.clearAllMocks();
-    // Spy on console.error to suppress intentional error logs during tests
-    vi.spyOn(console, 'error').mockImplementation(() => {});
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
+    // Reset any per-test handler overrides set via server.use()
+    server.resetHandlers();
   });
 
   it('does not initiate any API call if lessonId is an empty string', () => {
-    const { result } = renderHook(() => useBlockLessons({ lessonId: '' }));
+    const { wrapper } = createQueryWrapper();
+    const { result } = renderHook(() => useBlockLessons({ lessonId: '' }), {
+      wrapper,
+    });
 
-    expect(fetchLessonById).not.toHaveBeenCalled();
+    // `enabled: false` -> query never fires, data stays undefined/null
     expect(result.current.currentLesson).toBeNull();
   });
 
   it('fetches lesson data successfully on mount when lessonId is provided', async () => {
-    vi.mocked(fetchLessonById).mockResolvedValueOnce(mockLessonData);
-
-    const { result } = renderHook(() =>
-      useBlockLessons({ lessonId: 'lesson-123' })
+    server.use(
+      http.get('*/api/learning/lessons/:lessonId', ({ params }) => {
+        return HttpResponse.json({
+          _id: String(params.lessonId),
+          title: 'Introduction to C++',
+          blocks: [],
+        });
+      })
     );
 
-    // Initially null before the side-effect promise resolves
+    const { wrapper } = createQueryWrapper();
+    const { result } = renderHook(
+      () => useBlockLessons({ lessonId: 'lesson-123' }),
+      { wrapper }
+    );
+
     expect(result.current.currentLesson).toBeNull();
 
     await waitFor(() => {
-      expect(result.current.currentLesson).toEqual(mockLessonData);
-    });
-
-    expect(fetchLessonById).toHaveBeenCalledOnce();
-    expect(fetchLessonById).toHaveBeenCalledWith('lesson-123');
-  });
-
-  it('handles API fetch error gracefully on mount by logging and setting state to null', async () => {
-    const mockError = new Error('Database connection failed');
-    vi.mocked(fetchLessonById).mockRejectedValueOnce(mockError);
-
-    const { result } = renderHook(() =>
-      useBlockLessons({ lessonId: 'lesson-123' })
-    );
-
-    await waitFor(() => {
-      expect(result.current.currentLesson).toBeNull();
-    });
-
-    expect(console.error).toHaveBeenCalledWith('Lỗi:', mockError);
-  });
-
-  it('re-runs the fetch lifecycle when the lessonId dependency changes', async () => {
-    vi.mocked(fetchLessonById)
-      .mockResolvedValueOnce(mockLessonData)
-      .mockResolvedValueOnce({
-        ...mockLessonData,
-        _id: 'lesson-456',
-        title: 'Pointers & References',
-      });
-
-    const { result, rerender } = renderHook(
-      ({ lessonId }) => useBlockLessons({ lessonId }),
-      { initialProps: { lessonId: 'lesson-123' } }
-    );
-
-    await waitFor(() => {
-      expect(result.current.currentLesson).toEqual(mockLessonData);
-    });
-
-    // Rerender hook with a completely different lesson ID
-    rerender({ lessonId: 'lesson-456' });
-
-    await waitFor(() => {
-      expect(result.current.currentLesson).toEqual({
-        ...mockLessonData,
-        _id: 'lesson-456',
-        title: 'Pointers & References',
-      });
-    });
-
-    expect(fetchLessonById).toHaveBeenCalledTimes(2);
-    expect(fetchLessonById).toHaveBeenNthCalledWith(1, 'lesson-123');
-    expect(fetchLessonById).toHaveBeenNthCalledWith(2, 'lesson-456');
-  });
-
-  it('manually updates currentLesson data when refetchLesson is executed', async () => {
-    vi.mocked(fetchLessonById)
-      .mockResolvedValueOnce(mockLessonData)
-      .mockResolvedValueOnce({
-        ...mockLessonData,
-        title: 'Updated Introduction to C++',
-      });
-
-    const { result } = renderHook(() =>
-      useBlockLessons({ lessonId: 'lesson-123' })
-    );
-
-    await waitFor(() => {
-      expect(result.current.currentLesson).toEqual(mockLessonData);
-    });
-
-    // Invoke manual refetch routine inside an act block
-    await act(async () => {
-      await result.current.refetchLesson();
+      expect(result.current.currentLesson).not.toBeNull();
     });
 
     expect(result.current.currentLesson).toEqual({
-      ...mockLessonData,
-      title: 'Updated Introduction to C++',
+      _id: 'lesson-123',
+      title: 'Introduction to C++',
+      blocks: [],
     });
-    expect(fetchLessonById).toHaveBeenCalledTimes(2);
   });
 
-  it('handles API failure gracefully and drops data state to null when refetchLesson throws', async () => {
-    vi.mocked(fetchLessonById).mockResolvedValueOnce(mockLessonData);
+  it('keeps currentLesson null when the API call fails', async () => {
+    server.use(
+      http.get('*/api/learning/lessons/:lessonId', () => {
+        return new HttpResponse(null, { status: 500 });
+      })
+    );
 
-    const { result } = renderHook(() =>
-      useBlockLessons({ lessonId: 'lesson-123' })
+    const { wrapper } = createQueryWrapper();
+    const { result } = renderHook(
+      () => useBlockLessons({ lessonId: 'lesson-123' }),
+      { wrapper }
     );
 
     await waitFor(() => {
-      expect(result.current.currentLesson).toEqual(mockLessonData);
+      // useQuery surfaces failure via isError, not by throwing/logging itself
+      expect(result.current.currentLesson).toBeNull();
+    });
+  });
+
+  it('re-runs the fetch lifecycle when the lessonId dependency changes', async () => {
+    server.use(
+      http.get('*/api/learning/lessons/:lessonId', ({ params }) => {
+        const id = String(params.lessonId);
+        return HttpResponse.json({
+          _id: id,
+          title:
+            id === 'lesson-123'
+              ? 'Introduction to C++'
+              : 'Pointers & References',
+          blocks: [],
+        });
+      })
+    );
+
+    const { wrapper } = createQueryWrapper();
+    const { result, rerender } = renderHook(
+      ({ lessonId }: { lessonId: string }) => useBlockLessons({ lessonId }),
+      { initialProps: { lessonId: 'lesson-123' }, wrapper }
+    );
+
+    await waitFor(() => {
+      expect(result.current.currentLesson?.title).toBe('Introduction to C++');
     });
 
-    const mockError = new Error('Timeout error');
-    vi.mocked(fetchLessonById).mockRejectedValueOnce(mockError);
+    rerender({ lessonId: 'lesson-456' });
+
+    await waitFor(() => {
+      expect(result.current.currentLesson?.title).toBe('Pointers & References');
+    });
+
+    expect(result.current.currentLesson?._id).toBe('lesson-456');
+  });
+
+  it('manually updates currentLesson data when refetchLesson is executed', async () => {
+    let callCount = 0;
+    server.use(
+      http.get('*/api/learning/lessons/:lessonId', () => {
+        callCount += 1;
+        return HttpResponse.json({
+          _id: 'lesson-123',
+          title:
+            callCount === 1
+              ? 'Introduction to C++'
+              : 'Updated Introduction to C++',
+          blocks: [],
+        });
+      })
+    );
+
+    const { wrapper } = createQueryWrapper();
+    const { result } = renderHook(
+      () => useBlockLessons({ lessonId: 'lesson-123' }),
+      { wrapper }
+    );
+
+    await waitFor(() => {
+      expect(result.current.currentLesson?.title).toBe('Introduction to C++');
+    });
 
     await act(async () => {
       await result.current.refetchLesson();
     });
 
-    expect(result.current.currentLesson).toBeNull();
-    expect(console.error).toHaveBeenCalledWith('Lỗi:', mockError);
+    await waitFor(() => {
+      expect(result.current.currentLesson?.title).toBe(
+        'Updated Introduction to C++'
+      );
+    });
+
+    expect(callCount).toBe(2);
   });
 });

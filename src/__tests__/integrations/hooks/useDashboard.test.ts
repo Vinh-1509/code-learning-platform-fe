@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
-
+import { createQueryWrapper } from '@/__tests__/helpers/queryWrapper';
 // Mock the dashboard API layer module where the fetch function lives
 vi.mock('@/features/dashboard/api/dashboard.api', () => ({
   fetchDashboardData: vi.fn(),
@@ -30,7 +30,8 @@ describe('useDashboardData()', () => {
     // before the async effect has a chance to resolve.
     vi.mocked(fetchDashboardData).mockReturnValueOnce(new Promise(() => {}));
 
-    const { result } = renderHook(() => useDashboardData());
+    const { wrapper } = createQueryWrapper();
+    const { result } = renderHook(() => useDashboardData(), { wrapper });
 
     expect(result.current.loading).toBe(true);
     expect(result.current.dashboardData).toBeNull();
@@ -40,7 +41,8 @@ describe('useDashboardData()', () => {
   it('fetches and sets dashboard data successfully on mount', async () => {
     vi.mocked(fetchDashboardData).mockResolvedValueOnce(mockDashboardData);
 
-    const { result } = renderHook(() => useDashboardData());
+    const { wrapper } = createQueryWrapper();
+    const { result } = renderHook(() => useDashboardData(), { wrapper });
 
     // Wait for the async effect to finish loading
     await waitFor(() => {
@@ -56,7 +58,8 @@ describe('useDashboardData()', () => {
     const mockError = new Error('500 Internal Server Error');
     vi.mocked(fetchDashboardData).mockRejectedValueOnce(mockError);
 
-    const { result } = renderHook(() => useDashboardData());
+    const { wrapper } = createQueryWrapper();
+    const { result } = renderHook(() => useDashboardData(), { wrapper });
 
     // Wait for the async effect to catch the error
     await waitFor(() => {

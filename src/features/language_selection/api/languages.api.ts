@@ -1,19 +1,19 @@
 import { api } from '@/lib/axios';
+import { z } from 'zod';
 import type { LanguageOption, Language } from '@/types/languageSelection';
+import { LanguageDetailResponseSchema } from '../language_selection.schema';
 
-interface LanguageDetailResponse {
-  _id: string;
-  language: Language;
-  info: string;
-  strengths: string[];
-  challenges: string[];
-  useCases: string[];
-}
-
+/**
+ * Fetches the supported compiler configurations and transforms raw responses safely.
+ */
 export async function fetchLanguages(): Promise<LanguageOption[]> {
-  const { data } = await api.get<LanguageDetailResponse[]>('/api/languages');
+  // unknown generic avoids unsafe-assignment errors on destructuring data
+  const { data } = await api.get<unknown>('/api/languages');
 
-  return data.map((item) => ({
+  // Validate array content at runtime using Zod array method
+  const validatedData = z.array(LanguageDetailResponseSchema).parse(data);
+
+  return validatedData.map((item) => ({
     id: item._id,
     language: item.language,
     tagline: item.info,
@@ -27,6 +27,9 @@ export async function fetchLanguages(): Promise<LanguageOption[]> {
   }));
 }
 
+/**
+ * Registers the student's base onboarding language path mapping choice.
+ */
 export async function saveLanguage(language: Language): Promise<void> {
-  await api.post('/api/languages/select', { language });
+  await api.post<unknown>('/api/languages/select', { language });
 }

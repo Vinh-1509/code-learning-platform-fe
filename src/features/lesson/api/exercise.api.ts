@@ -1,59 +1,65 @@
 import { api } from '@/lib/axios';
-import type {
-  ExerciseResponse,
-  SubmitAnswerResponse,
-  HintResponse,
-  ExerciseAttemptResponse,
-  ExplainAnswerResponse,
-} from '@/types/api/exercise.types';
+import { z } from 'zod';
+import {
+  ExerciseResponseSchema,
+  SubmitAnswerResponseSchema,
+  HintResponseSchema,
+  ExerciseAttemptResponseSchema,
+  ExplainAnswerResponseSchema,
+  type ExerciseResponse,
+  type SubmitAnswerResponse,
+  type HintResponse,
+  type ExerciseAttemptResponse,
+  type ExplainAnswerResponse,
+} from '../lesson.schema';
 
 export async function fetchExerciseById(
   exerciseId: string
 ): Promise<ExerciseResponse> {
-  const { data } = await api.get<ExerciseResponse>(
+  const { data } = await api.get<unknown>(
     `/api/practice/exercises/${exerciseId}`
   );
-  return data;
+  return ExerciseResponseSchema.parse(data);
 }
 
 export async function submitExerciseAnswer(
   exerciseId: string,
   answer: unknown
 ): Promise<SubmitAnswerResponse> {
-  const { data } = await api.post<SubmitAnswerResponse>(
+  const { data } = await api.post<unknown>(
     `/api/practice/exercises/${exerciseId}/submit`,
     { answer }
   );
-  return data;
+  return SubmitAnswerResponseSchema.parse(data);
 }
 
 export async function getExerciseHint(
   exerciseId: string,
   level?: number
 ): Promise<HintResponse> {
-  const { data } = await api.post<HintResponse>(
+  const { data } = await api.post<unknown>(
     `/api/practice/exercises/${exerciseId}/hint`,
     { level }
   );
-  return data;
+  return HintResponseSchema.parse(data);
 }
 
 export async function getExerciseHistory(
   exerciseId: string
 ): Promise<ExerciseAttemptResponse[]> {
-  const { data } = await api.get<ExerciseAttemptResponse[]>(
+  const { data } = await api.get<unknown>(
     `/api/practice/exercises/${exerciseId}/history`
   );
-  return data;
+  return z.array(ExerciseAttemptResponseSchema).parse(data);
 }
 
 export async function explainExerciseAnswer(
   exerciseId: string,
   answer: unknown
 ): Promise<ExplainAnswerResponse> {
-  const { data } = await api.post<ExplainAnswerResponse>(
+  const { data } = await api.post<unknown>(
     `/api/exercises/${exerciseId}/explain`,
     { answer }
   );
-  return data;
+  return ExplainAnswerResponseSchema.parse(data);
 }
