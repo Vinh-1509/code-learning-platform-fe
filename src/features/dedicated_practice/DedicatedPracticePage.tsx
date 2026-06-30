@@ -1,11 +1,12 @@
 import { getRouteApi, useNavigate } from '@tanstack/react-router';
+import { useQuery } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
-import { useState, useEffect } from 'react';
 
 import Navbar from '@/components/navbar/Navbar';
 import { PracticePanel } from '@/components/practice_utils/PracticePanel';
-import { useDedicatedPractice } from './useDedicatedPractice';
+import { useDedicatedPractice } from './hooks/useDedicatedPractice';
 import { fetchExercises } from '@/features/practices/api/practice.api';
+import { queryKeys } from '@/lib/queryKeys';
 import { TaskPane } from './TaskPanel';
 
 const PracticeRouteApi = getRouteApi('/practice-dedicated/$exerciseId');
@@ -33,47 +34,43 @@ export function DedicatedPracticePage() {
   } = useDedicatedPractice(exerciseId);
 
   const practiceInfo = rawResponse as ExerciseResponse | null;
-  const [nextExerciseId, setNextExerciseId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!practiceInfo?.language || !practiceInfo?.level) return;
-
-    let isMounted = true;
-
-    const prefetchNextExercise = async () => {
-      try {
-        const params = {
-          language: practiceInfo.language,
-          difficulty: practiceInfo.level,
-          page: 1,
-          limit: 1000,
-        };
-
-        const list = await fetchExercises(params);
-        if (!isMounted) return;
-
-        const sorted = (list.data || []).sort((a, b) => a.order - b.order);
-        const currentIdx = sorted.findIndex((e) => e._id === practiceInfo._id);
-
-        if (currentIdx !== -1) {
-          const nextValidExercise = sorted
-            .slice(currentIdx + 1)
-            .find((e) => e.status !== 'locked');
-
-          setNextExerciseId(nextValidExercise ? nextValidExercise._id : null);
-        }
-      } catch (err) {
-        console.error('Failed to pre-fetch next valid exercise:', err);
-        if (isMounted) setNextExerciseId(null);
+  // ── Next-exercise lookup ───────────────────────────────────────────────────
+  // Reuses the exact same query key/params shape as usePractice's filtered
+  // grid query, so navigating Practice Library → Dedicated Practice doesn't
+  // trigger a duplicate network request if the list is already cached.
+  const nextExerciseParams = practiceInfo
+    ? {
+        language: practiceInfo.language,
+        difficulty: practiceInfo.level,
+        page: 1,
+        limit: 1000,
       }
-    };
+    : null;
 
-    void prefetchNextExercise();
+  const { data: siblingExercisesData } = useQuery({
+    queryKey: queryKeys.exercises.list(nextExerciseParams ?? {}),
+    queryFn: () => fetchExercises(nextExerciseParams!),
+    enabled: Boolean(nextExerciseParams),
+    staleTime: 30_000,
+  });
 
-    return () => {
-      isMounted = false;
-    };
-  }, [practiceInfo]);
+  const nextExerciseId = (() => {
+    if (!practiceInfo || !siblingExercisesData) return null;
+
+    const sorted = (siblingExercisesData.data || []).sort(
+      (a, b) => a.order - b.order
+    );
+    const currentIdx = sorted.findIndex((e) => e._id === practiceInfo._id);
+
+    if (currentIdx === -1) return null;
+
+    const nextValidExercise = sorted
+      .slice(currentIdx + 1)
+      .find((e) => e.status !== 'locked');
+
+    return nextValidExercise ? nextValidExercise._id : null;
+  })();
 
   const taskTitle = exercise?.title ?? 'Loading...';
   const taskInstruction = exercise?.description ?? '';

@@ -1140,10 +1140,10 @@ export const queryClient = new QueryClient({
 
 | Task                                                           | Effort | Risk      | Benefit                       | Status     |
 | -------------------------------------------------------------- | ------ | --------- | ----------------------------- | ---------- |
-| Feynman history → `useFeynmanHistoryQuery` (complex merge)     | 4 hr   | 🟠 High   | Standardized loading + retry  | ⏳ Pending |
-| Implement `useDebouncedValue` utility + refactor `usePractice` | 2 hr   | 🟡 Medium | Cleaner debounce              | ⏳ Pending |
+| Feynman history → `useFeynmanHistoryQuery` (complex merge)     | 4 hr   | 🟠 High   | Standardized loading + retry  | ✅ Done    |
+| Implement `useDebouncedValue` utility + refactor `usePractice` | 2 hr   | 🟡 Medium | Cleaner debounce              | ✅ Done    |
 | Extract all response types to `src/types/api/`                 | 2 hr   | 🟢 Low    | Maintainability               | ✅ Done    |
-| Slim down `AuthContext` — remove mutation fns                  | 2 hr   | 🟡 Medium | Context is read-only; simpler | ⏳ Pending |
+| Slim down `AuthContext` — remove mutation fns                  | 2 hr   | 🟡 Medium | Context is read-only; simpler | ✅ Done    |
 | Add Zod schemas for API responses                              | 4 hr   | 🟡 Medium | Runtime safety                | ⏳ Pending |
 | Wire up MSW for unit tests                                     | 3 hr   | 🟡 Medium | Test isolation                | ⏳ Pending |
 | Write query hook tests with `renderHook` + MSW                 | 4 hr   | 🟡 Medium | Confidence                    | ⏳ Pending |
@@ -1191,7 +1191,7 @@ Use `loader` for prefetching and **replace** `lessonGuard.ts` with `queryClient.
 | 9        | Update lesson route loader                   | 1 hr   | 🟠 Data already in cache when component mounts | ✅ Done    |
 | 10       | Convert `useRoadmap` → `useQueries` parallel | 2 hr   | 🟠 N+1 elimination                             | ✅ Done    |
 | 11       | Implement all 8 mutations with invalidation  | 4 hr   | 🟠 Data consistency                            | ✅ Done    |
-| 12       | Convert remaining 4 hooks to `useQuery`      | 4 hr   | 🟡 Consistency                                 | ⏳ Pending |
-| 13       | Add error boundaries per route               | 2 hr   | 🟡 Error UX                                    | ⏳ Pending |
+| 12       | Convert remaining 4 hooks to `useQuery`      | 4 hr   | 🟡 Consistency                                 | ✅ Done    |
+| 13       | Add error boundaries per route               | 2 hr   | 🟡 Error UX                                    | ✅ Done    |
 | 15       | Extract types from `lib/axios.ts`            | 2 hr   | 🟡 Maintainability                             | ✅ Done    |
 | 16       | Add Zod + MSW + query hook tests             | 8 hr   | 🟡 Confidence                                  | ⏳ Pending |

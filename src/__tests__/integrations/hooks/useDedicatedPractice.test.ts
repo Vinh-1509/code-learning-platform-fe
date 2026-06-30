@@ -14,7 +14,7 @@ vi.mock('@/components/practice_utils/utils/exercise.converter', () => ({
   convertExerciseResponse: vi.fn(),
 }));
 
-import { useDedicatedPractice } from '@/features/dedicated_practice/useDedicatedPractice';
+import { useDedicatedPractice } from '@/features/dedicated_practice/hooks/useDedicatedPractice';
 import {
   fetchExerciseById,
   submitExerciseAnswer,

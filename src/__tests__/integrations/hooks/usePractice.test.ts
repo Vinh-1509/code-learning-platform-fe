@@ -13,7 +13,7 @@ vi.mock('@/features/practices/api/practice.api', () => ({
   fetchWeaknessTags: vi.fn(),
 }));
 
-import { usePractice } from '@/features/practices/usePractice';
+import { usePractice } from '@/features/practices/hooks/usePractice';
 import {
   fetchExercises,
   fetchWeaknessTags,

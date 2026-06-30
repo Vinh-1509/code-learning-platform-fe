@@ -82,12 +82,12 @@ export function useSendFeynmanMessage(lessonBlockId: string, lessonId: string) {
   >({
     mutationFn: ({ content }) => sendFeynmanMessage(lessonBlockId, content),
     onSuccess: (result, variables) => {
-      // ── Always: write new messages directly into cache (no refetch needed) ──
       const historyKey = queryKeys.feynman.history(lessonBlockId);
       const previousSession =
         queryClient.getQueryData<ValidatedSessionCache>(historyKey);
 
       if (previousSession) {
+        // Fast path: append directly into cache, no extra network round-trip.
         queryClient.setQueryData<ValidatedSessionCache>(historyKey, {
           isPassed: result.isPassed,
           messages: [
@@ -104,24 +104,22 @@ export function useSendFeynmanMessage(lessonBlockId: string, lessonId: string) {
             },
           ],
         });
+      } else {
+        void queryClient.invalidateQueries({ queryKey: historyKey });
       }
 
-      // ── Always: stats sidebar may have changed ────────────────────────────
       void queryClient.invalidateQueries({
         queryKey: queryKeys.feynman.stats(lessonBlockId),
       });
 
       // ── On pass only: lesson block status, roadmap progress, and dashboard ─
       if (result.isPassed) {
-        // Block status changed from active → completed on the lesson
         void queryClient.invalidateQueries({
           queryKey: queryKeys.lessons.detail(lessonId),
         });
-        // Milestone completion percentage and status may have changed
         void queryClient.invalidateQueries({
           queryKey: queryKeys.milestones.all,
         });
-        // Dashboard stats (lessons learned counter) are now stale
         void queryClient.invalidateQueries({
           queryKey: queryKeys.dashboard.all,
         });
