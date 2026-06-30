@@ -33,7 +33,7 @@ const mockBaseExercise: Exercise = {
   title: 'Binary Tree Inversion',
   instruction: 'Invert a binary tree iteratively or recursively.',
   level: 'medium',
-  status: 'not_started',
+  status: 'active',
   tagId: ['trees'],
   type: 'drag_drop',
   language: 'C++',
@@ -77,9 +77,7 @@ describe('ExerciseCard Component', () => {
   describe('Conditional States (Status Matrix)', () => {
     it('renders an active exercise with a "Start" link button', () => {
       render(
-        <ExerciseCard
-          exercise={{ ...mockBaseExercise, status: 'not_started' }}
-        />
+        <ExerciseCard exercise={{ ...mockBaseExercise, status: 'active' }} />
       );
 
       const startButton = screen.getByRole('button', { name: /^start$/i });
@@ -126,7 +124,7 @@ describe('ExerciseCard Component', () => {
     it('shows the "Review Needed" badge if flagged as a weak area and exercise is unlocked', () => {
       render(
         <ExerciseCard
-          exercise={{ ...mockBaseExercise, status: 'not_started' }}
+          exercise={{ ...mockBaseExercise, status: 'active' }}
           isWeakRecommend={true}
         />
       );
@@ -148,7 +146,7 @@ describe('ExerciseCard Component', () => {
     it('hides the "Review Needed" badge if flag parameter is absent', () => {
       render(
         <ExerciseCard
-          exercise={{ ...mockBaseExercise, status: 'not_started' }}
+          exercise={{ ...mockBaseExercise, status: 'active' }}
           isWeakRecommend={false}
         />
       );

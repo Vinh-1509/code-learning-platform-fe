@@ -12,7 +12,7 @@ export const ExerciseSchema = z.object({
   type: ExerciseTypeSchema,
   level: ExerciseDifficultySchema,
   order: z.number(),
-  status: z.string().optional(),
+  status: z.enum(['completed', 'active', 'locked']).optional(),
 });
 
 export const ExercisePageResponseSchema = z.object({
