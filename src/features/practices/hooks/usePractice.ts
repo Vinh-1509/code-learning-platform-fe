@@ -1,7 +1,8 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 
 import { queryKeys } from '@/lib/queryKeys';
+import { useDebouncedValue } from '@/lib/hooks/useDebouncedValue';
 import {
   fetchExercises,
   fetchWeaknessTags,
@@ -44,26 +45,12 @@ export function usePractice(filters: UsePracticeFilters): UsePracticeResult {
   const userLanguage = user?.selectedLanguage?.[0];
 
   // ── Debounce search/difficulty inputs ─────────────────────────────────────
-  // Replaces the manual setTimeout inside the old useEffect.
-  // Page and limit are not debounced — they change on explicit user action.
-  // setState inside a setTimeout effect is intentionally async (400 ms gap),
-  // so it does not cause cascading renders.
-  const [debouncedQ, setDebouncedQ] = useState(filters.q ?? '');
-  const [debouncedDifficulty, setDebouncedDifficulty] = useState(
-    filters.difficulty ?? ''
-  );
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedQ(filters.q ?? '');
-      setDebouncedDifficulty(filters.difficulty ?? '');
-    }, 400);
-    return () => clearTimeout(timer);
-  }, [filters.q, filters.difficulty]);
+  // Each filter debounces independently — typing in search no longer resets
+  // the difficulty dropdown's debounce timer, and vice versa.
+  const debouncedQ = useDebouncedValue(filters.q ?? '', 400);
+  const debouncedDifficulty = useDebouncedValue(filters.difficulty ?? '', 400);
 
   // ── Build stable query-param objects ─────────────────────────────────────
-  // Memoized so the query key only changes when the values actually change,
-  // preventing React Query from firing a new request on every render.
   const heroParams = useMemo<FetchExercisesParams>(
     () => ({ page: 1, limit: 100, language: userLanguage ?? '' }),
     [userLanguage]
@@ -89,21 +76,16 @@ export function usePractice(filters: UsePracticeFilters): UsePracticeResult {
   ]);
 
   // ── Query 1: Weakness tags ────────────────────────────────────────────────
-  // Shared between the hero and feed derivations — one network call, one cache
-  // entry. The original fetched this separately inside each useEffect.
   const { data: weaknessData } = useQuery({
     queryKey: queryKeys.tags.weakness(),
     queryFn: fetchWeaknessTags,
     enabled: Boolean(userLanguage),
-    staleTime: 5 * 60_000, // Weakness data is slow to change
+    staleTime: 5 * 60_000,
     gcTime: 30 * 60_000,
-    retry: 1, // Original silently swallowed errors; be lenient here too
+    retry: 1,
   });
 
   // ── Query 2: Global exercises for the hero banner ─────────────────────────
-  // Intentionally unbounded by UI filter state so the "Weakness-Based
-  // Recommendation" card always reflects the user's actual weakest concept,
-  // not whatever the search/difficulty dropdowns happen to be set to.
   const { data: globalExercisesData } = useQuery({
     queryKey: queryKeys.exercises.list(heroParams),
     queryFn: () => fetchExercises(heroParams),
@@ -113,8 +95,6 @@ export function usePractice(filters: UsePracticeFilters): UsePracticeResult {
   });
 
   // ── Query 3: Filtered exercises for the main grid ─────────────────────────
-  // keepPreviousData keeps the old list visible while a new filter is loading,
-  // replacing the UX role the 400 ms debounce played in the original.
   const {
     data: filteredExercisesData,
     isLoading: loading,
@@ -138,7 +118,7 @@ export function usePractice(filters: UsePracticeFilters): UsePracticeResult {
     [weakTags]
   );
 
-  // ── Derived: hero banner (Phase 1 logic, now a useMemo) ───────────────────
+  // ── Derived: hero banner ───────────────────────────────────────────────────
   const { featuredExercise, isWeakRecommendation } = useMemo(() => {
     const globalList = globalExercisesData?.data ?? [];
 

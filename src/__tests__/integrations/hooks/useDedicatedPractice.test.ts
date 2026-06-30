@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 
-import { useDedicatedPractice } from '@/features/dedicated_practice/useDedicatedPractice';
+import { useDedicatedPractice } from '@/features/dedicated_practice/hooks/useDedicatedPractice';
 import { server } from '../../mocks/server';
 import { createQueryWrapper } from '../../helpers/queryWrapper';
 

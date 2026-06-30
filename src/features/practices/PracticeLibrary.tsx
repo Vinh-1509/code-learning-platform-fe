@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Loader2, Star } from 'lucide-react';
 
-import { usePractice } from './usePractice';
+import { usePractice } from './hooks/usePractice';
 import { ExerciseCard } from './ExerciseCard';
 import { PracticeFilters } from './PracticeFilters';
 import { PracticeHero } from './PracticeHero';

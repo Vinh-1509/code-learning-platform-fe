@@ -12,7 +12,7 @@ vi.mock('@/features/auth/useAuth', () => ({
   useAuth: () => mockUseAuth(),
 }));
 
-import { usePractice } from '@/features/practices/usePractice';
+import { usePractice } from '@/features/practices/hooks/usePractice';
 
 describe('usePractice()', () => {
   const mockFilters = {
