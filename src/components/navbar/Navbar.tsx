@@ -111,7 +111,7 @@ const Navbar = ({
                 : 'border border-transparent text-slate-300 bg-transparent'
             )}
           >
-            Code
+            Practice
           </button>
         </div>
       )}

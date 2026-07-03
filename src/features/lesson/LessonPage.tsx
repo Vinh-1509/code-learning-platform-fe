@@ -9,6 +9,7 @@ import { FeynmanInterviewPane } from '../interview/FeynmanInterviewPane';
 import Navbar from '@/components/navbar/Navbar';
 import { useBlockExercises } from './hooks/useBlockExercises';
 import { ExerciseTabBar } from './ExerciseTabBar';
+import { useTour } from '@/components/tour/TourProvider';
 import { cn } from '@/lib/utils';
 
 const lessonRouteApi = getRouteApi('/lesson/$lessonId');
@@ -65,6 +66,19 @@ export function LessonPage() {
     setActiveTab('theory');
   }, [activeBlockId]);
 
+  // On mobile, only one of theory/practice is visible at a time (controlled
+  // by activeTab). Force the matching tab into view while the tour is
+  // pointing at it, so the target isn't hidden behind the other tab.
+  // No-op on desktop, since both panels render regardless of activeTab there.
+  const { stepIndex, wantRun } = useTour();
+
+  useEffect(() => {
+    if (!wantRun) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (stepIndex === 3) setActiveTab('theory');
+    else if (stepIndex === 4) setActiveTab('practice');
+  }, [stepIndex, wantRun]);
+
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-card">
       <Navbar
@@ -92,12 +106,16 @@ export function LessonPage() {
           <div className="flex-1 flex flex-col lg:flex-row min-h-0 overflow-hidden">
             {/* Theory panel */}
             <div
+              data-tour="lesson-theory"
               className={cn(
                 'flex-1 overflow-y-auto min-h-0 bg-card',
                 activeTab === 'theory' ? 'block' : 'hidden lg:block'
               )}
             >
-              <div className="lg:hidden bg-primary-second/50 text-primary px-6 py-2.5 text-sm font-bold border-b border-primary-second-border/50 select-none">
+              <div
+                data-tour="lesson-theory-mobile"
+                className="lg:hidden bg-primary-second/50 text-primary px-6 py-2.5 text-sm font-bold border-b border-primary-second-border/50 select-none"
+              >
                 Theory
               </div>
               <TheoryPanel block={currentBlock} />
@@ -105,12 +123,16 @@ export function LessonPage() {
 
             {/* Practice panel */}
             <div
+              data-tour="lesson-practice"
               className={cn(
                 'flex-1 min-h-0 z-10 flex flex-col shadow-[-10px_0_15px_-5px_rgba(0,0,0,0.06)] bg-card border-t lg:border-t-0 lg:border-l border-border',
                 activeTab === 'practice' ? 'flex' : 'hidden lg:flex'
               )}
             >
-              <div className="lg:hidden bg-primary-second/50 text-primary px-6 py-2.5 text-sm font-bold border-b border-primary-second-border/50 select-none">
+              <div
+                data-tour="lesson-practice-mobile"
+                className="lg:hidden bg-primary-second/50 text-primary px-6 py-2.5 text-sm font-bold border-b border-primary-second-border/50 select-none"
+              >
                 Practice
               </div>
               <ExerciseTabBar
