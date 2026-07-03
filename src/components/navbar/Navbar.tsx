@@ -1,11 +1,19 @@
 import { useState } from 'react';
 import { Link } from '@tanstack/react-router';
-import { ChevronLeft, User, Menu, Code, LogOut } from 'lucide-react';
+import {
+  ChevronLeft,
+  User,
+  Menu,
+  Code,
+  LogOut,
+  HelpCircle,
+} from 'lucide-react';
 import { useAuth } from '@/features/auth/useAuth'; // Read-only context hook
 import { useLogout } from '@/features/auth/hooks/useLogout'; // Mutation hook for logout
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useTour } from '@/components/tour/TourProvider';
 
 interface NavbarProps {
   variant?: 'dashboard' | 'lesson' | 'practice';
@@ -23,6 +31,7 @@ const Navbar = ({
   const { user } = useAuth(); // Extracted only read-only state
   const { mutate: handleLogout } = useLogout(); // Mutation handling state and side effects
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { startTour } = useTour();
 
   const activeLanguage = user?.selectedLanguage?.[0];
   const isCpp = activeLanguage === 'C++';
@@ -171,6 +180,15 @@ const Navbar = ({
               <Button
                 type="button"
                 variant="ghost"
+                onClick={startTour}
+                className="flex items-center gap-2 px-3 h-9 text-sm font-semibold text-primary hover:bg-primary-second/60 cursor-pointer shadow-none rounded-lg"
+              >
+                <HelpCircle className="size-4" />
+                Quick Tour
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
                 onClick={() => handleLogout()} // Clean structural invocation
                 className="flex items-center gap-2 px-3 h-9 text-sm font-semibold text-red-600 hover:bg-rose-50 hover:text-red-700 cursor-pointer shadow-none rounded-lg"
               >
@@ -185,12 +203,22 @@ const Navbar = ({
             </div>
 
             {onToggleSidebar && (
-              <div className="md:hidden">
+              <div className="md:hidden flex items-center gap-1.5">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={startTour}
+                  className="h-9 w-9 text-muted-foreground"
+                >
+                  <HelpCircle className="size-5" />
+                </Button>
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
                   onClick={onToggleSidebar}
+                  data-tour="menu-btn"
                   className="h-9 w-9 text-muted-foreground -mr-2"
                 >
                   <Menu className="size-5" />

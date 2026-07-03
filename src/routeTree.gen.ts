@@ -35,7 +35,7 @@ const PracticeRoute = PracticeRouteImport.update({
   id: '/practice',
   path: '/practice',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any).lazy(() => import('./routes/practice.lazy').then((d) => d.Route))
 const LanguageSelectionRoute = LanguageSelectionRouteImport.update({
   id: '/language-selection',
   path: '/language-selection',
@@ -45,7 +45,7 @@ const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any).lazy(() => import('./routes/dashboard.lazy').then((d) => d.Route))
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -56,12 +56,16 @@ const PracticeDedicatedExerciseIdRoute =
     id: '/practice-dedicated/$exerciseId',
     path: '/practice-dedicated/$exerciseId',
     getParentRoute: () => rootRouteImport,
-  } as any)
+  } as any).lazy(() =>
+    import('./routes/practice-dedicated.$exerciseId.lazy').then((d) => d.Route),
+  )
 const LessonLessonIdRoute = LessonLessonIdRouteImport.update({
   id: '/lesson/$lessonId',
   path: '/lesson/$lessonId',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any).lazy(() =>
+  import('./routes/lesson.$lessonId.lazy').then((d) => d.Route),
+)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute

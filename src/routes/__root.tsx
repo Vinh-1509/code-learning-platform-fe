@@ -1,6 +1,7 @@
 import { createRootRoute, Outlet } from '@tanstack/react-router';
 // import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import { AuthProvider } from '@/features/auth/hooks/AuthContextProvider';
+import { TourProvider } from '@/components/tour/TourProvider';
 
 const RootLayout = () => (
   <>
@@ -14,7 +15,9 @@ const RootLayout = () => (
     </div>
     <hr /> */}
     <AuthProvider>
-      <Outlet />
+      <TourProvider>
+        <Outlet />
+      </TourProvider>
     </AuthProvider>
     {/* <TanStackRouterDevtools /> */}
   </>

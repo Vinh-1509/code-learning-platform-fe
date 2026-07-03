@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { DashboardPage } from '../features/dashboard/DashboardPage';
 import { requireAuth } from '@/lib/auth';
 import { queryClient } from '@/lib/queryClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -25,5 +24,4 @@ export const Route = createFileRoute('/dashboard')({
     });
   },
   errorComponent: RouteError,
-  component: DashboardPage,
 });
