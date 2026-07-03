@@ -1,9 +1,68 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+} from 'react';
 import { useNavigate, useLocation } from '@tanstack/react-router';
 import { Joyride, type EventData, STATUS, type Step } from 'react-joyride';
 
 import TourTooltip from './TourTooltip';
+
+// hook to wait until all target elements exist in the DOM
+// uses MutationObserver with a fallback interval
+function useTargetsReady(selectors: string[], enabled: boolean): boolean {
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    if (!enabled || selectors.length === 0) {
+      const timer = setTimeout(() => setReady(false), 0);
+      return () => clearTimeout(timer);
+    }
+
+    const allPresent = () =>
+      selectors.every((sel) => document.querySelector(sel) !== null);
+
+    // Fast path: elements already exist
+    if (allPresent()) {
+      const timer = setTimeout(() => setReady(true), 0);
+      return () => clearTimeout(timer);
+    }
+
+    // defer setting to false to satisfy strict linting rules
+    const timer = setTimeout(() => setReady(false), 0);
+
+    // Observe DOM mutations for new nodes
+    const observer = new MutationObserver(() => {
+      if (allPresent()) {
+        setReady(true);
+        observer.disconnect();
+      }
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    // Safety-net interval in case a mutation is missed
+    const interval = setInterval(() => {
+      if (allPresent()) {
+        setReady(true);
+        observer.disconnect();
+        clearInterval(interval);
+      }
+    }, 200);
+
+    return () => {
+      clearTimeout(timer);
+      observer.disconnect();
+      clearInterval(interval);
+    };
+  }, [selectors.join(','), enabled]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  return ready;
+}
 
 interface TourContextType {
   run: boolean;
@@ -18,11 +77,29 @@ const TourContext = createContext<TourContextType | undefined>(undefined);
 export const TourProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [run, setRun] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
+
+  // wantRun indicates intent to start, but actual run state waits for DOM targets
+  const [wantRun, setWantRun] = useState(() => {
+    // auto start if first time
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('has_completed_tour') !== 'true';
+    }
+    return false;
+  });
+
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Track mounted state to avoid setting state after unmount
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   // Handle window resizing dynamically to adjust step targets and placements
   useEffect(() => {
@@ -34,76 +111,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // On mount, check if user has finished/skipped the tour. If not, auto-run.
-  useEffect(() => {
-    const hasCompleted = localStorage.getItem('has_completed_tour');
-    if (hasCompleted !== 'true') {
-      // Small delay to ensure initial routes, auth, and layout are hydrated
-      const timer = setTimeout(() => {
-        setRun(true);
-      }, 1500);
-      return () => clearTimeout(timer);
-    }
-  }, []);
-
-  // Monitor location and safely resume tour once elements on next route mount
-  useEffect(() => {
-    if (location.pathname === '/practice' && stepIndex === 3 && !run) {
-      const timer = setTimeout(() => {
-        setRun(true);
-      }, 600); // Allow ample time for TanStack router and Practice Page to mount
-      return () => clearTimeout(timer);
-    }
-    if (location.pathname === '/dashboard' && stepIndex === 2 && !run) {
-      const timer = setTimeout(() => {
-        setRun(true);
-      }, 600);
-      return () => clearTimeout(timer);
-    }
-  }, [location.pathname, stepIndex, run]);
-
-  const startTour = () => {
-    // If not on the dashboard, navigate back to start from step 1
-    if (location.pathname !== '/dashboard') {
-      void navigate({ to: '/dashboard' });
-    }
-    setStepIndex(0);
-    setRun(true);
-  };
-
-  const stopTour = () => {
-    setRun(false);
-  };
-
-  const handleJoyrideCallback = (data: EventData) => {
-    const { action, index, status, type } = data;
-
-    if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {
-      setRun(false);
-      localStorage.setItem('has_completed_tour', 'true');
-      setStepIndex(0);
-    } else if (type === 'step:after' && action === 'next') {
-      if (index === 2) {
-        // Leaving Step 3 (Learning Roadmap on /dashboard) -> going to Step 4 on /practice
-        setRun(false); // Pause tour during route change
-        setStepIndex(3);
-        void navigate({ to: '/practice' });
-      } else {
-        setStepIndex(index + 1);
-      }
-    } else if (type === 'step:after' && action === 'prev') {
-      if (index === 3) {
-        // Going backward from Step 4 (/practice) -> back to Step 3 on /dashboard
-        setRun(false);
-        setStepIndex(2);
-        void navigate({ to: '/dashboard' });
-      } else {
-        setStepIndex(index - 1);
-      }
-    }
-  };
-
-  // Define steps dynamically based on view size
+  // configure steps
   const tourSteps: Step[] = [
     {
       target: isMobile ? '[data-tour="menu-btn"]' : '[data-tour="sidebar-nav"]',
@@ -152,6 +160,93 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({
       buttons: ['skip', 'back', 'primary'],
     },
   ];
+
+  // check if current step target exists in DOM
+  const currentTargetSelectors = React.useMemo(() => {
+    const step = tourSteps[stepIndex];
+    return step ? [step.target as string] : [];
+  }, [stepIndex, isMobile]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // DOM readiness check: resolves `true` only when current step's target is in the DOM
+  const targetsReady = useTargetsReady(currentTargetSelectors, wantRun);
+
+  // actual run state is now fully derived!
+  const run = wantRun && targetsReady;
+
+  // resume tour when routing back
+  useEffect(() => {
+    if (!wantRun) {
+      if (
+        (location.pathname === '/practice' && stepIndex === 3) ||
+        (location.pathname === '/dashboard' && stepIndex === 2)
+      ) {
+        // use setTimeout to defer state update and satisfy the strict ESLint rule
+        const timer = setTimeout(() => setWantRun(true), 0);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [location.pathname, stepIndex, wantRun]);
+
+  // cleanup on unmount
+  useEffect(() => {
+    return () => {
+      setWantRun(false);
+    };
+  }, []);
+
+  const startTour = useCallback(() => {
+    // If not on the dashboard, navigate back to start from step 1
+    if (location.pathname !== '/dashboard') {
+      void navigate({ to: '/dashboard' });
+    }
+    setStepIndex(0);
+    setWantRun(true);
+  }, [location.pathname, navigate]);
+
+  const stopTour = useCallback(() => {
+    setWantRun(false);
+  }, []);
+
+  const handleJoyrideCallback = useCallback(
+    (data: EventData) => {
+      const { action, index, status, type } = data;
+
+      // stop on finish/skip/error
+      if (
+        status === STATUS.FINISHED ||
+        status === STATUS.SKIPPED ||
+        type === 'error'
+      ) {
+        setWantRun(false);
+        if (type !== 'error') {
+          localStorage.setItem('has_completed_tour', 'true');
+        }
+        setStepIndex(0);
+        return;
+      }
+
+      if (type === 'step:after' && action === 'next') {
+        if (index === 2) {
+          // pause tour during route change
+          setWantRun(false);
+          setStepIndex(3);
+          void navigate({ to: '/practice' });
+        } else {
+          setStepIndex(index + 1);
+        }
+      } else if (type === 'step:after' && action === 'prev') {
+        if (index === 3) {
+          // going back from practice to dashboard
+          setWantRun(false);
+          setStepIndex(2);
+          void navigate({ to: '/dashboard' });
+        } else {
+          setStepIndex(index - 1);
+        }
+      }
+    },
+    [navigate]
+  );
 
   return (
     <TourContext.Provider

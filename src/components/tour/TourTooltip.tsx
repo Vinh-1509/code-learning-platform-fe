@@ -4,17 +4,7 @@ import type { TooltipRenderProps } from 'react-joyride';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
-/**
- * TourTooltip is a custom tooltip component for react-joyride that replaces
- * the default tooltip with an app-native Tailwind-styled card.
- *
- * Features:
- * - Progress bar at the top showing how far along the tour is
- * - Step counter ("Step 1 of 4")
- * - Close (X) button in the top-right corner
- * - Skip / Back / Next / Finish buttons using the app's Button component
- * - animate-in entrance animation
- */
+// Custom Joyride tooltip using Tailwind UI components
 export default function TourTooltip({
   index,
   isLastStep,
@@ -40,14 +30,14 @@ export default function TourTooltip({
         'animate-in fade-in slide-in-from-bottom-2 duration-200'
       )}
     >
-      {/* ── Header row ── */}
+      {/* Header */}
       <div className="flex items-start justify-between gap-3 px-5 pt-4 pb-1">
         <div className="min-w-0 flex-1">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-primary">
+          <p className="text-xs font-semibold uppercase tracking-wider text-primary/80">
             Step {index + 1} of {size}
           </p>
           {title && (
-            <h4 className="mt-1 text-base font-extrabold leading-snug tracking-tight text-foreground">
+            <h4 className="mt-1.5 text-base font-semibold leading-snug tracking-tight text-foreground">
               {title as string}
             </h4>
           )}
@@ -57,28 +47,28 @@ export default function TourTooltip({
         <button
           type="button"
           {...closeProps}
-          className="-mr-1 -mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          className="-mr-1 -mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground cursor-pointer"
         >
           <X className="size-4" />
         </button>
       </div>
 
-      {/* ── Content ── */}
-      <div className="px-5 pb-4 pt-1.5 text-[0.8125rem] leading-relaxed text-muted-foreground font-medium">
+      {/* Body */}
+      <div className="px-5 pb-5 pt-2 text-sm leading-relaxed text-muted-foreground">
         {content}
       </div>
 
-      {/* ── Footer buttons ── */}
-      <div className="flex items-center justify-between border-t border-border px-5 py-3">
+      {/* Footer */}
+      <div className="flex items-center justify-between border-t border-border/60 px-5 py-3">
         {/* Left: Skip */}
         <div>
           {showSkip && (
             <button
               type="button"
               {...skipProps}
-              className="flex items-center gap-1 text-xs font-semibold text-muted-foreground/70 transition-colors hover:text-foreground cursor-pointer"
+              className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground/70 transition-colors hover:text-foreground cursor-pointer"
             >
-              <SkipForward className="size-3.5" />
+              <SkipForward className="size-4" />
               Skip tour
             </button>
           )}
@@ -94,7 +84,7 @@ export default function TourTooltip({
               {...backProps}
               className="gap-1 text-muted-foreground hover:text-foreground cursor-pointer"
             >
-              <ChevronLeft className="size-3.5" />
+              <ChevronLeft className="size-4" />
               Back
             </Button>
           )}
@@ -107,7 +97,7 @@ export default function TourTooltip({
               className="gap-1 bg-primary text-primary-foreground shadow-md shadow-primary/25 hover:bg-primary/90 cursor-pointer"
             >
               {isLastStep ? 'Finish' : 'Next'}
-              {!isLastStep && <ChevronRight className="size-3.5" />}
+              {!isLastStep && <ChevronRight className="size-4" />}
             </Button>
           )}
         </div>
