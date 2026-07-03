@@ -248,6 +248,7 @@ export function LearningRoadmap({
 
   return (
     <Card
+      data-tour="learning-roadmap"
       className={cn(
         'bg-card border border-border shadow-md p-4 sm:p-6 rounded-2xl',
         className

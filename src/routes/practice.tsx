@@ -3,7 +3,6 @@ import { requireAuth } from '@/lib/auth';
 import { queryClient } from '@/lib/queryClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { fetchWeaknessTags } from '@/features/practices/api/practice.api';
-import { PracticePage } from '../features/practices/PracticePage';
 import { RouteError } from '@/components/error/RouteError';
 
 export const Route = createFileRoute('/practice')({
@@ -17,5 +16,4 @@ export const Route = createFileRoute('/practice')({
     });
   },
   errorComponent: RouteError,
-  component: PracticePage,
 });
