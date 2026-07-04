@@ -13,6 +13,7 @@ import { Progress } from '@/components/ui/progress';
 
 import { useSidebarLanguage } from './useSidebarLanguage';
 import { useLogout } from '@/features/auth/hooks/useLogout';
+import { useTour } from '@/components/tour/TourProvider';
 
 interface AppSidebarProps {
   variant?: 'dashboard' | 'lesson';
@@ -38,6 +39,7 @@ export function AppSidebar({
   const navigate = useNavigate();
   const { languageLabel } = useSidebarLanguage();
   const { mutate: handleLogout } = useLogout();
+  const { startTour } = useTour();
 
   const progressPercent =
     totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
@@ -62,37 +64,38 @@ export function AppSidebar({
           isOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
-        <div className="flex flex-col flex-1">
-          <div className="px-4 py-4">
-            <div className="rounded-xl bg-card border border-border p-4">
-              <div className="flex items-start gap-3">
-                <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary-second">
-                  <SquareTerminal className="size-5 text-primary" />
+        <div data-tour="sidebar-nav" className="flex flex-col flex-1">
+          <div className="flex flex-col gap-4 py-4">
+            <div className="px-4">
+              <div className="rounded-xl bg-card border border-border p-4">
+                <div className="flex items-start gap-3">
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary-second">
+                    <SquareTerminal className="size-5 text-primary" />
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-sm font-semibold text-foreground">
+                      {languageLabel} Mastery
+                    </h3>
+
+                    <p className="text-xs text-muted-foreground">
+                      {completedLessons}/{totalLessons} {progressLabel}
+                    </p>
+                  </div>
                 </div>
 
-                <div className="min-w-0 flex-1">
-                  <h3 className="text-sm font-semibold text-foreground">
-                    {languageLabel} Mastery
-                  </h3>
-
-                  <p className="text-xs text-muted-foreground">
-                    {completedLessons}/{totalLessons} {progressLabel}
-                  </p>
-                </div>
+                <Progress value={progressPercent} className="mt-3 h-1.5" />
               </div>
-
-              <Progress value={progressPercent} className="mt-3 h-1.5" />
             </div>
-          </div>
 
-          <nav className="flex-1 px-4">
-            <p className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-              Navigate
-            </p>
+            <nav className="px-4">
+              <p className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                Navigate
+              </p>
 
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = activeTab === item.id;
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = activeTab === item.id;
 
               return (
                 <Button
@@ -125,7 +128,20 @@ export function AppSidebar({
           </nav>
         </div>
 
-        <div className="p-4 border-t border-sidebar-border mt-auto md:hidden">
+        <div className="p-4 border-t border-sidebar-border mt-auto md:hidden flex flex-col gap-1.5">
+          <Button
+            variant="ghost"
+            onClick={() => {
+              onClose?.();
+              setTimeout(() => {
+                startTour();
+              }, 300);
+            }}
+            className="w-full flex items-center justify-start gap-3 px-4 py-2.5 text-left text-sm font-semibold text-primary hover:bg-primary-second/60 cursor-pointer shadow-none rounded-lg"
+          >
+            <HelpCircle className="size-5" />
+            Quick Tour
+          </Button>
           <Button
             variant="ghost"
             onClick={() => handleLogout()}

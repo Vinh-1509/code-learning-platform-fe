@@ -15,6 +15,7 @@ import { useLogout } from '@/features/auth/hooks/useLogout';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useTour } from '@/components/tour/TourProvider';
 
 interface NavbarProps {
   variant?: 'dashboard' | 'lesson' | 'practice';
@@ -32,6 +33,7 @@ const Navbar = ({
   const { user } = useAuth();
   const { mutate: handleLogout } = useLogout();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { startTour } = useTour();
 
   const activeLanguage = user?.selectedLanguage?.[0];
   const isCpp = activeLanguage === 'C++';
@@ -229,6 +231,7 @@ const Navbar = ({
                   variant="ghost"
                   size="icon"
                   onClick={onToggleSidebar}
+                  data-tour="menu-btn"
                   className="h-9 w-9 text-muted-foreground -mr-2"
                 >
                   <Menu className="size-5" />

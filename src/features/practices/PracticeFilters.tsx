@@ -18,7 +18,10 @@ export function PracticeFilters({
   onSortChange,
 }: PracticeFiltersProps) {
   return (
-    <div className="flex flex-col md:flex-row md:items-start justify-between gap-5 w-full">
+    <div
+      data-tour="practice-filters"
+      className="flex flex-col md:flex-row md:items-start justify-between gap-5 w-full"
+    >
       <div>
         <h1 className="text-xl sm:text-2xl font-bold text-foreground">
           Practice Library

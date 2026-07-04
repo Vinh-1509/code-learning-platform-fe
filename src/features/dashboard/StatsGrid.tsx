@@ -49,7 +49,10 @@ interface StatsGridProps {
  */
 export function StatsGrid({ lessonsLearned, problemsSolved }: StatsGridProps) {
   return (
-    <div className="grid grid-cols-2 gap-3.5 sm:gap-6">
+    <div
+      data-tour="dashboard-stats"
+      className="grid grid-cols-2 gap-3.5 sm:gap-6"
+    >
       <StatCard
         icon={<CheckCircle2 className="size-5 sm:size-6 text-primary" />}
         value={lessonsLearned}
