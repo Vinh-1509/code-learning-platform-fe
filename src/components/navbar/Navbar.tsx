@@ -7,6 +7,7 @@ import {
   Menu,
   Code,
   LogOut,
+  HelpCircle,
   Award,
   PanelLeftOpen,
 } from 'lucide-react';
@@ -15,7 +16,7 @@ import { useLogout } from '@/features/auth/hooks/useLogout';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-//import { useTour } from '@/components/tour/TourProvider';
+import { useTour } from '@/components/tour/TourProvider';
 
 interface NavbarProps {
   variant?: 'dashboard' | 'lesson' | 'practice';
@@ -33,7 +34,7 @@ const Navbar = ({
   const { user } = useAuth();
   const { mutate: handleLogout } = useLogout();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  //const { startTour } = useTour();
+  const { startTour } = useTour();
 
   const activeLanguage = user?.selectedLanguage?.[0];
   const isCpp = activeLanguage === 'C++';
@@ -202,7 +203,15 @@ const Navbar = ({
                   <span className="text-xs font-medium opacity-80">CS-Pts</span>
                 </span>
               </div>
-
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={startTour}
+                className="flex items-center gap-2 px-3 h-9 text-sm font-semibold text-primary hover:bg-primary-second/60 cursor-pointer shadow-none rounded-lg"
+              >
+                <HelpCircle className="size-4" />
+                Quick Tour
+              </Button>
               <Button
                 type="button"
                 variant="ghost"

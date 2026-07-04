@@ -4,6 +4,8 @@ import { useAuth } from '@/features/auth/useAuth';
 import { AuthProvider } from '@/features/auth/hooks/AuthContextProvider';
 import { useGacha } from '@/features/gacha/hooks/useGacha';
 import { Toaster } from 'sonner';
+import { TourProvider } from '@/components/tour/TourProvider';
+
 function AppContent() {
   const { user } = useAuth();
 
@@ -25,8 +27,10 @@ const RootLayout = () => (
     </div>
     <hr /> */}
     <AuthProvider>
-      <AppContent />
-      <Toaster richColors position="top-right" />
+      <TourProvider>
+        <AppContent />
+        <Toaster richColors position="top-right" />
+      </TourProvider>
     </AuthProvider>
     {/* <TanStackRouterDevtools /> */}
   </>
