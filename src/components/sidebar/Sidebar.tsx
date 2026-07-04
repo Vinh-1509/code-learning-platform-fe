@@ -1,5 +1,11 @@
 import { useNavigate } from '@tanstack/react-router';
-import { LayoutDashboard, Grid3x3, SquareTerminal, LogOut } from 'lucide-react';
+import {
+  LayoutDashboard,
+  Grid3x3,
+  SquareTerminal,
+  LogOut,
+  Trophy,
+} from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -10,8 +16,8 @@ import { useLogout } from '@/features/auth/hooks/useLogout';
 
 interface AppSidebarProps {
   variant?: 'dashboard' | 'lesson';
-  activeTab?: 'dashboard' | 'practice';
-  onTabChange?: (tab: 'dashboard' | 'practice') => void;
+  activeTab?: 'dashboard' | 'practice' | 'leaderboard';
+  onTabChange?: (tab: 'dashboard' | 'practice' | 'leaderboard') => void;
   completedLessons?: number;
   totalLessons?: number;
   progressLabel?: string;
@@ -39,6 +45,7 @@ export function AppSidebar({
   const navItems = [
     { id: 'dashboard' as const, label: 'Dashboard', icon: LayoutDashboard },
     { id: 'practice' as const, label: 'Practice', icon: Grid3x3 },
+    { id: 'leaderboard' as const, label: 'Leaderboard', icon: Trophy },
   ];
 
   return (
@@ -94,7 +101,12 @@ export function AppSidebar({
                   onClick={() => {
                     onTabChange?.(item.id);
                     void navigate({
-                      to: item.id === 'dashboard' ? '/dashboard' : '/practice',
+                      to:
+                        item.id === 'dashboard'
+                          ? '/dashboard'
+                          : item.id === 'practice'
+                            ? '/practice'
+                            : '/leaderboard',
                     });
                     onClose?.();
                   }}

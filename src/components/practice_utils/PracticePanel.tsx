@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { DragDropPane } from './DragDropPane';
 import { FillBlankPane } from './FillBlankPane';
+import GachaModal from '@/features/gacha/GachaModal';
+import { useAuth } from '@/features/auth/useAuth';
 import type {
   DragDropExercise,
   FillBlankExercise,
@@ -30,18 +32,12 @@ interface PracticePanelProps {
     answer: unknown
   ) => Promise<ExplainAnswerResponse>;
   onNext?: () => void;
+  onGachaClose?: () => void;
 }
 
 /**
  * PracticePanel component determines the exercise type (drag-and-drop or fill-in-the-blank)
  * and renders the corresponding component view, coordinating submission and hints tracking.
- *
- * @param {PracticePanelProps} props - The component properties.
- * @param {PracticeExercise} props.exercise - The active exercise data.
- * @param {Function} props.onSubmit - Submission verification request trigger.
- * @param {Function} props.onGetHint - Fetch hint request trigger.
- * @param {Function} [props.onExplain] - Optional request to get explanation from AI for wrong answers.
- * @returns {JSX.Element} The rendered PracticePanel wrapper view.
  */
 export function PracticePanel({
   exercise,
@@ -50,6 +46,7 @@ export function PracticePanel({
   showDescription = true,
   onExplain,
   onNext,
+  onGachaClose,
 }: PracticePanelProps) {
   const [showResult, setShowResult] = useState<'correct' | 'wrong' | null>(
     null
@@ -58,7 +55,7 @@ export function PracticePanel({
   const [canResubmit, setCanResubmit] = useState(true);
   const [hints, setHints] = useState<string[]>([]);
   const [isHintOpen, setIsHintOpen] = useState(false);
-
+  const [isGachaOpen, setIsGachaOpen] = useState(false);
   // AI explanation state
   const [explanation, setExplanation] = useState<ExplainAnswerResponse | null>(
     null
@@ -70,7 +67,7 @@ export function PracticePanel({
   );
   // Tracks the current explanation request so stale ones can be ignored
   const explanationRequestId = useRef(0);
-
+  const myUserId = useAuth().user?._id ?? '';
   // Sync previously unlocked hints
   useEffect(() => {
     let isMounted = true;
@@ -130,7 +127,9 @@ export function PracticePanel({
       const isCorrect = result.correct;
 
       setShowResult(isCorrect ? 'correct' : 'wrong');
-
+      if (isCorrect) {
+        setIsGachaOpen(true);
+      }
       if (!isCorrect) {
         // Block re-submit until the user modifies their answer
         setCanResubmit(false);
@@ -231,36 +230,55 @@ export function PracticePanel({
     // This allows the ResultBanner and AI panel to remain mounted and visible while typing.
   };
 
-  if (exercise.type === 'dragdrop') {
-    return (
-      <DragDropPaneWrapper
-        key={exercise.id}
-        exercise={exercise}
-        isSubmitting={isSubmitting}
-        onSubmit={handleSubmit}
-        onAnswerModified={handleAnswerModified}
-        onToggleHint={handleToggleHint}
-        onRequestHint={handleRequestHint}
-        hints={hints}
-        isHintOpen={isHintOpen}
-        {...sharedResultProps}
-      />
-    );
-  }
-
   return (
-    <FillBlankPaneWrapper
-      key={exercise.id}
-      exercise={exercise}
-      isSubmitting={isSubmitting}
-      onSubmit={handleSubmit}
-      onAnswerModified={handleAnswerModified}
-      onToggleHint={handleToggleHint}
-      onRequestHint={handleRequestHint}
-      hints={hints}
-      isHintOpen={isHintOpen}
-      {...sharedResultProps}
-    />
+    <>
+      {exercise.type === 'dragdrop' ? (
+        <DragDropPaneWrapper
+          key={exercise.id}
+          exercise={exercise}
+          isSubmitting={isSubmitting}
+          onSubmit={handleSubmit}
+          onAnswerModified={handleAnswerModified}
+          onToggleHint={handleToggleHint}
+          onRequestHint={handleRequestHint}
+          hints={hints}
+          isHintOpen={isHintOpen}
+          {...sharedResultProps}
+        />
+      ) : (
+        <FillBlankPaneWrapper
+          key={exercise.id}
+          exercise={exercise}
+          isSubmitting={isSubmitting}
+          onSubmit={handleSubmit}
+          onAnswerModified={handleAnswerModified}
+          onToggleHint={handleToggleHint}
+          onRequestHint={handleRequestHint}
+          hints={hints}
+          isHintOpen={isHintOpen}
+          {...sharedResultProps}
+        />
+      )}
+
+      <GachaModal
+        isOpen={isGachaOpen}
+        userId={myUserId}
+        onUpdateBalance={(newCoins) => {
+          console.log('Số coin mới sau khi quay gacha:', newCoins);
+          // Nếu sau này ông có hàm global update tiền trên Header (ví dụ qua queryClient hoặc state) thì nhét vào đây
+        }}
+        onClose={() => {
+          // 1. Tắt giao diện vòng quay nội bộ của PracticePanel
+          setIsGachaOpen(false);
+
+          // 2. NẾU CÓ onGachaClose (tức là đang chạy ở trang LessonPage)
+          // thì kích hoạt để báo cho LessonPage biết đường mà mở màn hình Feynman
+          if (onGachaClose) {
+            onGachaClose();
+          }
+        }}
+      />
+    </>
   );
 }
 

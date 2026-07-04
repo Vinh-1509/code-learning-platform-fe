@@ -19,7 +19,6 @@ const lessonRouteApi = getRouteApi('/lesson/$lessonId');
  * interactive practice exercises or Feynman mock interviews.
  * Supports toggleable tabs switcher control on mobile viewports.
  *
- * @returns {JSX.Element} The rendered LessonPage component.
  */
 export function LessonPage() {
   const navigate = useNavigate();
@@ -31,7 +30,7 @@ export function LessonPage() {
   const [activeTab, setActiveTab] = useState<
     'theory' | 'code' | 'practice' | 'description'
   >('theory');
-
+  const [isGachaDone, setIsGachaDone] = useState(false);
   const activeBlockId =
     selectedBlockId ??
     currentLesson?.blocks.find((b) => b.status === 'active')?._id ??
@@ -63,6 +62,7 @@ export function LessonPage() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setActiveExerciseIndex(0);
     setActiveTab('theory');
+    setIsGachaDone(false);
   }, [activeBlockId]);
 
   return (
@@ -133,6 +133,7 @@ export function LessonPage() {
 
                   const shouldShowFeynman =
                     activeBlockId &&
+                    isGachaDone &&
                     ((blockCompleted &&
                       currentBlock?.status === 'active' &&
                       currentBlock?.isFeynmanPassed === false) ||
@@ -175,6 +176,9 @@ export function LessonPage() {
                         onSubmit={submitAnswer}
                         onGetHint={getHint}
                         onExplain={explainAnswer}
+                        onGachaClose={() => {
+                          setIsGachaDone(true);
+                        }}
                       />
                     );
                   }

@@ -12,6 +12,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PracticeRouteImport } from './routes/practice'
+import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as LanguageSelectionRouteImport } from './routes/language-selection'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
@@ -34,6 +35,11 @@ const LoginLazyRoute = LoginLazyRouteImport.update({
 const PracticeRoute = PracticeRouteImport.update({
   id: '/practice',
   path: '/practice',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LeaderboardRoute = LeaderboardRouteImport.update({
+  id: '/leaderboard',
+  path: '/leaderboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LanguageSelectionRoute = LanguageSelectionRouteImport.update({
@@ -67,6 +73,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/language-selection': typeof LanguageSelectionRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/practice': typeof PracticeRoute
   '/login': typeof LoginLazyRoute
   '/signup': typeof SignupLazyRoute
@@ -77,6 +84,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/language-selection': typeof LanguageSelectionRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/practice': typeof PracticeRoute
   '/login': typeof LoginLazyRoute
   '/signup': typeof SignupLazyRoute
@@ -88,6 +96,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/language-selection': typeof LanguageSelectionRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/practice': typeof PracticeRoute
   '/login': typeof LoginLazyRoute
   '/signup': typeof SignupLazyRoute
@@ -100,6 +109,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/language-selection'
+    | '/leaderboard'
     | '/practice'
     | '/login'
     | '/signup'
@@ -110,6 +120,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/language-selection'
+    | '/leaderboard'
     | '/practice'
     | '/login'
     | '/signup'
@@ -120,6 +131,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/language-selection'
+    | '/leaderboard'
     | '/practice'
     | '/login'
     | '/signup'
@@ -131,6 +143,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
   LanguageSelectionRoute: typeof LanguageSelectionRoute
+  LeaderboardRoute: typeof LeaderboardRoute
   PracticeRoute: typeof PracticeRoute
   LoginLazyRoute: typeof LoginLazyRoute
   SignupLazyRoute: typeof SignupLazyRoute
@@ -159,6 +172,13 @@ declare module '@tanstack/react-router' {
       path: '/practice'
       fullPath: '/practice'
       preLoaderRoute: typeof PracticeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/leaderboard': {
+      id: '/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/leaderboard'
+      preLoaderRoute: typeof LeaderboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/language-selection': {
@@ -203,6 +223,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
   LanguageSelectionRoute: LanguageSelectionRoute,
+  LeaderboardRoute: LeaderboardRoute,
   PracticeRoute: PracticeRoute,
   LoginLazyRoute: LoginLazyRoute,
   SignupLazyRoute: SignupLazyRoute,

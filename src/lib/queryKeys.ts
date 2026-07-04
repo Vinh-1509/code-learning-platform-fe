@@ -37,6 +37,13 @@ export const queryKeys = {
     data: () => [...queryKeys.dashboard.all, 'data'] as const,
   },
 
+  // ── Leaderboard ───────────────────────────────────────────────────────────
+  leaderboard: {
+    all: ['leaderboard'] as const,
+    /** Read-only standings list for the public leaderboard page */
+    list: () => [...queryKeys.leaderboard.all, 'list'] as const,
+  },
+
   // ── Milestones / Roadmap ──────────────────────────────────────────────────
   milestones: {
     all: ['milestones'] as const,

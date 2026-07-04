@@ -1,8 +1,17 @@
 import { useState } from 'react';
 import { Link } from '@tanstack/react-router';
-import { ChevronLeft, User, Menu, Code, LogOut } from 'lucide-react';
-import { useAuth } from '@/features/auth/useAuth'; // Read-only context hook
-import { useLogout } from '@/features/auth/hooks/useLogout'; // Mutation hook for logout
+// 💡 SỬA LỖI DÒNG 40: Thêm PanelLeftOpen vào đây
+import {
+  ChevronLeft,
+  User,
+  Menu,
+  Code,
+  LogOut,
+  Award,
+  PanelLeftOpen,
+} from 'lucide-react';
+import { useAuth } from '@/features/auth/useAuth';
+import { useLogout } from '@/features/auth/hooks/useLogout';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -20,8 +29,8 @@ const Navbar = ({
   activeTab,
   onChangeTab,
 }: NavbarProps) => {
-  const { user } = useAuth(); // Extracted only read-only state
-  const { mutate: handleLogout } = useLogout(); // Mutation handling state and side effects
+  const { user } = useAuth();
+  const { mutate: handleLogout } = useLogout();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const activeLanguage = user?.selectedLanguage?.[0];
@@ -35,6 +44,9 @@ const Navbar = ({
   const backTo = isPractice ? '/practice' : '/dashboard';
   const backLabel = isPractice ? 'Back to Practice' : 'Back to Dashboard';
 
+  // 💡 SỬA LỖI TO_LOCALESTRING: Ép kiểu rõ ràng là number để loại bỏ hoàn toàn cảnh báo của @typescript-eslint
+  const userCoins = Number(user?.coins ?? 0);
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 h-14 bg-card border-b border-border select-none">
       {/* LEFT: Logo & Sidebar Toggles */}
@@ -42,13 +54,14 @@ const Navbar = ({
         {variant === 'lesson' && onToggleSidebar && (
           <Button
             type="button"
+            variant="ghost"
+            size="icon"
             onClick={onToggleSidebar}
-            className="lg:hidden flex items-center justify-center size-9 bg-primary text-primary-foreground rounded-xl shadow-md shadow-primary/30 p-0"
+            className="lg:hidden h-9 w-9 text-muted-foreground hover:bg-accent"
           >
-            <Code className="size-5" />
+            <PanelLeftOpen className="size-5 text-primary" />
           </Button>
         )}
-
         <Link
           to="/dashboard"
           className="inline-block transition-all duration-200 ease-out transform hover:scale-105 active:scale-95 active:opacity-80 cursor-pointer"
@@ -93,7 +106,7 @@ const Navbar = ({
           <button
             type="button"
             onClick={() =>
-              onChangeTab(variant === 'lesson' ? 'practice' : 'code')
+              onChangeTab(variant === 'lesson' ? 'practice' : 'practice')
             }
             className={cn(
               'px-4 py-1 text-sm font-semibold rounded-md transition-all h-8 flex items-center justify-center cursor-pointer',
@@ -102,13 +115,24 @@ const Navbar = ({
                 : 'border border-transparent text-slate-300 bg-transparent'
             )}
           >
-            Code
+            {variant === 'lesson' ? 'Exercise' : 'Practice'}
           </button>
         </div>
       )}
 
       {/* RIGHT: Actions / Profile Menu */}
       <div className="flex items-center gap-3">
+        {/* View Học Bài (Lesson/Practice) */}
+        {(isLesson || isPractice) && (
+          <div className="flex items-center gap-1.5 px-3 h-8.5 bg-primary/10 border border-primary/20 rounded-xl text-primary font-extrabold text-sm shadow-sm">
+            <Award className="size-4 text-primary animate-pulse" />
+            <span>
+              {userCoins.toLocaleString()}{' '}
+              <span className="text-xs font-medium opacity-80">CS-Pts</span>
+            </span>
+          </div>
+        )}
+
         {(isLesson || isPractice) && (
           <Link to={backTo} className="hidden lg:block">
             <Button
@@ -153,7 +177,7 @@ const Navbar = ({
                     type="button"
                     onClick={() => {
                       setIsMenuOpen(false);
-                      handleLogout(); // Clean structural invocation
+                      handleLogout();
                     }}
                     className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-slate-50 cursor-pointer"
                   >
@@ -167,11 +191,19 @@ const Navbar = ({
 
         {variant === 'dashboard' && (
           <>
-            <div className="hidden md:flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-4">
+              <div className="flex items-center gap-1.5 px-3 h-8.5 bg-primary/10 border border-primary/20 rounded-xl text-primary font-extrabold text-sm shadow-sm">
+                <Award className="size-4 text-primary animate-pulse" />
+                <span>
+                  {userCoins.toLocaleString()}{' '}
+                  <span className="text-xs font-medium opacity-80">CS-Pts</span>
+                </span>
+              </div>
+
               <Button
                 type="button"
                 variant="ghost"
-                onClick={() => handleLogout()} // Clean structural invocation
+                onClick={() => handleLogout()}
                 className="flex items-center gap-2 px-3 h-9 text-sm font-semibold text-red-600 hover:bg-rose-50 hover:text-red-700 cursor-pointer shadow-none rounded-lg"
               >
                 <LogOut className="size-4" />
@@ -184,8 +216,14 @@ const Navbar = ({
               </Avatar>
             </div>
 
-            {onToggleSidebar && (
-              <div className="md:hidden">
+            {/* Mobile View cho Dashboard */}
+            <div className="flex items-center gap-2 md:hidden">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-primary/10 border border-primary/20 rounded-lg text-primary font-bold text-xs">
+                <Award className="size-3.5 text-primary" />
+                <span>{userCoins.toLocaleString()}</span>
+              </div>
+
+              {onToggleSidebar && (
                 <Button
                   type="button"
                   variant="ghost"
@@ -195,8 +233,8 @@ const Navbar = ({
                 >
                   <Menu className="size-5" />
                 </Button>
-              </div>
-            )}
+              )}
+            </div>
           </>
         )}
       </div>
