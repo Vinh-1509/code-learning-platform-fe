@@ -47,7 +47,7 @@ const Navbar = ({
   const backLabel = isPractice ? 'Back to Practice' : 'Back to Dashboard';
 
   // 💡 SỬA LỖI TO_LOCALESTRING: Ép kiểu rõ ràng là number để loại bỏ hoàn toàn cảnh báo của @typescript-eslint
-  const userCoins = Number(user?.coins ?? 0);
+  const userCoins = 0; //Number(user?.coins ?? 0);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 h-14 bg-card border-b border-border select-none">
