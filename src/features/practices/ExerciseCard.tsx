@@ -112,6 +112,7 @@ export function ExerciseCard({
   return (
     <div
       data-testid="exercise-card"
+      data-tour="locked-exercise"
       className="flex min-h-45 flex-col justify-between rounded-xl border border-border bg-card p-5 opacity-50 bg-muted select-none text-left relative overflow-hidden"
     >
       {cardContent}

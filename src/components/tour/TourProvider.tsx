@@ -8,7 +8,14 @@ import React, {
   useRef,
 } from 'react';
 import { useNavigate, useLocation } from '@tanstack/react-router';
-import { Joyride, type EventData, STATUS, type Step } from 'react-joyride';
+import {
+  Joyride,
+  type EventData,
+  STATUS,
+  type Step,
+  ACTIONS,
+  EVENTS,
+} from 'react-joyride';
 
 import TourTooltip from './TourTooltip';
 
@@ -214,7 +221,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({
       buttons: ['skip', 'back', 'primary'],
     },
     {
-      // index 5 — practice-filters (final step)
+      // index 5 — practice-filters
       target: '[data-tour="practice-filters"]',
       title: 'Practice Library',
       content:
@@ -223,6 +230,19 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({
       blockTargetInteraction: false,
       skipBeacon: true,
       overlayClickAction: false,
+      buttons: ['skip', 'back', 'primary'],
+    },
+    {
+      // index 6 — locked-exercise (new final step)
+      target: '[data-tour="locked-exercise"]',
+      title: 'Locked Exercises',
+      content:
+        "Some exercises are locked until you finish the related lesson. Complete the lesson it's tied to and it'll unlock automatically here.",
+      placement: 'top',
+      blockTargetInteraction: false,
+      skipBeacon: true,
+      overlayClickAction: false,
+      spotlightPadding: 6,
       buttons: ['skip', 'back', 'primary'],
     },
   ];
@@ -253,13 +273,6 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [location.pathname, stepIndex, wantRun]);
 
-  // cleanup on unmount
-  useEffect(() => {
-    return () => {
-      setWantRun(false);
-    };
-  }, []);
-
   const startTour = useCallback(() => {
     // If not on the dashboard, navigate back to start from step 1
     if (location.pathname !== '/dashboard') {
@@ -277,21 +290,38 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({
     (data: EventData) => {
       const { action, index, status, type } = data;
 
-      // stop on finish/skip/error
-      if (
-        status === STATUS.FINISHED ||
-        status === STATUS.SKIPPED ||
-        type === 'error'
-      ) {
+      // stop on finish/skip
+      if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {
         setWantRun(false);
-        if (type !== 'error') {
+        localStorage.setItem('has_completed_tour', 'true');
+        setStepIndex(0);
+        return;
+      }
+
+      if (action === ACTIONS.CLOSE) {
+        setWantRun(false);
+        setStepIndex(0);
+        return;
+      }
+
+      if (type === EVENTS.TARGET_NOT_FOUND) {
+        const isFinalStep = index === tourSteps.length - 1;
+        if (isFinalStep) {
+          setWantRun(false);
           localStorage.setItem('has_completed_tour', 'true');
+          setStepIndex(0);
         }
+        return;
+      }
+
+      if (type === 'error') {
+        setWantRun(false);
         setStepIndex(0);
         return;
       }
 
       if (type === 'step:after' && action === 'next') {
+        const isFinalStep = index === tourSteps.length - 1;
         if (index === 2) {
           // learning-roadmap → pause here; user clicks into a real lesson.
           // No navigate() call — the resume effect picks it up once the
@@ -305,6 +335,13 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({
           setWantRun(false);
           setStepIndex(5);
           void navigate({ to: '/practice' });
+        } else if (isFinalStep) {
+          // "Finish" clicked on the last step. Confirmed via raw event
+          // logging that STATUS.FINISHED does not fire here in
+          // controlled mode — this index check is the reliable signal.
+          setWantRun(false);
+          localStorage.setItem('has_completed_tour', 'true');
+          setStepIndex(0);
         } else {
           setStepIndex(index + 1);
         }
@@ -325,8 +362,16 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({
         }
       }
     },
-    [navigate]
+    [navigate, tourSteps.length]
   );
+
+  useEffect(() => {
+    if (stepIndex === 2 && location.pathname.startsWith('/lesson/')) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setStepIndex(3);
+      setWantRun(true);
+    }
+  }, [location.pathname, stepIndex]);
 
   return (
     <TourContext.Provider

@@ -124,7 +124,10 @@ export function FeynmanInterviewPane({
         onCallback={handleFeynmanIntroCallback}
       />
       {/* Header Viewport */}
-      <div className="px-4 py-3 bg-codeblock-header border-b border-border flex items-center gap-2">
+      <div
+        data-tour="feynman-header"
+        className="px-4 py-3 bg-codeblock-header border-b border-border flex items-center gap-2"
+      >
         <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
           <span className="text-xs font-bold text-white">🤖</span>
         </div>

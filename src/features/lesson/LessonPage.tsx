@@ -66,6 +66,20 @@ export function LessonPage() {
     setActiveTab('theory');
   }, [activeBlockId]);
 
+  const shouldShowFeynman =
+    activeBlockId &&
+    ((blockCompleted &&
+      currentBlock?.status === 'active' &&
+      currentBlock?.isFeynmanPassed === false) ||
+      feynmanPassedBlockId === activeBlockId);
+
+  useEffect(() => {
+    if (shouldShowFeynman) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setActiveTab('practice');
+    }
+  }, [shouldShowFeynman]);
+
   // On mobile, only one of theory/practice is visible at a time (controlled
   // by activeTab). Force the matching tab into view while the tour is
   // pointing at it, so the target isn't hidden behind the other tab.
@@ -152,13 +166,6 @@ export function LessonPage() {
                     ) ?? 0;
                   const nextBlockExists =
                     (currentLesson?.blocks.length ?? 0) > currentBlockIndex + 1;
-
-                  const shouldShowFeynman =
-                    activeBlockId &&
-                    ((blockCompleted &&
-                      currentBlock?.status === 'active' &&
-                      currentBlock?.isFeynmanPassed === false) ||
-                      feynmanPassedBlockId === activeBlockId);
 
                   if (shouldShowFeynman) {
                     return (

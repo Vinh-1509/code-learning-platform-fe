@@ -1,12 +1,6 @@
 import { Joyride, type EventData } from 'react-joyride';
 import TourTooltip from './TourTooltip';
 
-/**
- * Standalone, one-shot spotlight for the Feynman pane.
- * Deliberately NOT part of TourProvider's stepIndex state machine — it's
- * triggered by "the Feynman pane mounted for the first time", not by a
- * route waypoint, so it needs none of the pause/resume machinery.
- */
 export function FeynmanIntro({
   run,
   onCallback,
@@ -18,11 +12,11 @@ export function FeynmanIntro({
     <Joyride
       steps={[
         {
-          target: '[data-tour="feynman-pane"]',
+          target: '[data-tour="feynman-header"]',
           title: 'Explain It Back — Feynman Technique',
           content:
             'Nice work finishing the exercises! Now explain the concept in your own words to the AI. When you answer correctly, the next lesson will be unlocked! Good luck!',
-          placement: 'auto',
+          placement: 'bottom',
           skipBeacon: true,
           overlayClickAction: false,
           blockTargetInteraction: false,
@@ -32,6 +26,7 @@ export function FeynmanIntro({
       ]}
       run={run}
       continuous={false}
+      scrollToFirstStep
       tooltipComponent={TourTooltip}
       styles={{
         overlay: {
