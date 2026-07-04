@@ -5,6 +5,7 @@ import {
   SquareTerminal,
   LogOut,
   Trophy,
+  HelpCircle,
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
@@ -97,35 +98,36 @@ export function AppSidebar({
                 const Icon = item.icon;
                 const isActive = activeTab === item.id;
 
-              return (
-                <Button
-                  key={item.id}
-                  variant="ghost"
-                  onClick={() => {
-                    onTabChange?.(item.id);
-                    void navigate({
-                      to:
-                        item.id === 'dashboard'
-                          ? '/dashboard'
-                          : item.id === 'practice'
-                            ? '/practice'
-                            : '/leaderboard',
-                    });
-                    onClose?.();
-                  }}
-                  className={cn(
-                    'mt-1 flex w-full items-center justify-start gap-3 rounded-l-lg rounded-r-none px-4 py-2.5 text-left text-sm font-medium shadow-none transition-colors h-auto cursor-pointer',
-                    isActive
-                      ? 'bg-primary-second text-primary border-r-4 border-r-primary hover:bg-primary-second hover:text-primary'
-                      : 'border-r-4 border-r-transparent text-muted-foreground hover:bg-muted hover:text-foreground'
-                  )}
-                >
-                  <Icon className="size-5" />
-                  {item.label}
-                </Button>
-              );
-            })}
-          </nav>
+                return (
+                  <Button
+                    key={item.id}
+                    variant="ghost"
+                    onClick={() => {
+                      onTabChange?.(item.id);
+                      void navigate({
+                        to:
+                          item.id === 'dashboard'
+                            ? '/dashboard'
+                            : item.id === 'practice'
+                              ? '/practice'
+                              : '/leaderboard',
+                      });
+                      onClose?.();
+                    }}
+                    className={cn(
+                      'mt-1 flex w-full items-center justify-start gap-3 rounded-l-lg rounded-r-none px-4 py-2.5 text-left text-sm font-medium shadow-none transition-colors h-auto cursor-pointer',
+                      isActive
+                        ? 'bg-primary-second text-primary border-r-4 border-r-primary hover:bg-primary-second hover:text-primary'
+                        : 'border-r-4 border-r-transparent text-muted-foreground hover:bg-muted hover:text-foreground'
+                    )}
+                  >
+                    <Icon className="size-5" />
+                    {item.label}
+                  </Button>
+                );
+              })}
+            </nav>
+          </div>
         </div>
 
         <div className="p-4 border-t border-sidebar-border mt-auto md:hidden flex flex-col gap-1.5">

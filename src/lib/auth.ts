@@ -9,7 +9,7 @@ export const getAccessToken = (): string | null => {
 
 export const requireAuth = async () => {
   const token = getAccessToken();
-  console.log('requireAuth token:', token);
+  // console.log('requireAuth token:', token);
 
   if (!token) throw redirect({ to: '/login' });
 
@@ -19,13 +19,13 @@ export const requireAuth = async () => {
       queryFn: getMe,
       staleTime: 5 * 60_000,
     });
-    console.log('requireAuth user:', user);
+    // console.log('requireAuth user:', user);
 
     if (!user?.selectedLanguage || user.selectedLanguage.length === 0) {
       throw redirect({ to: '/language-selection' });
     }
   } catch (err) {
-    console.log('requireAuth catch:', err); // ← xem err là gì
+    // console.log('requireAuth catch:', err);
     if (isRedirect(err)) throw err;
     localStorage.removeItem('token');
     throw redirect({ to: '/login' });

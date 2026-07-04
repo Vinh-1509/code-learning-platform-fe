@@ -19,13 +19,6 @@ export function ResultBanner({
   if (!showResult) {
     return null;
   }
-  console.log('Rendering Next', {
-    showResult,
-    explanation,
-    explanationStatus,
-    showDescription,
-    onNext,
-  });
 
   return (
     <div className="mb-4 space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">

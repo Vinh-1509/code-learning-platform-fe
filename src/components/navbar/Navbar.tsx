@@ -15,7 +15,7 @@ import { useLogout } from '@/features/auth/hooks/useLogout';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { useTour } from '@/components/tour/TourProvider';
+//import { useTour } from '@/components/tour/TourProvider';
 
 interface NavbarProps {
   variant?: 'dashboard' | 'lesson' | 'practice';
@@ -33,7 +33,7 @@ const Navbar = ({
   const { user } = useAuth();
   const { mutate: handleLogout } = useLogout();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { startTour } = useTour();
+  //const { startTour } = useTour();
 
   const activeLanguage = user?.selectedLanguage?.[0];
   const isCpp = activeLanguage === 'C++';
@@ -117,6 +117,7 @@ const Navbar = ({
                 : 'border border-transparent text-slate-300 bg-transparent'
             )}
           >
+            Practice
             {variant === 'lesson' ? 'Exercise' : 'Practice'}
           </button>
         </div>

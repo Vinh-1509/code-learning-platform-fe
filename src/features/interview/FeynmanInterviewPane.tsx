@@ -9,6 +9,8 @@ import {
   useSendFeynmanMessage,
 } from '@/features/interview/hooks/useFeynman';
 import type { FeynmanInterviewProps } from './feynmanTypes';
+import { FeynmanIntro } from '@/components/tour/FeynmanIntro';
+import { useFeynmanIntro } from '@/components/tour/interview/useFeynmanIntro';
 
 export function FeynmanInterviewPane({
   lessonBlockId,
@@ -109,10 +111,23 @@ export function FeynmanInterviewPane({
     }
   };
 
+  const { run: feynmanIntroRun, handleCallback: handleFeynmanIntroCallback } =
+    useFeynmanIntro(!isInitializing && !errorMessage);
+
   return (
-    <div className="flex flex-col h-full bg-card rounded-lg border border-border overflow-hidden">
+    <div
+      data-tour="feynman-pane"
+      className="flex flex-col h-full bg-card rounded-lg border border-border overflow-hidden"
+    >
+      <FeynmanIntro
+        run={feynmanIntroRun}
+        onCallback={handleFeynmanIntroCallback}
+      />
       {/* Header Viewport */}
-      <div className="px-4 py-3 bg-codeblock-header border-b border-border flex items-center gap-2">
+      <div
+        data-tour="feynman-header"
+        className="px-4 py-3 bg-codeblock-header border-b border-border flex items-center gap-2"
+      >
         <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
           <span className="text-xs font-bold text-white">🤖</span>
         </div>
