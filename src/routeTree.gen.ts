@@ -36,7 +36,7 @@ const PracticeRoute = PracticeRouteImport.update({
   id: '/practice',
   path: '/practice',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any).lazy(() => import('./routes/practice.lazy').then((d) => d.Route))
 const LeaderboardRoute = LeaderboardRouteImport.update({
   id: '/leaderboard',
   path: '/leaderboard',
