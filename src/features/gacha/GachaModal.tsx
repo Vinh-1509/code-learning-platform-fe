@@ -333,7 +333,9 @@ export default function GachaModal({
                         key={user._id}
                         className={cn(
                           'relative flex items-center justify-between gap-3 border-b border-border/60 px-4 py-3 last:border-b-0 transition-colors hover:bg-muted/40',
-                          user._id === userId && 'bg-muted/20'
+                          user._id === userId && 'bg-muted/20',
+                          explodingId === user._id &&
+                            'animate-pulse bg-destructive/5'
                         )}
                       >
                         <div className="flex min-w-0 items-center gap-3">
@@ -374,12 +376,13 @@ export default function GachaModal({
                         </Button>
 
                         {explodingId === user._id && (
-                          <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/90 backdrop-blur-[2px] animate-fade-in">
-                            <img
-                              src="/assets/gif/explosion.gif"
-                              alt="Explosion"
-                              className="h-12 w-12 object-contain"
-                            />
+                          <div className="absolute inset-0 z-20 flex items-center justify-center bg-destructive/10 backdrop-blur-[1px] animate-in fade-in duration-200">
+                            <div className="flex items-center gap-2 rounded-full border border-destructive/30 bg-background px-3 py-1.5 shadow-md">
+                              <Target className="size-4 animate-spin text-destructive" />
+                              <span className="text-xs font-bold uppercase tracking-wider text-destructive">
+                                Attacking...
+                              </span>
+                            </div>
                           </div>
                         )}
                       </div>
