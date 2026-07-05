@@ -113,6 +113,8 @@ const RESUME_WAYPOINTS: {
   { match: (p) => p === '/dashboard', stepIndex: 2 },
   { match: (p) => p.startsWith('/lesson/'), stepIndex: 3 },
   { match: (p) => p === '/practice', stepIndex: 5 },
+  { match: (p) => p === '/practice', stepIndex: 6 },
+  { match: (p) => p === '/leaderboard', stepIndex: 7 },
 ];
 
 export const TourProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -158,8 +160,8 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({
       target: isMobile ? '[data-tour="menu-btn"]' : '[data-tour="sidebar-nav"]',
       title: isMobile ? 'Navigation Menu' : 'Sidebar Navigation',
       content: isMobile
-        ? 'Tap this menu to open the sidebar. From there you can switch between Dashboard and Practice and track your overall language mastery.'
-        : 'Access the Dashboard and Practice arenas from here. Keep track of your overall language mastery progress at a glance.',
+        ? 'Tap this menu to open the sidebar. From there you can switch between Dashboard, Practice, and the Leaderboard to see how you rank against everyone else.'
+        : 'Access the Dashboard, Practice arena, and global Leaderboard from here. Keep track of your overall language mastery progress at a glance.',
       placement: isMobile ? 'bottom' : 'right',
       overlayClickAction: false,
       blockTargetInteraction: true,
@@ -188,7 +190,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({
       blockTargetInteraction: false,
       skipBeacon: true,
       overlayClickAction: false,
-      buttons: ['skip', 'back', 'primary'],
+      buttons: ['skip', 'back'],
     },
     {
       // index 3 — lesson-theory
@@ -233,16 +235,28 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({
       buttons: ['skip', 'back', 'primary'],
     },
     {
-      // index 6 — locked-exercise (new final step)
+      // index 6 — locked-exercise
       target: '[data-tour="locked-exercise"]',
       title: 'Locked Exercises',
       content:
-        "Some exercises are locked until you finish the related lesson. Complete the lesson it's tied to and it'll unlock automatically here.",
+        "Some exercises are locked until you finish the related lesson. Complete the lesson it's tied to and it'll unlock automatically here. One last stop — let's check the leaderboard!",
       placement: 'top',
       blockTargetInteraction: false,
       skipBeacon: true,
       overlayClickAction: false,
       spotlightPadding: 6,
+      buttons: ['skip', 'back', 'primary'],
+    },
+    {
+      // index 7 — leaderboard-hero (new final step)
+      target: '[data-tour="leaderboard-hero"]',
+      title: 'Global Leaderboard',
+      content:
+        "Here's how you stack up against everyone else. Every correct exercise spins the rewards wheel for CS-Points — and sometimes unlocks a chance to raid another student's coins, so climb carefully!",
+      placement: 'bottom',
+      blockTargetInteraction: false,
+      skipBeacon: true,
+      overlayClickAction: false,
       buttons: ['skip', 'back', 'primary'],
     },
   ];
@@ -323,22 +337,19 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({
       if (type === 'step:after' && action === 'next') {
         const isFinalStep = index === tourSteps.length - 1;
         if (index === 2) {
-          // learning-roadmap → pause here; user clicks into a real lesson.
-          // No navigate() call — the resume effect picks it up once the
-          // route matches '/lesson/*'.
           setWantRun(false);
           setStepIndex(3);
         } else if (index === 4) {
-          // lesson-practice → no in-page path to Practice from the lesson
-          // screen (back button only goes to Dashboard), so the tour
-          // drives this navigation itself.
           setWantRun(false);
           setStepIndex(5);
           void navigate({ to: '/practice' });
+        } else if (index === 6) {
+          // locked-exercise → drive navigation to the Leaderboard page ourselves,
+          // same pattern as the lesson-practice → practice-filters jump.
+          setWantRun(false);
+          setStepIndex(7);
+          void navigate({ to: '/leaderboard' });
         } else if (isFinalStep) {
-          // "Finish" clicked on the last step. Confirmed via raw event
-          // logging that STATUS.FINISHED does not fire here in
-          // controlled mode — this index check is the reliable signal.
           setWantRun(false);
           localStorage.setItem('has_completed_tour', 'true');
           setStepIndex(0);
@@ -347,16 +358,18 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({
         }
       } else if (type === 'step:after' && action === 'prev') {
         if (index === 3) {
-          // lesson-theory → back to the roadmap step on Dashboard
           setWantRun(false);
           setStepIndex(2);
           void navigate({ to: '/dashboard' });
         } else if (index === 5) {
-          // practice-filters → can't deep-link back to "the lesson they
-          // picked", so send them back to the roadmap step instead
           setWantRun(false);
           setStepIndex(2);
           void navigate({ to: '/dashboard' });
+        } else if (index === 7) {
+          // leaderboard-hero → back to Practice (locked-exercise step)
+          setWantRun(false);
+          setStepIndex(6);
+          void navigate({ to: '/practice' });
         } else {
           setStepIndex(index - 1);
         }

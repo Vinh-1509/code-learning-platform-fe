@@ -29,7 +29,7 @@ const RootLayout = () => (
     <AuthProvider>
       <TourProvider>
         <AppContent />
-        <Toaster richColors position="top-right" />
+        <Toaster closeButton richColors position="top-right" />
       </TourProvider>
     </AuthProvider>
     {/* <TanStackRouterDevtools /> */}

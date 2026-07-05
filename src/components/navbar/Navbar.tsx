@@ -118,7 +118,6 @@ const Navbar = ({
                 : 'border border-transparent text-slate-300 bg-transparent'
             )}
           >
-            Practice
             {variant === 'lesson' ? 'Exercise' : 'Practice'}
           </button>
         </div>

@@ -10,7 +10,10 @@ export function LeaderboardHero({
   totalCoins,
 }: LeaderboardHeroProps) {
   return (
-    <section className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm sm:p-6">
+    <section
+      data-tour="leaderboard-hero"
+      className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm sm:p-6"
+    >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-2">
           <h1 className="text-3xl font-extrabold tracking-tight text-foreground">

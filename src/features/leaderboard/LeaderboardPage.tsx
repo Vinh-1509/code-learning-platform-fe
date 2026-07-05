@@ -15,8 +15,11 @@ import { FullLeaderboardCard } from './FullLeaderboardCard';
 import { useDashboardData } from '../dashboard/useDashboard';
 import { useGacha } from '@/features/gacha/hooks/useGacha';
 
+import { useTour } from '@/components/tour/TourProvider';
+
 export function LeaderboardPage() {
   const { user } = useAuth();
+  const { wantRun, stepIndex } = useTour();
   const [activeTab, setActiveTab] = useState<
     'dashboard' | 'practice' | 'leaderboard'
   >('leaderboard');
@@ -57,18 +60,22 @@ export function LeaderboardPage() {
   const visibleLeaderboard = [...rawVisibleList].sort(
     (a, b) => b.coins - a.coins
   );
+
+  const isTourGuidingHere = wantRun && stepIndex === 7;
+
   // Tự động cuốn view tới vị trí của mình
   useEffect(() => {
+    if (isTourGuidingHere) return;
     if (!isLeaderboardLoading && currentUserRowRef.current) {
       currentUserRowRef.current.scrollIntoView({
         behavior: 'smooth',
         block: 'center',
       });
     }
-  }, [isLeaderboardLoading, currentUser]);
+  }, [isLeaderboardLoading, currentUser, isTourGuidingHere]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="h-screen overflow-hidden bg-background">
       <Navbar onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
 
       <AppSidebar
