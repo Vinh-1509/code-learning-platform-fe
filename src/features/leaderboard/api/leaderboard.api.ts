@@ -7,10 +7,14 @@ import {
 
 // Suy luận Type tự động từ Zod Schema (Clear file .types.ts thủ công cũ)
 export type TargetUser = z.infer<typeof LeaderboardUserSchema>;
-
+export interface LeaderboardDataResponse {
+  totalUsers: number;
+  totalCoins: number;
+  topUsers: TargetUser[];
+}
 const IS_MOCK = false; // 🔥 Bật false để húp data thật qua Axios
 
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+//const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Trạng thái lưu trữ bộ nhớ đệm cho dữ liệu Mock
 let mockLeaderboard: TargetUser[] = [
@@ -29,15 +33,15 @@ let mockLeaderboard: TargetUser[] = [
   { _id: 'user_7', name: 'Vu Minh Chau', username: 'chau_minh', coins: 690 },
 ];
 
-export async function fetchLeaderboard(): Promise<TargetUser[]> {
-  if (IS_MOCK) {
-    await sleep(500);
-    const sortedMock = [...mockLeaderboard].sort((a, b) => b.coins - a.coins);
-    return sortedMock.map((user, index) => ({
-      ...user,
-      rank: index + 1,
-    }));
-  }
+export async function fetchLeaderboard(): Promise<LeaderboardDataResponse> {
+  // if (IS_MOCK) {
+  //   await sleep(500);
+  //   const sortedMock = [...mockLeaderboard].sort((a, b) => b.coins - a.coins);
+  //   return sortedMock.map((user, index) => ({
+  //     ...user,
+  //     rank: index + 1,
+  //   }));
+  // }
 
   // 💡 CHUYỂN SANG AXIOS + ZOD: Không bao giờ lo lệch Port hay lỗi 404
   const { data } = await api.get<unknown>('/api/users/leaderboard');
@@ -46,11 +50,16 @@ export async function fetchLeaderboard(): Promise<TargetUser[]> {
   const parsedData = LeaderboardResponseSchema.parse(data);
 
   // Khớp nối adapter: Khôi phục trường name từ username của BE để bảo toàn giao diện
-  return parsedData.topUsers.map((user, index) => ({
+  const mappedUsers = parsedData.topUsers.map((user, index) => ({
     ...user,
     name: user.name || user.username || 'Anonymous',
     rank: index + 1,
   }));
+  return {
+    totalUsers: parsedData.totalUsers,
+    totalCoins: parsedData.totalCoins,
+    topUsers: mappedUsers, // Ném mảng đã xử lý rank vào đây
+  };
 }
 
 // Hàm hỗ trợ cày mock dữ liệu real-time

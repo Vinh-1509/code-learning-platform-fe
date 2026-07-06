@@ -1,8 +1,8 @@
 import { Users, Coins } from 'lucide-react';
 
 interface LeaderboardHeroProps {
-  totalStudents: number;
-  totalCoins: number;
+  totalStudents: number | undefined;
+  totalCoins: number | undefined;
 }
 
 export function LeaderboardHero({
@@ -31,7 +31,8 @@ export function LeaderboardHero({
           </span>
           <span className="inline-flex items-center gap-2 rounded-full border border-border bg-muted/40 px-3 py-1.5 text-xs font-semibold text-foreground">
             <Coins className="size-3.5 text-success" />
-            {totalCoins.toLocaleString()} total CS-points
+            {totalCoins !== undefined ? totalCoins.toLocaleString() : '0'} total
+            CS-points
           </span>
         </div>
       </div>

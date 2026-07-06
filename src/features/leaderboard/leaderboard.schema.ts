@@ -11,5 +11,7 @@ export const LeaderboardUserSchema = z.object({
 
 // Cấu trúc bọc chuẩn đét của BE trả về: { topUsers: [...] }
 export const LeaderboardResponseSchema = z.object({
+  totalUsers: z.number(),
+  totalCoins: z.number(),
   topUsers: z.array(LeaderboardUserSchema),
 });

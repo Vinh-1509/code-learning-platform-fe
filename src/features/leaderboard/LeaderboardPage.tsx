@@ -1,9 +1,12 @@
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { AppSidebar } from '@/components/sidebar/Sidebar';
 import Navbar from '@/components/navbar/Navbar';
 import { useAuth } from '@/features/auth/useAuth';
-import { fetchLeaderboard } from '@/features/leaderboard/api/leaderboard.api';
+import {
+  fetchLeaderboard,
+  type LeaderboardDataResponse,
+} from '@/features/leaderboard/api/leaderboard.api';
 import { queryKeys } from '@/lib/queryKeys';
 
 // Import sub-components sạch sẽ
@@ -19,7 +22,6 @@ import { useTour } from '@/components/tour/TourProvider';
 // 💡 Import thêm type chuẩn để ép kiểu dữ liệu an toàn
 import type { TargetUser } from '@/types/api/gacha.types';
 
-// Định nghĩa interface mở rộng có chứa rank cho các sub-component húp data không bị lỗi
 interface LeaderboardUser extends TargetUser {
   rank: number;
 }
@@ -33,18 +35,15 @@ export function LeaderboardPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const currentUserRowRef = useRef<HTMLDivElement | null>(null);
 
-  // Kích hoạt short polling thông báo ngầm khi đang ở trang BXH
   useGacha(user?._id);
 
-  // 1. Fetch dữ liệu bảng xếp hạng chính thức (API mới tự map rank và name nội bộ)
-  const { data: leaderboard = [], isLoading: isLeaderboardLoading } = useQuery<
-    TargetUser[]
-  >({
-    queryKey: queryKeys.leaderboard.list(),
-    queryFn: fetchLeaderboard,
-    staleTime: 5_000,
-    refetchInterval: 15000,
-  });
+  const { data: leaderboardData, isLoading: isLeaderboardLoading } =
+    useQuery<LeaderboardDataResponse>({
+      queryKey: queryKeys.leaderboard.list(),
+      queryFn: fetchLeaderboard,
+      staleTime: 5_000,
+      refetchInterval: 15000,
+    });
 
   // 2. Fetch dữ liệu tiến độ bài học cho Sidebar
   const { dashboardData, loading: statsLoading } = useDashboardData();
@@ -52,20 +51,16 @@ export function LeaderboardPage() {
   const completedLessons = dashboardData?.stats.totalLearnedLessons ?? 0;
   const isPageLoading = statsLoading;
 
-  // Xử lý mảng dữ liệu hiển thị (Ép sang kiểu LeaderboardUser có trường rank ổn định)
-  const formattedLeaderboard = leaderboard as LeaderboardUser[];
+  // 🔥 ĐÃ ĐỔI: Viết phẳng logic mảng, an toàn 100% nhờ Array.isArray, không lo dính lỗi compiler
+  const formattedLeaderboard = Array.isArray(leaderboardData?.topUsers)
+    ? (leaderboardData.topUsers as LeaderboardUser[])
+    : [];
 
   const topThree = formattedLeaderboard.slice(0, 3);
   const topTen = formattedLeaderboard.slice(0, 10);
 
-  // 💡 Ép kiểu Number phòng hờ lỗi cộng chuỗi bậy bạ từ Database
-  const totalCoins = formattedLeaderboard.reduce(
-    (sum, entry) => sum + Number(entry.coins || 0),
-    0
-  );
-
-  // 💡 TỐI ƯU LOGIC TÌM KIẾM BẢN THÂN: Tìm theo ID thật trước, fallback về mock, nếu không có mới tạo object ảo chứa chính info của user
-  const currentUser = useMemo<LeaderboardUser | null>(() => {
+  const currentUser = (() => {
+    if (formattedLeaderboard.length === 0) return null;
     return (
       formattedLeaderboard.find((entry) => entry._id === user?._id) ??
       formattedLeaderboard.find((entry) => entry._id === 'my_user_id') ??
@@ -78,11 +73,10 @@ export function LeaderboardPage() {
           }
         : null)
     );
-  }, [formattedLeaderboard, user]);
+  })();
 
   const currentUserId = currentUser?._id ?? 'my_user_id';
 
-  // Gom danh sách hiển thị: Nếu bạn nằm ngoài top 10, đính kèm bạn vào cuối danh sách
   const rawVisibleList =
     currentUser && !topTen.some((entry) => entry._id === currentUser._id)
       ? [...topTen, currentUser]
@@ -94,7 +88,6 @@ export function LeaderboardPage() {
 
   const isTourGuidingHere = wantRun && stepIndex === 7;
 
-  // Tự động cuốn view tới vị trí dòng của mình
   useEffect(() => {
     if (isTourGuidingHere) return;
     if (!isLeaderboardLoading && currentUserRowRef.current) {
@@ -124,8 +117,8 @@ export function LeaderboardPage() {
       <main className="ml-0 md:ml-64 pt-14 h-screen overflow-y-auto">
         <div className="mx-auto flex max-w-6xl flex-col gap-5 p-4 sm:p-8">
           <LeaderboardHero
-            totalStudents={leaderboard.length}
-            totalCoins={totalCoins}
+            totalStudents={leaderboardData?.totalUsers ?? 0}
+            totalCoins={leaderboardData?.totalCoins ?? 0}
           />
 
           <section className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">

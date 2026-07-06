@@ -54,7 +54,6 @@ export function useGacha(userId?: string) {
   });
 
   useEffect(() => {
-    // 💡 SỬA LỖI ĐỌC DATA: Duyệt qua mảng notifications mới của BE gửi về thay vì đọc biến .message cũ
     if (
       notificationData?.hasNotification &&
       notificationData.notifications?.length > 0
