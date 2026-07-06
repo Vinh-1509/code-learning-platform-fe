@@ -59,7 +59,7 @@ export function PracticeFilters({
             value={sortBy}
             onChange={(e) => onSortChange(e.target.value)}
           >
-            <option value="default">Default</option>
+            <option value="default">By lesson (Default)</option>
             <option value="level-asc">Difficulty: Easy to Hard</option>
             <option value="level-desc">Difficulty: Hard to Easy</option>
           </select>

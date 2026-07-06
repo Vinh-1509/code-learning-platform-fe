@@ -4,6 +4,7 @@ import {
   Grid3x3,
   SquareTerminal,
   LogOut,
+  Trophy,
   HelpCircle,
 } from 'lucide-react';
 
@@ -17,8 +18,8 @@ import { useTour } from '@/components/tour/TourProvider';
 
 interface AppSidebarProps {
   variant?: 'dashboard' | 'lesson';
-  activeTab?: 'dashboard' | 'practice';
-  onTabChange?: (tab: 'dashboard' | 'practice') => void;
+  activeTab?: 'dashboard' | 'practice' | 'leaderboard';
+  onTabChange?: (tab: 'dashboard' | 'practice' | 'leaderboard') => void;
   completedLessons?: number;
   totalLessons?: number;
   progressLabel?: string;
@@ -47,6 +48,7 @@ export function AppSidebar({
   const navItems = [
     { id: 'dashboard' as const, label: 'Dashboard', icon: LayoutDashboard },
     { id: 'practice' as const, label: 'Practice', icon: Grid3x3 },
+    { id: 'leaderboard' as const, label: 'Leaderboard', icon: Trophy },
   ];
 
   return (
@@ -104,7 +106,11 @@ export function AppSidebar({
                       onTabChange?.(item.id);
                       void navigate({
                         to:
-                          item.id === 'dashboard' ? '/dashboard' : '/practice',
+                          item.id === 'dashboard'
+                            ? '/dashboard'
+                            : item.id === 'practice'
+                              ? '/practice'
+                              : '/leaderboard',
                       });
                       onClose?.();
                     }}

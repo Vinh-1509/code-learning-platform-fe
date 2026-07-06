@@ -5,9 +5,9 @@ import { PracticeLibrary } from './PracticeLibrary';
 import { useDashboardData } from '@/features/dashboard/useDashboard';
 
 export function PracticePage() {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'practice'>(
-    'practice'
-  );
+  const [activeTab, setActiveTab] = useState<
+    'dashboard' | 'practice' | 'leaderboard'
+  >('practice');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const { dashboardData, loading } = useDashboardData();
@@ -27,7 +27,7 @@ export function PracticePage() {
       />
       <AppSidebar
         activeTab={activeTab}
-        onTabChange={(tab: 'dashboard' | 'practice') => {
+        onTabChange={(tab: 'dashboard' | 'practice' | 'leaderboard') => {
           setActiveTab(tab);
           setIsSidebarOpen(false);
         }}

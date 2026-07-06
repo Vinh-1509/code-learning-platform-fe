@@ -15,9 +15,9 @@ import Navbar from '@/components/navbar/Navbar';
  * @returns {JSX.Element} The rendered DashboardPage view container.
  */
 export function DashboardPage() {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'practice'>(
-    'dashboard'
-  );
+  const [activeTab, setActiveTab] = useState<
+    'dashboard' | 'practice' | 'leaderboard'
+  >('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Roadmap logic from current codebase
@@ -59,7 +59,7 @@ export function DashboardPage() {
       {/* SIDEBAR */}
       <AppSidebar
         activeTab={activeTab}
-        onTabChange={(tab: 'dashboard' | 'practice') => {
+        onTabChange={(tab: 'dashboard' | 'practice' | 'leaderboard') => {
           setActiveTab(tab);
           setIsSidebarOpen(false);
         }}
