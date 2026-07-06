@@ -11,7 +11,6 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useGacha } from './hooks/useGacha';
 import confetti from 'canvas-confetti';
-import { toast } from 'sonner';
 import {
   ChevronRight,
   Coins,
@@ -21,10 +20,14 @@ import {
   XIcon,
 } from 'lucide-react';
 
+import type { TargetUser } from '@/types/api/gacha.types';
+import type { SubmitAnswerResponse } from '@/types/api/exercise.types';
+
 interface GachaModalProps {
   isOpen: boolean;
   onClose: () => void;
   userId: string;
+  result: SubmitAnswerResponse | null;
   onUpdateBalance: (newCoins: number) => void;
 }
 
@@ -32,6 +35,7 @@ export default function GachaModal({
   isOpen,
   onClose,
   userId,
+  result,
   onUpdateBalance,
 }: GachaModalProps) {
   const [stage, setStage] = useState<'WHEEL' | 'COIN_SUCCESS' | 'ATTACK_STAGE'>(
@@ -41,54 +45,47 @@ export default function GachaModal({
   const [isSpinning, setIsSpinning] = useState(false);
   const [explodingId, setExplodingId] = useState<string | null>(null);
 
-  // Query layer wired through TanStack Query
-  const { claimGachaMutation, useTargetsQuery, attackMutation } =
-    useGacha(userId);
+  const { useTargetsQuery, attackMutation } = useGacha(userId);
   const { data: leaderboard = [], isLoading: isLoadingLeaderboard } =
     useTargetsQuery(stage === 'ATTACK_STAGE');
 
+  // 💡 KHÔI PHỤC HÀM QUAY BẰNG TAY: Đọc data từ result có sẵn để tính góc quay
   const handleStartSpin = () => {
-    if (isSpinning) return;
+    if (isSpinning || !result) return;
     setIsSpinning(true);
 
-    claimGachaMutation.mutate(undefined, {
-      onSuccess: (data) => {
-        let targetDegree = 1800;
-        if (data.prizeType === 'coin') {
-          targetDegree += 90;
-        } else {
-          targetDegree += 270;
-        }
-        setSpinDegree(targetDegree);
+    // Tính toán góc quay (Quay ít nhất 5 vòng = 1800 độ để tạo hiệu ứng)
+    let targetDegree = 1800;
+    if (result.prizeType === 'coin') {
+      targetDegree += 90; // Chỉ vào phân vùng Coin (Màu xanh mint)
+    } else {
+      targetDegree += 270; // Chỉ vào phân vùng Attack (Màu đỏ mint)
+    }
+    setSpinDegree(targetDegree);
 
-        setTimeout(() => {
-          setIsSpinning(false);
-          if (data.prizeType === 'coin') {
-            onUpdateBalance(data.currentCoins);
-            setStage('COIN_SUCCESS');
-            void confetti({
-              particleCount: 100,
-              spread: 70,
-              origin: { y: 0.6 },
-            });
-          } else {
-            setStage('ATTACK_STAGE');
-          }
-        }, 3000);
-      },
-      onError: () => {
-        setIsSpinning(false);
-      },
-    });
+    // Chờ bánh xe chạy hết hiệu ứng transition 3 giây rồi đổi stage kết quả
+    setTimeout(() => {
+      setIsSpinning(false);
+      if (result.prizeType === 'coin') {
+        onUpdateBalance(result.currentCoin);
+        setStage('COIN_SUCCESS');
+        void confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 },
+        });
+      } else {
+        setStage('ATTACK_STAGE');
+      }
+    }, 3000);
   };
 
-  const handleAttackClick = (targetId: string, targetName: string) => {
+  const handleAttackClick = (targetId: string) => {
     setExplodingId(targetId);
 
     setTimeout(() => {
       attackMutation.mutate(targetId, {
         onSuccess: (data) => {
-          toast.success(`Attack successful on ${targetName}! (+100 Coins)`);
           onUpdateBalance(data.newCoins);
           handleCloseAll();
         },
@@ -102,20 +99,9 @@ export default function GachaModal({
   const handleCloseAll = () => {
     setStage('WHEEL');
     setSpinDegree(0);
+    setIsSpinning(false);
     setExplodingId(null);
     onClose();
-  };
-
-  // Render a small medal or fallback rank for the mini leaderboard
-  const renderRankBadge = (rank: number) => {
-    if (rank === 1) return <span className="text-base">🥇</span>;
-    if (rank === 2) return <span className="text-base">🥈</span>;
-    if (rank === 3) return <span className="text-base">🥉</span>;
-    return (
-      <span className="text-xs font-bold text-muted-foreground w-5 text-center">
-        {rank}
-      </span>
-    );
   };
 
   const isAttackStage = stage === 'ATTACK_STAGE';
@@ -253,23 +239,26 @@ export default function GachaModal({
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-border/70 bg-card/80 p-4 shadow-sm">
+                {/* 💡 TRẢ LẠI BOX CHỜ Kèm Animation Đang quay khi click nút */}
+                <div className="rounded-2xl border border-border/70 bg-card/80 p-4 shadow-sm w-full">
                   <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
                     <Sparkles className="size-3.5" />
-                    Spin to earn rewards
+                    {isSpinning
+                      ? 'Determining your fate...'
+                      : 'Spin to earn rewards'}
                   </div>
                   <p className="mt-3 text-sm font-medium text-foreground">
-                    Spin to earn Coins or unlock an attack slot.
-                  </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Clean layout, aligned with the rest of the app.
+                    {isSpinning
+                      ? 'The wheel is spinning, please wait...'
+                      : 'Spin to earn Coins or unlock an attack slot.'}
                   </p>
                 </div>
 
+                {/* 💡 TRẢ LẠI NÚT BẤM CLICK TAY THẦN THÁNH */}
                 <Button
                   type="button"
                   onClick={handleStartSpin}
-                  disabled={isSpinning || claimGachaMutation.isPending}
+                  disabled={isSpinning || !result}
                   className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {isSpinning ? 'Spinning...' : 'Start spinning'}
@@ -289,7 +278,7 @@ export default function GachaModal({
                     Reward credited
                   </p>
                   <h3 className="text-4xl font-black tracking-tight text-foreground">
-                    +{claimGachaMutation.data?.amount} Coin
+                    +{result?.amount} Coin
                   </h3>
                   <p className="mx-auto max-w-[34ch] text-sm text-muted-foreground">
                     The spin is complete. Claim your Coins and get back to
@@ -328,7 +317,7 @@ export default function GachaModal({
                       No leaderboard data is available yet.
                     </p>
                   ) : (
-                    leaderboard.map((user) => (
+                    leaderboard.map((user: TargetUser) => (
                       <div
                         key={user._id}
                         className={cn(
@@ -339,14 +328,10 @@ export default function GachaModal({
                         )}
                       >
                         <div className="flex min-w-0 items-center gap-3">
-                          <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-semibold text-foreground">
-                            {renderRankBadge(user.rank)}
-                          </div>
-
                           <div className="min-w-0">
                             <div className="flex items-center gap-2">
                               <p className="truncate text-sm font-semibold text-foreground">
-                                {user.name}
+                                {user.name || user.username}
                               </p>
                               {user._id === userId && (
                                 <span className="inline-flex items-center rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
@@ -355,14 +340,14 @@ export default function GachaModal({
                               )}
                             </div>
                             <p className="mt-1 text-xs text-muted-foreground">
-                              {user.coins} Coins · Rank #{user.rank}
+                              {user.coins} Coins
                             </p>
                           </div>
                         </div>
 
                         <Button
                           type="button"
-                          onClick={() => handleAttackClick(user._id, user.name)}
+                          onClick={() => handleAttackClick(user._id)}
                           disabled={
                             attackMutation.isPending ||
                             explodingId !== null ||

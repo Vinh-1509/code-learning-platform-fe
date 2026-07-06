@@ -1,17 +1,14 @@
 import { Trophy, Crown, Medal } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-// 💡 IMPORT kiểu dữ liệu gốc để kế thừa
 import type { TargetUser } from '@/types/api/gacha.types';
 
-// 💡 Tạo một kiểu dữ liệu chuẩn chỉnh đại diện cho học viên trên bục xếp hạng
 interface PodiumEntry extends TargetUser {
   rank: number;
 }
 
 interface TopThreeCardProps {
   isLoading: boolean;
-  // 💡 SỬA TẠI ĐÂY: Đổi any[] thành PodiumEntry[]
   topThree: PodiumEntry[];
   currentUserId: string;
 }
@@ -21,8 +18,6 @@ export function TopThreeCard({
   topThree,
   currentUserId,
 }: TopThreeCardProps) {
-  // Sắp xếp mảng để hiển thị theo thứ tự bục: [Top 2, Top 1, Top 3]
-  // 💡 SỬA TẠI ĐÂY: Đổi kiểu dữ liệu tham số và giá trị trả về của hàm
   const getPodiumOrder = (items: PodiumEntry[]): PodiumEntry[] => {
     if (items.length === 0) return [];
     const podium = new Array<PodiumEntry>(items.length);
@@ -32,42 +27,37 @@ export function TopThreeCard({
     return podium.filter(Boolean);
   };
 
-  // Một hệ màu duy nhất (primary) cho cả 3 hạng — tier phân biệt bằng
-  // cường độ/kích thước, không bằng việc đổi hue (vàng/bạc/đồng).
   const podiumStyle = (rank: number) => {
     if (rank === 1) {
       return {
-        cardBg: 'bg-primary/[0.06] border-primary/25',
-        height: 'h-[180px]',
-        badgeSize: 'size-14',
+        cardBg: 'bg-primary/[0.04] border-primary/20',
+        padding: 'pt-8 pb-5', // Cao nhất
+        badgeSize: 'size-12',
         badgeBg: 'bg-primary',
         badgeText: 'text-primary-foreground',
-        badgeRing: 'ring-4 ring-primary/10',
         icon: Crown,
-        iconSize: 24,
+        iconSize: 20,
       };
     }
     if (rank === 2) {
       return {
-        cardBg: 'bg-muted/40 border-border',
-        height: 'h-[150px]',
-        badgeSize: 'size-12',
-        badgeBg: 'bg-primary/15',
-        badgeText: 'text-primary',
-        badgeRing: 'ring-2 ring-primary/10',
+        cardBg: 'bg-muted/30 border-border/70',
+        padding: 'pt-6 pb-4 md:mt-4', // Thấp hơn, đẩy xuống một chút
+        badgeSize: 'size-10',
+        badgeBg: 'bg-muted-foreground/10',
+        badgeText: 'text-muted-foreground',
         icon: Medal,
-        iconSize: 20,
+        iconSize: 18,
       };
     }
     return {
-      cardBg: 'bg-muted/30 border-border',
-      height: 'h-[135px]',
-      badgeSize: 'size-11',
-      badgeBg: 'bg-primary/10',
-      badgeText: 'text-primary/80',
-      badgeRing: '',
+      cardBg: 'bg-muted/20 border-border/50',
+      padding: 'pt-6 pb-4 md:mt-7', // Thấp nhất
+      badgeSize: 'size-9',
+      badgeBg: 'bg-muted-foreground/5',
+      badgeText: 'text-muted-foreground/80',
       icon: Medal,
-      iconSize: 18,
+      iconSize: 16,
     };
   };
 
@@ -78,18 +68,21 @@ export function TopThreeCard({
       <CardHeader className="border-b border-border/60 pb-3">
         <div className="flex items-center justify-between gap-3">
           <CardTitle className="text-xl font-semibold tracking-tight text-foreground">
-            Top Podium
+            Top Rankings
           </CardTitle>
-          <Trophy className="size-5 text-primary" />
+          <Trophy
+            className="size-5 text-primary animate-bounce"
+            style={{ animationDuration: '3s' }}
+          />
         </div>
       </CardHeader>
 
-      <CardContent className="p-6 flex items-end justify-center gap-3 sm:gap-4 min-h-[220px]">
+      <CardContent className="p-6 flex items-end justify-center gap-3 sm:gap-4 min-h-[220px] bg-gradient-to-b from-transparent to-muted/10">
         {isLoading ? (
-          <div className="w-full flex items-end justify-center gap-4 h-[180px]">
-            <div className="h-[140px] w-full animate-pulse rounded-2xl bg-muted/40" />
-            <div className="h-[180px] w-full animate-pulse rounded-2xl bg-muted/40" />
+          <div className="w-full flex items-end justify-center gap-4 h-[160px]">
             <div className="h-[120px] w-full animate-pulse rounded-2xl bg-muted/40" />
+            <div className="h-[160px] w-full animate-pulse rounded-2xl bg-muted/40" />
+            <div className="h-[100px] w-full animate-pulse rounded-2xl bg-muted/40" />
           </div>
         ) : topThree.length > 0 ? (
           orderedTopThree.map((entry, index) => {
@@ -101,47 +94,66 @@ export function TopThreeCard({
               <div
                 key={entry._id}
                 className={cn(
-                  'w-full flex flex-col justify-between items-center rounded-2xl border p-3 pt-6 text-center relative',
-                  'motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-3 fill-mode-both',
+                  'flex-1 flex flex-col justify-between items-center rounded-2xl border text-center relative transition-all duration-300 px-2 sm:px-3',
+                  'motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-4 fill-mode-both',
                   style.cardBg,
-                  style.height,
-                  entry.rank === 1 && 'z-10 scale-105',
-                  isYou && 'ring-2 ring-primary'
+                  style.padding,
+                  entry.rank === 1 && 'z-10 shadow-md',
+
+                  // 🔥 FIX GLOW CHO "YOU": Dùng shadow thay vì ring, tạo viền mềm mại, không lỗi đè layout
+                  isYou &&
+                    'border-primary/50 bg-primary/[0.08] shadow-[0_0_15px_rgba(var(--primary),0.15)] shadow-primary/20 scale-[1.02]'
                 )}
                 style={{
-                  animationDelay: `${index * 90}ms`,
-                  animationDuration: '450ms',
+                  animationDelay: `${index * 80}ms`,
+                  animationDuration: '400ms',
                 }}
               >
-                {isYou && (
-                  <span className="absolute -top-2.5 bg-primary text-[9px] font-bold uppercase tracking-wider text-primary-foreground px-2 py-0.5 rounded-full">
-                    You
-                  </span>
-                )}
-
+                {/* Badge Icon Xếp Hạng */}
                 <div
                   className={cn(
-                    'absolute -top-5 flex shrink-0 items-center justify-center rounded-full',
+                    'absolute -top-5 z-20 flex shrink-0 items-center justify-center rounded-full transition-all',
+                    // Nếu là bạn, đổi viền bao quanh icon thành màu primary để nhấn mạnh
+                    isYou
+                      ? 'ring-4 ring-primary bg-primary text-primary-foreground'
+                      : 'ring-4 ring-background',
                     style.badgeSize,
-                    style.badgeBg,
-                    style.badgeText,
-                    style.badgeRing
+                    isYou ? '' : style.badgeBg,
+                    isYou ? '' : style.badgeText
                   )}
                 >
-                  <Icon size={style.iconSize} strokeWidth={2.25} />
+                  <Icon size={style.iconSize} strokeWidth={2.5} />
                 </div>
 
-                <div className="w-full min-w-0 mt-4">
-                  <p className="truncate text-xs font-bold text-foreground block">
-                    {entry.name}
+                {/* Phần Content: Tự động co giãn space-y cực thoáng */}
+                <div className="w-full min-w-0 flex flex-col gap-1 items-center">
+                  <p
+                    className={cn(
+                      'truncate text-xs font-semibold block w-full tracking-tight',
+                      isYou ? 'text-primary font-bold' : 'text-muted-foreground'
+                    )}
+                  >
+                    {isYou ? 'You' : entry.name}
                   </p>
-                  <p className="text-sm font-black tabular-nums tracking-tight text-foreground mt-1">
+
+                  <p
+                    className={cn(
+                      'text-sm font-black tabular-nums tracking-tight text-foreground',
+                      entry.rank === 1 && 'text-base sm:text-lg text-primary'
+                    )}
+                  >
                     {Number(entry.coins).toLocaleString()}
                   </p>
                 </div>
 
-                <span className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">
-                  Rank #{entry.rank}
+                {/* Thứ hạng nhỏ gọn tinh tế ở đáy */}
+                <span
+                  className={cn(
+                    'text-[9px] uppercase font-bold tracking-widest mt-3 block opacity-70',
+                    isYou ? 'text-primary' : 'text-muted-foreground/60'
+                  )}
+                >
+                  #Rank {entry.rank}
                 </span>
               </div>
             );

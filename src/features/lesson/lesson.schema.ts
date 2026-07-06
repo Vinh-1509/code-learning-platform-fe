@@ -88,6 +88,11 @@ export const SubmitAnswerResponseSchema = z.object({
   correct: z.boolean(),
   items: z.array(SubmitAnswerItemSchema).optional(),
   attemptNumber: z.number().optional(),
+  prizeType: z.enum(['coin', 'attack', 'no prize']),
+  amount: z.number(),
+  currentCoin: z.number(),
+  hasAttackSlot: z.boolean(),
+  nextRewardAvailableAt: z.string().optional(),
 });
 
 export const HintResponseSchema = z.object({

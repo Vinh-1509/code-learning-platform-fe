@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { AppSidebar } from '@/components/sidebar/Sidebar';
 import Navbar from '@/components/navbar/Navbar';
@@ -6,7 +6,7 @@ import { useAuth } from '@/features/auth/useAuth';
 import { fetchLeaderboard } from '@/features/leaderboard/api/leaderboard.api';
 import { queryKeys } from '@/lib/queryKeys';
 
-// Import sub-components sạch sẽ không thông qua file utils cồng kềnh
+// Import sub-components sạch sẽ
 import { LeaderboardHero } from './LeaderboardHero';
 import { UserPositionCard } from './UserPositionCard';
 import { TopThreeCard } from './TopThreeCard';
@@ -16,6 +16,13 @@ import { useDashboardData } from '../dashboard/useDashboard';
 import { useGacha } from '@/features/gacha/hooks/useGacha';
 
 import { useTour } from '@/components/tour/TourProvider';
+// 💡 Import thêm type chuẩn để ép kiểu dữ liệu an toàn
+import type { TargetUser } from '@/types/api/gacha.types';
+
+// Định nghĩa interface mở rộng có chứa rank cho các sub-component húp data không bị lỗi
+interface LeaderboardUser extends TargetUser {
+  rank: number;
+}
 
 export function LeaderboardPage() {
   const { user } = useAuth();
@@ -26,13 +33,17 @@ export function LeaderboardPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const currentUserRowRef = useRef<HTMLDivElement | null>(null);
 
+  // Kích hoạt short polling thông báo ngầm khi đang ở trang BXH
   useGacha(user?._id);
 
-  // 1. Fetch dữ liệu bảng xếp hạng chính thức
-  const { data: leaderboard = [], isLoading: isLeaderboardLoading } = useQuery({
+  // 1. Fetch dữ liệu bảng xếp hạng chính thức (API mới tự map rank và name nội bộ)
+  const { data: leaderboard = [], isLoading: isLeaderboardLoading } = useQuery<
+    TargetUser[]
+  >({
     queryKey: queryKeys.leaderboard.list(),
     queryFn: fetchLeaderboard,
-    staleTime: 60_000,
+    staleTime: 5_000,
+    refetchInterval: 15000,
   });
 
   // 2. Fetch dữ liệu tiến độ bài học cho Sidebar
@@ -41,29 +52,49 @@ export function LeaderboardPage() {
   const completedLessons = dashboardData?.stats.totalLearnedLessons ?? 0;
   const isPageLoading = statsLoading;
 
-  // Xử lý mảng dữ liệu hiển thị
-  const topThree = leaderboard.slice(0, 3);
-  const topTen = leaderboard.slice(0, 10);
-  const totalCoins = leaderboard.reduce((sum, entry) => sum + entry.coins, 0);
+  // Xử lý mảng dữ liệu hiển thị (Ép sang kiểu LeaderboardUser có trường rank ổn định)
+  const formattedLeaderboard = leaderboard as LeaderboardUser[];
 
-  const currentUser =
-    leaderboard.find((entry) => entry._id === user?._id) ??
-    leaderboard.find((entry) => entry._id === 'my_user_id') ??
-    leaderboard[0];
+  const topThree = formattedLeaderboard.slice(0, 3);
+  const topTen = formattedLeaderboard.slice(0, 10);
+
+  // 💡 Ép kiểu Number phòng hờ lỗi cộng chuỗi bậy bạ từ Database
+  const totalCoins = formattedLeaderboard.reduce(
+    (sum, entry) => sum + Number(entry.coins || 0),
+    0
+  );
+
+  // 💡 TỐI ƯU LOGIC TÌM KIẾM BẢN THÂN: Tìm theo ID thật trước, fallback về mock, nếu không có mới tạo object ảo chứa chính info của user
+  const currentUser = useMemo<LeaderboardUser | null>(() => {
+    return (
+      formattedLeaderboard.find((entry) => entry._id === user?._id) ??
+      formattedLeaderboard.find((entry) => entry._id === 'my_user_id') ??
+      (user
+        ? {
+            _id: user._id,
+            name: 'You',
+            coins: user.coins ?? 0,
+            rank: formattedLeaderboard.length + 1,
+          }
+        : null)
+    );
+  }, [formattedLeaderboard, user]);
 
   const currentUserId = currentUser?._id ?? 'my_user_id';
 
+  // Gom danh sách hiển thị: Nếu bạn nằm ngoài top 10, đính kèm bạn vào cuối danh sách
   const rawVisibleList =
     currentUser && !topTen.some((entry) => entry._id === currentUser._id)
       ? [...topTen, currentUser]
       : topTen;
+
   const visibleLeaderboard = [...rawVisibleList].sort(
     (a, b) => b.coins - a.coins
   );
 
   const isTourGuidingHere = wantRun && stepIndex === 7;
 
-  // Tự động cuốn view tới vị trí của mình
+  // Tự động cuốn view tới vị trí dòng của mình
   useEffect(() => {
     if (isTourGuidingHere) return;
     if (!isLeaderboardLoading && currentUserRowRef.current) {

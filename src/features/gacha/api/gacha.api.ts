@@ -1,89 +1,121 @@
-import type {
-  GachaResponse,
-  PollingNotificationResponse,
-  TargetUser,
-  AttackResponse,
-} from '@/types/api/gacha.types';
-import { fetchLeaderboard } from '@/features/leaderboard/api/leaderboard.api';
+import { api } from '@/lib/axios';
+import { z } from 'zod';
 import { mockDecreaseMyCoins } from '@/features/leaderboard/api/leaderboard.api';
 
-const IS_MOCK = true;
+// Import các Schema vừa định nghĩa
+import {
+  GachaResponseSchema,
+  ClassTargetsResponseSchema,
+  AttackResponseSchema,
+  PollingNotificationResponseSchema,
+  TargetUserSchema,
+} from '../gacha.schema';
+
+// Suy luận ngược kiểu dữ liệu ra để export ra ngoài cho các hook/component xài
+export type GachaResponse = z.infer<typeof GachaResponseSchema>;
+export type TargetUser = z.infer<typeof TargetUserSchema>;
+export type AttackResponse = z.infer<typeof AttackResponseSchema>;
+export type PollingNotificationResponse = z.infer<
+  typeof PollingNotificationResponseSchema
+>;
+
+const IS_MOCK = false;
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-export async function claimGachaReward(): Promise<GachaResponse> {
-  if (IS_MOCK) {
-    await sleep(800);
-    const isCoin = Math.random() < 0.1;
-    const randomCoinAmount = Math.floor(Math.random() * 31) + 20;
-    return {
-      status: 'success',
-      prizeType: isCoin ? 'coin' : 'attack',
-      amount: isCoin ? randomCoinAmount : 0,
-      currentCoins: 1250 + (isCoin ? randomCoinAmount : 0),
-      hasAttackSlot: !isCoin,
-    };
-  }
+// 1. API Hoàn thành bài tập & Gacha Phần thưởng
+// export async function claimGachaReward(exerciseId: string): Promise<GachaResponse> {
+//   if (IS_MOCK) {
+//     await sleep(800);
+//     const isCoin = Math.random() < 0.7;
+//     const randomCoinAmount = Math.floor(Math.random() * 31) + 20;
+//     return {
+//       correct: true,
+//       attemptNumber: 1,
+//       prizeType: isCoin ? 'coin' : 'attack',
+//       amount: isCoin ? randomCoinAmount : 0,
+//       currentCoin: 1250 + (isCoin ? randomCoinAmount : 0),
+//       hasAttackSlot: !isCoin,
+//       nextRewardAvailableAt: new Date().toISOString(),
+//     };
+//   }
 
-  const res = await fetch('/api/lessons/complete', { method: 'POST' });
-  if (!res.ok) throw new Error('Gacha claim failed');
+//   // 💡 CHUYỂN SANG AXIOS + ZOD STRICT PARSING
+//   const { data } = await api.post<unknown>(`/api/practice/exercises/${exerciseId}/submit`);
+//   return GachaResponseSchema.parse(data);
+// }
 
-  return (await res.json()) as GachaResponse;
-}
-
+// 2. API Lấy danh sách mục tiêu cùng ngôn ngữ học
 export async function fetchClassTargets(): Promise<TargetUser[]> {
-  return fetchLeaderboard();
+  // if (IS_MOCK) {
+  //   await sleep(400);
+  //   return [
+  //     { _id: '6a157a618e93bffbaf3311c8', name: 'Quan', coins: 250, selectedLanguage: 'C++' },
+  //     { _id: '6a088f9f27e56d7d422966e7', name: 'Vinh', coins: 120, selectedLanguage: 'C++' },
+  //     { _id: 'user_1', name: 'Tran Gia Bao', coins: 2450, selectedLanguage: 'C++' },
+  //     { _id: 'user_2', name: 'Le Minh Khoi', coins: 1820, selectedLanguage: 'C++' },
+  //     { _id: 'user_4', name: 'Pham Thuy Vy', coins: 980, selectedLanguage: 'C++' },
+  //   ];
+  // }
+
+  // 💡 CHUYỂN SANG AXIOS + ZOD: Parse bọc object { users: [...] } rồi trả về mảng phẳng
+  const { data } = await api.get<unknown>('/api/action/targets');
+  const parsedData = ClassTargetsResponseSchema.parse(data);
+  return parsedData.users.map((user, index) => ({
+    ...user,
+    name: user.username || `User_${user._id.slice(-4)}`, // Nếu ko có tên thì lấy 4 ký tự cuối của ID làm tên tạm
+    rank: index + 1,
+  }));
 }
 
-export async function fetchLeaderboardTargets(): Promise<TargetUser[]> {
-  return fetchLeaderboard();
-}
-
+// 3. API Thực thi Thả Bug cướp điểm
 export async function submitAttack(targetId: string): Promise<AttackResponse> {
   if (IS_MOCK) {
     await sleep(1000);
     return {
       status: 'success',
-      msg: 'Attack successful',
+      msg: 'Successfully bugged!',
       newCoins: 1350,
     };
   }
 
-  const res = await fetch('/api/action/attack', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ targetId }),
-  });
-  if (!res.ok) throw new Error('Attack submission failed');
-
-  return (await res.json()) as AttackResponse;
+  // 💡 CHUYỂN SANG AXIOS + ZOD
+  const { data } = await api.post<unknown>('/api/action/attack', { targetId });
+  return AttackResponseSchema.parse(data);
 }
 
+// 4. API Ngầm Kiểm tra Biến động số dư (Short Polling)
 export async function checkGachaNotifications(): Promise<PollingNotificationResponse> {
   if (IS_MOCK) {
-    const luckyRoll = Math.random() < 0.3;
+    const luckyRoll = Math.random() < 0.2;
     const mockHackers = ['Minh Khoi', 'Gia Bao', 'Thuy Vy'];
     const randomHacker =
       mockHackers[Math.floor(Math.random() * mockHackers.length)];
 
     if (luckyRoll) {
       mockDecreaseMyCoins(100);
-
       return {
         hasNotification: true,
-        message: `Your submission was bugged by [${randomHacker}] and 300 Coins were stolen!`,
+        notifications: [
+          {
+            id: String(Math.random()),
+            type: 'attack',
+            attackerName: randomHacker,
+            coinsLost: 100,
+            message: `Bạn đã bị ${randomHacker} thả bug mất 100 Coin!`,
+            createdAt: new Date().toISOString(),
+          },
+        ],
       };
     }
 
     return {
       hasNotification: false,
-      message: '',
+      notifications: [],
     };
   }
 
-  const res = await fetch('/api/users/notifications');
-  if (!res.ok) throw new Error('Notification polling failed');
-
-  // 💡 FIX LỖI 3: Ép kiểu dữ liệu trả về thành PollingNotificationResponse
-  return (await res.json()) as PollingNotificationResponse;
+  // 💡 CHUYỂN SANG AXIOS + ZOD
+  const { data } = await api.get<unknown>('/api/users/notifications');
+  return PollingNotificationResponseSchema.parse(data);
 }

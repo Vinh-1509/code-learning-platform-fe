@@ -136,10 +136,12 @@ export function useBlockExercises({ block }: UseBlockExercisesOptions) {
         return next;
       });
     }
+    return result;
   };
 
   // ── Instantiating TanStack Mutations ───────────────────────────────────────
   const submitMutation = useSubmitAnswer(handleSubmissionSuccess);
+
   const hintMutation = useGetHint();
   const explainMutation = useExplainAnswer();
 
@@ -165,6 +167,7 @@ export function useBlockExercises({ block }: UseBlockExercisesOptions) {
     submitAnswer,
     getHint,
     explainAnswer,
+    submitResult: submitMutation.data,
     // Optional: expose mutation pending flags to the UI if needed later
     isSubmitting: submitMutation.isPending,
     isGettingHint: hintMutation.isPending,

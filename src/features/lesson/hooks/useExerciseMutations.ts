@@ -46,6 +46,7 @@ export function useSubmitAnswer(
         void queryClient.invalidateQueries({
           queryKey: queryKeys.dashboard.all,
         });
+        void queryClient.invalidateQueries({ queryKey: queryKeys.auth.me() });
       }
 
       onSuccessCallback(exerciseId, data);

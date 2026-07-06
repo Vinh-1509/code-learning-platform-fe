@@ -24,6 +24,7 @@ export const AuthUserResponseSchema = z.object({
   fullName: z.string().optional(),
   selectedLanguage: z.array(z.string()).optional(),
   createdAt: z.string(),
+  coins: z.number(),
 });
 
 export type AuthResponse = z.infer<typeof AuthResponseSchema>;

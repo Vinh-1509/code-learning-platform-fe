@@ -16,6 +16,7 @@ import type {
 } from '@/types/api/exercise.types';
 import { getExerciseHistory } from '@/features/lesson/api/exercise.api';
 import { prepareAnswerForSubmission } from '../practice_utils/utils/exercise.converter';
+import { toast } from 'sonner';
 
 interface PracticePanelProps {
   exercise: PracticeExercise;
@@ -56,6 +57,9 @@ export function PracticePanel({
   const [hints, setHints] = useState<string[]>([]);
   const [isHintOpen, setIsHintOpen] = useState(false);
   const [isGachaOpen, setIsGachaOpen] = useState(false);
+  const [gachaResult, setGachaResult] = useState<SubmitAnswerResponse | null>(
+    null
+  );
   // AI explanation state
   const [explanation, setExplanation] = useState<ExplainAnswerResponse | null>(
     null
@@ -128,7 +132,16 @@ export function PracticePanel({
 
       setShowResult(isCorrect ? 'correct' : 'wrong');
       if (isCorrect) {
-        setIsGachaOpen(true);
+        if (result.prizeType === 'no prize') {
+          toast.info('No prize this time. Please try again in 6 hours.');
+
+          if (onGachaClose) {
+            onGachaClose();
+          }
+        } else {
+          setGachaResult(result);
+          setIsGachaOpen(true);
+        }
       }
       if (!isCorrect) {
         // Block re-submit until the user modifies their answer
@@ -263,6 +276,7 @@ export function PracticePanel({
       <GachaModal
         isOpen={isGachaOpen}
         userId={myUserId}
+        result={gachaResult}
         onUpdateBalance={(newCoins) => {
           console.log('Số coin mới sau khi quay gacha:', newCoins);
           // Nếu sau này ông có hàm global update tiền trên Header (ví dụ qua queryClient hoặc state) thì nhét vào đây

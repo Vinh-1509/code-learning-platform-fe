@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/queryKeys';
@@ -9,7 +10,11 @@ function getInitialToken() {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const token = getInitialToken();
+  // 🔥 FIX: token phải là React state. Trước đây đọc thẳng localStorage mỗi
+  // render nên khi login()/logout() ghi vào localStorage, AuthProvider KHÔNG
+  // re-render (React không biết localStorage đổi) -> `enabled: Boolean(token)`
+  // vẫn đóng băng theo giá trị cũ -> user không refetch đúng lúc.
+  const [token, setToken] = useState<string | null>(getInitialToken);
 
   const { data: user } = useQuery({
     queryKey: queryKeys.auth.me(),
@@ -23,6 +28,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         token,
         user: user ?? null,
+        setToken, // 👈 expose cho useLogin/useLogout gọi để trigger re-render ngay lập tức
       }}
     >
       {children}
