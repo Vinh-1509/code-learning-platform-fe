@@ -49,6 +49,8 @@ function makeUser(selectedLanguage: string[] = ['C++']): MockUser {
   return {
     _id: 'user-1',
     email: 'test@example.com',
+    username: 'testuser',
+    coins: 100,
     createdAt: '2024-01-01T00:00:00Z',
     selectedLanguage,
   };

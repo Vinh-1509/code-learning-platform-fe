@@ -18,7 +18,7 @@ describe('useSidebarLanguage', () => {
       _id: 'user-1',
       email: 'test@example.com',
       username: 'testuser',
-
+      coins: 100,
       selectedLanguage: ['Java'],
       createdAt: '2026-01-01T00:00:00.000Z',
     });
@@ -38,6 +38,7 @@ describe('useSidebarLanguage', () => {
       _id: 'user-1',
       email: 'test@example.com',
       username: 'testuser',
+      coins: 100,
       selectedLanguage: ['Java'],
       createdAt: '2026-01-01T00:00:00.000Z',
     });
@@ -55,6 +56,7 @@ describe('useSidebarLanguage', () => {
       _id: 'user-1',
       email: 'test@example.com',
       username: 'testuser',
+      coins: 100,
       selectedLanguage: [],
       createdAt: '2026-01-01T00:00:00.000Z',
     });
