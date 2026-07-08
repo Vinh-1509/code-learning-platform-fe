@@ -8,6 +8,13 @@ import {
 // Suy luận Type tự động từ Zod Schema (Clear file .types.ts thủ công cũ)
 export type TargetUser = z.infer<typeof LeaderboardUserSchema>;
 export interface LeaderboardDataResponse {
+  me?: {
+    _id?: string;
+    username?: string;
+    name?: string;
+    coins: number;
+    rank: number;
+  } | null;
   totalUsers: number;
   totalCoins: number;
   topUsers: TargetUser[];
@@ -50,12 +57,17 @@ export async function fetchLeaderboard(): Promise<LeaderboardDataResponse> {
   const parsedData = LeaderboardResponseSchema.parse(data);
 
   // Khớp nối adapter: Khôi phục trường name từ username của BE để bảo toàn giao diện
-  const mappedUsers = parsedData.topUsers.map((user, index) => ({
+  const mappedUsers = parsedData.topUsers.map((user) => ({
     ...user,
     name: user.name || user.username || 'Anonymous',
-    rank: index + 1,
   }));
   return {
+    me: parsedData.me
+      ? {
+          ...parsedData.me,
+          name: parsedData.me.username || 'You',
+        }
+      : null,
     totalUsers: parsedData.totalUsers,
     totalCoins: parsedData.totalCoins,
     topUsers: mappedUsers, // Ném mảng đã xử lý rank vào đây

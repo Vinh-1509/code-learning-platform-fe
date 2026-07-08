@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-// Định nghĩa lại cấu trúc nếu không muốn import chéo folder gacha
 export const LeaderboardUserSchema = z.object({
   _id: z.string(),
   name: z.string().optional(),
@@ -8,9 +7,13 @@ export const LeaderboardUserSchema = z.object({
   coins: z.number(),
   rank: z.number().optional(),
 });
-
-// Cấu trúc bọc chuẩn đét của BE trả về: { topUsers: [...] }
+export const CurrentUserRankSchema = z.object({
+  rank: z.number(),
+  username: z.string().optional(),
+  coins: z.number(),
+});
 export const LeaderboardResponseSchema = z.object({
+  me: CurrentUserRankSchema.nullable().optional(),
   totalUsers: z.number(),
   totalCoins: z.number(),
   topUsers: z.array(LeaderboardUserSchema),

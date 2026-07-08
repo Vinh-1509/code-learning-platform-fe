@@ -59,20 +59,15 @@ export function LeaderboardPage() {
   const topThree = formattedLeaderboard.slice(0, 3);
   const topTen = formattedLeaderboard.slice(0, 10);
 
-  const currentUser = (() => {
-    if (formattedLeaderboard.length === 0) return null;
-    return (
-      formattedLeaderboard.find((entry) => entry._id === user?._id) ??
-      formattedLeaderboard.find((entry) => entry._id === 'my_user_id') ??
-      (user
-        ? {
-            _id: user._id,
-            name: 'You',
-            coins: user.coins ?? 0,
-            rank: formattedLeaderboard.length + 1,
-          }
-        : null)
-    );
+  const currentUser: LeaderboardUser | null = (() => {
+    if (!leaderboardData?.me) return null;
+    return {
+      _id: leaderboardData.me._id || user?._id || 'my_user_id',
+      name: leaderboardData.me.name || 'You',
+      username: leaderboardData.me.username || '',
+      coins: leaderboardData.me.coins,
+      rank: leaderboardData.me.rank,
+    };
   })();
 
   const currentUserId = currentUser?._id ?? 'my_user_id';
