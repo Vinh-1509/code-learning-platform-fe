@@ -3,7 +3,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { toast } from 'sonner';
 import { useEffect } from 'react';
 import {
-  claimGachaReward,
+  //claimGachaReward,
   fetchClassTargets,
   submitAttack,
   checkGachaNotifications,
@@ -12,39 +12,39 @@ import {
 export function useGacha(userId?: string) {
   const queryClient = useQueryClient();
 
-  // 1. Mutation xử lý xoay Gacha
-  const claimGachaMutation = useMutation({
-    mutationFn: claimGachaReward,
-    onError: () => {
-      toast.error('Unable to connect to the reward wheel.');
-    },
-  });
-
-  // 2. Query the read-only leaderboard list (enabled only when the attack stage is visible)
   const useTargetsQuery = (enabled: boolean) =>
     useQuery({
-      queryKey: queryKeys.leaderboard.list(),
+      queryKey: queryKeys.leaderboard.targets(),
       queryFn: fetchClassTargets,
       enabled,
       staleTime: 5000,
-      refetchInterval: 5000,
-      refetchIntervalInBackground: true,
+      refetchInterval: enabled ? 15000 : false,
+      refetchIntervalInBackground: false,
     });
 
-  // 3. Mutation that handles the attack action
   const attackMutation = useMutation({
     mutationFn: submitAttack,
-    onSuccess: () => {
+    onSuccess: (data) => {
+      if (data.details) {
+        toast.success(
+          `💥 Bugged successfully! Stole ${data.details.coinsStolen} CS-Pts from ${data.details.targetName}.`
+        );
+      } else {
+        toast.success(data.msg || 'Successfully bugged!');
+      }
+
       void queryClient.invalidateQueries({
         queryKey: queryKeys.leaderboard.all,
       });
+
+      void queryClient.invalidateQueries({ queryKey: queryKeys.auth.me() });
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Attack failed.');
     },
   });
 
-  // 4. Poll every 15 seconds to detect if the user has been attacked
+  // 4. Polling định kỳ kiểm tra biến động số dư do bị tấn công
   const { data: notificationData } = useQuery({
     queryKey: ['gacha', 'notifications', userId],
     queryFn: checkGachaNotifications,
@@ -52,25 +52,32 @@ export function useGacha(userId?: string) {
     refetchInterval: 15000,
     refetchIntervalInBackground: true,
   });
+
   useEffect(() => {
-    if (notificationData?.hasNotification) {
-      toast.error('⚠️ Got bugged', {
-        description: notificationData.message,
-        id: 'gacha-attack-toast',
-        duration: 7000,
+    if (
+      notificationData?.hasNotification &&
+      notificationData.notifications?.length > 0
+    ) {
+      notificationData.notifications.forEach((notif) => {
+        toast.error('⚠️ Got bugged!', {
+          description: notif.message,
+          id: notif.id, // 🔥 QUAN TRỌNG: Dùng id của thông báo làm Toast ID để chống trùng lặp, spam lặp lại khi polling refetch
+          duration: 7000,
+        });
       });
 
-      // 2. Ép các query khác cập nhật lại điểm số và bảng xếp hạng trên UI
+      // Ép các query hệ thống đồng loạt cập nhật lại điểm số thật trên UI ngay lập tức
       void queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all });
       void queryClient.invalidateQueries({
         queryKey: queryKeys.leaderboard.all,
       });
-      void queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
+      // 🔥 FIX: đồng bộ với chỗ trên, dùng queryKeys.auth.me()
+      void queryClient.invalidateQueries({ queryKey: queryKeys.auth.me() });
     }
   }, [notificationData, queryClient]);
 
   return {
-    claimGachaMutation,
+    // claimGachaMutation,
     useTargetsQuery,
     attackMutation,
   };

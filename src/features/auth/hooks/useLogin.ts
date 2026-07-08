@@ -3,6 +3,7 @@ import { useNavigate } from '@tanstack/react-router';
 //import axios from 'axios';
 import { loginUser } from '../api/auth.api';
 import { queryKeys } from '@/lib/queryKeys';
+import { useAuth } from '../useAuth';
 import type { AuthPayload } from '@/types/auth';
 //import type { ApiError } from '@/lib/axios';
 //import { toast } from 'sonner'; // Hoặc thư viện toast bạn chọn
@@ -10,12 +11,16 @@ import type { AuthPayload } from '@/types/auth';
 export function useLogin() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { setToken } = useAuth(); // 👈 setter từ AuthContext
 
   return useMutation({
     mutationFn: (data: AuthPayload) => loginUser(data),
     onSuccess: (res) => {
       if (res.access_token) {
         localStorage.setItem('token', res.access_token);
+        // 🔥 FIX: cập nhật state ngay lập tức để AuthProvider re-render và
+        // useQuery(auth.me) bật `enabled: true` đúng lúc, thay vì đợi F5.
+        setToken(res.access_token);
         // refresh cache
         void queryClient.invalidateQueries({ queryKey: queryKeys.auth.me() });
         // toast.success('Đăng nhập thành công!');

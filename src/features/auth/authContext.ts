@@ -1,4 +1,4 @@
-import { createContext } from 'react';
+import { createContext, type Dispatch, type SetStateAction } from 'react';
 import type { AuthUserResponse } from '@/types/auth';
 
 /**
@@ -11,6 +11,7 @@ export interface AuthContextValue {
 
   /** Current authenticated user data. Null if not authenticated. */
   user: AuthUserResponse | null;
+  setToken: Dispatch<SetStateAction<string | null>>;
 }
 
 /**

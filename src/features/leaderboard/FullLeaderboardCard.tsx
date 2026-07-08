@@ -21,7 +21,7 @@ export function FullLeaderboardCard({
 }: FullLeaderboardCardProps) {
   // Cùng hệ badge với TopThreeCard: một màu primary, tier phân biệt bằng
   // cường độ nền, không đổi hue theo hạng.
-  const rankBadge = (rank: number) => {
+  const rankBadge = (rank: number | undefined) => {
     if (rank === 1)
       return { bg: 'bg-primary', text: 'text-primary-foreground', icon: Crown };
     if (rank === 2)

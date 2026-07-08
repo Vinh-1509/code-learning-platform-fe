@@ -21,4 +21,5 @@ export interface AuthUserResponse {
   fullName?: string;
   selectedLanguage?: string[];
   createdAt: string;
+  coins: number;
 }

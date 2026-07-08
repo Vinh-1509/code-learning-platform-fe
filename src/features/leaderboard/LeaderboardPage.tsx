@@ -3,10 +3,13 @@ import { useQuery } from '@tanstack/react-query';
 import { AppSidebar } from '@/components/sidebar/Sidebar';
 import Navbar from '@/components/navbar/Navbar';
 import { useAuth } from '@/features/auth/useAuth';
-import { fetchLeaderboard } from '@/features/leaderboard/api/leaderboard.api';
+import {
+  fetchLeaderboard,
+  type LeaderboardDataResponse,
+} from '@/features/leaderboard/api/leaderboard.api';
 import { queryKeys } from '@/lib/queryKeys';
 
-// Import sub-components sạch sẽ không thông qua file utils cồng kềnh
+// Import sub-components sạch sẽ
 import { LeaderboardHero } from './LeaderboardHero';
 import { UserPositionCard } from './UserPositionCard';
 import { TopThreeCard } from './TopThreeCard';
@@ -16,6 +19,12 @@ import { useDashboardData } from '../dashboard/useDashboard';
 import { useGacha } from '@/features/gacha/hooks/useGacha';
 
 import { useTour } from '@/components/tour/TourProvider';
+// 💡 Import thêm type chuẩn để ép kiểu dữ liệu an toàn
+import type { TargetUser } from '@/types/api/gacha.types';
+
+interface LeaderboardUser extends TargetUser {
+  rank: number;
+}
 
 export function LeaderboardPage() {
   const { user } = useAuth();
@@ -28,12 +37,13 @@ export function LeaderboardPage() {
 
   useGacha(user?._id);
 
-  // 1. Fetch dữ liệu bảng xếp hạng chính thức
-  const { data: leaderboard = [], isLoading: isLeaderboardLoading } = useQuery({
-    queryKey: queryKeys.leaderboard.list(),
-    queryFn: fetchLeaderboard,
-    staleTime: 60_000,
-  });
+  const { data: leaderboardData, isLoading: isLeaderboardLoading } =
+    useQuery<LeaderboardDataResponse>({
+      queryKey: queryKeys.leaderboard.list(),
+      queryFn: fetchLeaderboard,
+      staleTime: 5_000,
+      refetchInterval: 15000,
+    });
 
   // 2. Fetch dữ liệu tiến độ bài học cho Sidebar
   const { dashboardData, loading: statsLoading } = useDashboardData();
@@ -41,15 +51,24 @@ export function LeaderboardPage() {
   const completedLessons = dashboardData?.stats.totalLearnedLessons ?? 0;
   const isPageLoading = statsLoading;
 
-  // Xử lý mảng dữ liệu hiển thị
-  const topThree = leaderboard.slice(0, 3);
-  const topTen = leaderboard.slice(0, 10);
-  const totalCoins = leaderboard.reduce((sum, entry) => sum + entry.coins, 0);
+  // 🔥 ĐÃ ĐỔI: Viết phẳng logic mảng, an toàn 100% nhờ Array.isArray, không lo dính lỗi compiler
+  const formattedLeaderboard = Array.isArray(leaderboardData?.topUsers)
+    ? (leaderboardData.topUsers as LeaderboardUser[])
+    : [];
 
-  const currentUser =
-    leaderboard.find((entry) => entry._id === user?._id) ??
-    leaderboard.find((entry) => entry._id === 'my_user_id') ??
-    leaderboard[0];
+  const topThree = formattedLeaderboard.slice(0, 3);
+  const topTen = formattedLeaderboard.slice(0, 10);
+
+  const currentUser: LeaderboardUser | null = (() => {
+    if (!leaderboardData?.me) return null;
+    return {
+      _id: leaderboardData.me._id || user?._id || 'my_user_id',
+      name: leaderboardData.me.name || 'You',
+      username: leaderboardData.me.username || '',
+      coins: leaderboardData.me.coins,
+      rank: leaderboardData.me.rank,
+    };
+  })();
 
   const currentUserId = currentUser?._id ?? 'my_user_id';
 
@@ -57,13 +76,13 @@ export function LeaderboardPage() {
     currentUser && !topTen.some((entry) => entry._id === currentUser._id)
       ? [...topTen, currentUser]
       : topTen;
+
   const visibleLeaderboard = [...rawVisibleList].sort(
     (a, b) => b.coins - a.coins
   );
 
   const isTourGuidingHere = wantRun && stepIndex === 7;
 
-  // Tự động cuốn view tới vị trí của mình
   useEffect(() => {
     if (isTourGuidingHere) return;
     if (!isLeaderboardLoading && currentUserRowRef.current) {
@@ -93,8 +112,8 @@ export function LeaderboardPage() {
       <main className="ml-0 md:ml-64 pt-14 h-screen overflow-y-auto">
         <div className="mx-auto flex max-w-6xl flex-col gap-5 p-4 sm:p-8">
           <LeaderboardHero
-            totalStudents={leaderboard.length}
-            totalCoins={totalCoins}
+            totalStudents={leaderboardData?.totalUsers ?? 0}
+            totalCoins={leaderboardData?.totalCoins ?? 0}
           />
 
           <section className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">

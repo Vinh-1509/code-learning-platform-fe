@@ -59,6 +59,11 @@ export interface SubmitAnswerResponse {
   correct: boolean;
   items?: SubmitAnswerItem[];
   attemptNumber?: number;
+  prizeType: 'coin' | 'attack' | 'no prize';
+  amount: number;
+  currentCoin: number;
+  hasAttackSlot: boolean;
+  nextRewardAvailableAt?: string;
 }
 
 export interface HintResponse {

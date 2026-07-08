@@ -42,6 +42,7 @@ export const queryKeys = {
     all: ['leaderboard'] as const,
     /** Read-only standings list for the public leaderboard page */
     list: () => [...queryKeys.leaderboard.all, 'list'] as const,
+    targets: () => [...queryKeys.leaderboard.all, 'targets'] as const,
   },
 
   // ── Milestones / Roadmap ──────────────────────────────────────────────────

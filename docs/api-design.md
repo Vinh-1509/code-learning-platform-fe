@@ -158,7 +158,88 @@ Get current authenticated user info.
   "username": "alice",
   "fullName": "Alice Nguyen",
   "selectedLanguage": ["C++"],
+  "coins": 100,
+  "hasAttackSlot": true,
+  "hasSeenTour": true,
   "createdAt": "2024-01-15T08:30:00.000Z"
+}
+```
+
+---
+
+### PATCH `/api/users/me`
+
+Update the authenticated user's profile information.
+
+**Authentication:** Required
+
+**Request Body**
+
+All fields are optional.
+
+```json
+{
+  "username": "quan_dev",
+  "fullName": "Đỗ Trung Quân",
+  "hasSeenTour": true
+}
+```
+
+| Field         | Type      | Description                                         |
+| ------------- | --------- | --------------------------------------------------- |
+| `username`    | `string`  | New username. Must be unique.                       |
+| `fullName`    | `string`  | User's full name.                                   |
+| `hasSeenTour` | `boolean` | Whether the user has completed the onboarding tour. |
+
+**Response `200`:**
+
+```json
+{
+  "_id": "6a157a618e93bffbaf3311c8",
+  "email": "quan@example.com",
+  "username": "quan_dev",
+  "fullName": "Đỗ Trung Quân",
+  "selectedLanguage": ["C++"],
+  "coins": 420,
+  "hasAttackSlot": true,
+  "hasSeenTour": true,
+  "createdAt": "2026-07-05T13:30:25.211Z"
+}
+```
+
+**Error Responses**
+
+**401 Unauthorized**
+
+```json
+{
+  "message": "Not authenticated"
+}
+```
+
+**404 Not Found**
+
+```json
+{
+  "message": "User not found"
+}
+```
+
+**409 Conflict**
+
+Returned when the requested username already exists.
+
+```json
+{
+  "message": "Username already exists"
+}
+```
+
+**500 Internal Server Error**
+
+```json
+{
+  "message": "Internal server error"
 }
 ```
 
@@ -382,7 +463,12 @@ Submit an answer and get the grading result. The system stores only the latest a
       "isCorrect": true
     }
   ],
-  "attemptNumber": 4
+  "attemptNumber": 4,
+  "prizeType": "no prize",
+  "amount": 0,
+  "currentCoin": 86,
+  "hasAttackSlot": true,
+  "nextRewardAvailableAt": "2026-07-05T09:50:36.253Z"
 }
 ```
 
@@ -1154,7 +1240,8 @@ Get general dashboard summary for the authenticated user.
     "email": "alice@example.com",
     "username": "alice",
     "fullName": "Alice Nguyen",
-    "selectedLanguage": ["C++"]
+    "selectedLanguage": ["C++"],
+    "hasSeenTour": false
   },
   "roadmap": {
     "_id": "64f1a2b3c4d5e6f7a8b9c099",
@@ -1199,3 +1286,343 @@ Get general dashboard summary for the authenticated user.
 { "message": "Roadmap not found for selected language" } // 404
 { "message": "Failed to fetch dashboard" } // 500
 ```
+
+## 8. Action & Leaderboard
+
+| Method | Endpoint                   | isAuth | Priority |
+| ------ | -------------------------- | ------ | -------- |
+| GET    | `/api/action/targets`      | Yes    | HIGH     |
+| POST   | `/api/action/attack`       | Yes    | HIGH     |
+| GET    | `/api/users/notifications` | Yes    | HIGH     |
+| GET    | `/api/users/leaderboard`   | Yes    | MEDIUM   |
+
+---
+
+### GET `/api/action/targets`
+
+Get 5 random users that use the same selected programming language as the current user. The current user is excluded, and only users with more than `0` coins are returned.
+
+**Authentication:** Required
+
+**Response `200`:**
+
+```json
+{
+  "language": "C++",
+  "count": 5,
+  "users": [
+    {
+      "_id": "6a157a618e93bffbaf3311c8",
+      "name": "Quan",
+      "coins": 250,
+      "selectedLanguage": "C++"
+    },
+    {
+      "_id": "6a088f9f27e56d7d422966e7",
+      "name": "Vinh",
+      "coins": 120,
+      "selectedLanguage": "C++"
+    }
+  ]
+}
+```
+
+**Error Responses**
+
+**401 Unauthorized**
+
+```json
+{
+  "message": "User not authenticated"
+}
+```
+
+**404 Not Found**
+
+```json
+{
+  "message": "User not found"
+}
+```
+
+**500 Internal Server Error**
+
+```json
+{
+  "message": "Internal server error"
+}
+```
+
+---
+
+### POST `/api/action/attack`
+
+Attack another user and steal up to **100 coins**. The attacker consumes one attack slot after a successful attack.
+
+**Authentication:** Required
+
+**Request Body**
+
+```json
+{
+  "targetId": "6a157a618e93bffbaf3311c8"
+}
+```
+
+**Response `200`:**
+
+```json
+{
+  "status": "success",
+  "msg": "Successfully bugged!",
+  "newCoins": 520,
+  "details": {
+    "coinsStolen": 100,
+    "targetName": "quan",
+    "targetCoinsRemaining": 180,
+    "attackerCoinsBefore": 420,
+    "attackerCoinsAfter": 520
+  }
+}
+```
+
+If the target has no coins remaining:
+
+```json
+{
+  "status": "success",
+  "msg": "Target has no coins left to steal!",
+  "newCoins": 420,
+  "details": {
+    "coinsStolen": 0,
+    "targetName": "quan",
+    "targetCoinsRemaining": 0,
+    "attackerCoinsBefore": 420,
+    "attackerCoinsAfter": 420
+  }
+}
+```
+
+**Error Responses**
+
+**400 Bad Request**
+
+Invalid target id.
+
+```json
+{
+  "status": "error",
+  "msg": "Invalid target ID!"
+}
+```
+
+Trying to attack yourself.
+
+```json
+{
+  "status": "error",
+  "msg": "Cannot attack yourself!"
+}
+```
+
+No attack slot available.
+
+```json
+{
+  "status": "error",
+  "msg": "No attack slots available",
+  "canAttack": false
+}
+```
+
+**404 Not Found**
+
+```json
+{
+  "status": "error",
+  "msg": "User not found!"
+}
+```
+
+```json
+{
+  "status": "error",
+  "msg": "Target not found!"
+}
+```
+
+**500 Internal Server Error**
+
+```json
+{
+  "status": "error",
+  "msg": "Internal server error"
+}
+```
+
+---
+
+### GET `/api/users/notifications`
+
+Get unread attack notifications for the authenticated user. Returned notifications are automatically marked as read.
+
+**Authentication:** Required
+
+**Response `200`:**
+
+```json
+{
+  "hasNotification": true,
+  "notifications": [
+    {
+      "id": "6a2d83d3dcb0c3f3d34c9321",
+      "type": "attack",
+      "attackerName": "Quan",
+      "coinsLost": 100,
+      "message": "Bạn đã bị Quan thả bug mất 100 Coin!",
+      "createdAt": "2026-07-05T13:30:25.211Z"
+    }
+  ]
+}
+```
+
+If there are no unread notifications:
+
+```json
+{
+  "hasNotification": false,
+  "notifications": []
+}
+```
+
+**Error Responses**
+
+**401 Unauthorized**
+
+```json
+{
+  "message": "User not authenticated"
+}
+```
+
+**500 Internal Server Error**
+
+```json
+{
+  "message": "Internal server error"
+}
+```
+
+---
+
+### GET `/api/users/leaderboard`
+
+Get the top 10 users ranked by coins (highest first), plus the authenticated caller's own rank. If users have the same number of coins, the older account ranks higher (same tie-break used for `me.rank`).
+
+**Authentication:** Required
+
+**Response `200`:**
+
+```json
+{
+  "me": {
+    "rank": 342,
+    "username": "alice",
+    "coins": 88
+  },
+  "totalUsers": 1920,
+  "totalCoins": 835,
+  "topUsers": [
+    {
+      "_id": "6a4b73d15b99dd56a9e1b015",
+      "username": "quan_dev",
+      "coins": 232,
+      "rank": 1
+    },
+    {
+      "_id": "6a4b362e0be594d06b3d141d",
+      "username": "vinh",
+      "coins": 185,
+      "rank": 2
+    },
+    {
+      "_id": "6a4b791d8b0a7f3c4ec09cc3",
+      "username": "minh",
+      "coins": 103,
+      "rank": 3
+    },
+    {
+      "_id": "6a4b81fe8b0a7f3c4ec09cc8",
+      "username": "devcamp",
+      "coins": 72,
+      "rank": 4
+    },
+    {
+      "_id": "6a4b399b0be594d06b3d1424",
+      "username": "user5",
+      "coins": 61,
+      "rank": 5
+    },
+    {
+      "_id": "6a4b83e18b0a7f3c4ec09ccc",
+      "username": "user6",
+      "coins": 52,
+      "rank": 6
+    },
+    {
+      "_id": "6a4b3f100be594d06b3d1427",
+      "username": "user7",
+      "coins": 45,
+      "rank": 7
+    },
+    {
+      "_id": "6a4b86878b0a7f3c4ec09cd0",
+      "username": "user8",
+      "coins": 43,
+      "rank": 8
+    },
+    {
+      "_id": "6a0f226edc2858d5bbc6e0b6",
+      "username": "user9",
+      "coins": 42,
+      "rank": 9
+    },
+    {
+      "_id": "6a088f9f27e56d7d422966e7",
+      "username": "user10",
+      "coins": 0,
+      "rank": 10
+    }
+  ]
+}
+```
+
+> `me` reflects the authenticated caller's own standing and is always present since this endpoint now requires authentication. `rank` on each `topUsers` entry mirrors its position (1-indexed), so clients don't need to infer rank from array order.
+
+**Error Responses**
+
+**401 Unauthorized**
+
+```json
+{
+  "message": "User not authenticated"
+}
+```
+
+**404 Not Found**
+
+```json
+{
+  "message": "User not found"
+}
+```
+
+**500 Internal Server Error**
+
+```json
+{
+  "message": "Internal server error"
+}
+```
+
+---
