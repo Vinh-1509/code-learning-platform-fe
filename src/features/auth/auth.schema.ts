@@ -5,7 +5,7 @@ import { z } from 'zod';
  * Upgraded with .optional() to handle cases where register does not return a token.
  */
 export const AuthResponseSchema = z.object({
-  // THÊM .optional() VÀO ĐÂY
+  // Added .optional() for register responses that may not return a token
   access_token: z
     .string({
       message: 'Access token must be a string',
@@ -24,7 +24,7 @@ export const AuthUserResponseSchema = z.object({
   fullName: z.string().optional(),
   selectedLanguage: z.array(z.string()).optional(),
   createdAt: z.string(),
-  coins: z.number(),
+  coins: z.number().optional().default(0),
 });
 
 export type AuthResponse = z.infer<typeof AuthResponseSchema>;

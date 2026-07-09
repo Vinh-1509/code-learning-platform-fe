@@ -181,20 +181,27 @@ function ModuleItem({
           )}
         </Button>
 
-        {isExpanded && (
-          <div className="mt-3.5 sm:mt-4 space-y-2.5 sm:space-y-3 animate-in slide-in-from-top-2 duration-200">
-            {lessonItems}
-            <div className="h-1.5 bg-muted rounded-full overflow-hidden mt-3.5 sm:mt-4 border border-border/60">
-              <div
-                className={cn(
-                  'h-full transition-all duration-500',
-                  module.status === 'completed' ? 'bg-success' : 'bg-primary'
-                )}
-                style={{ width: `${module.progress}%` }}
-              />
+        <div
+          className={cn(
+            'grid transition-[grid-template-rows] duration-300 ease-in-out',
+            isExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+          )}
+        >
+          <div className="overflow-hidden">
+            <div className="pt-3.5 sm:pt-4 space-y-2.5 sm:space-y-3">
+              {lessonItems}
+              <div className="h-1.5 bg-muted rounded-full overflow-hidden mt-3.5 sm:mt-4 border border-border/60">
+                <div
+                  className={cn(
+                    'h-full transition-all duration-500',
+                    module.status === 'completed' ? 'bg-success' : 'bg-primary'
+                  )}
+                  style={{ width: `${module.progress}%` }}
+                />
+              </div>
             </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
