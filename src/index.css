@@ -276,6 +276,10 @@ body,
   }
   html {
     @apply font-sans;
+    scrollbar-gutter: stable;
+  }
+  main {
+    scrollbar-gutter: stable;
   }
 }
 

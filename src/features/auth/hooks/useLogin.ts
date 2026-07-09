@@ -11,15 +11,15 @@ import type { AuthPayload } from '@/types/auth';
 export function useLogin() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const { setToken } = useAuth(); // 👈 setter từ AuthContext
+  const { setToken } = useAuth(); // setter from AuthContext
 
   return useMutation({
     mutationFn: (data: AuthPayload) => loginUser(data),
     onSuccess: (res) => {
       if (res.access_token) {
         localStorage.setItem('token', res.access_token);
-        // 🔥 FIX: cập nhật state ngay lập tức để AuthProvider re-render và
-        // useQuery(auth.me) bật `enabled: true` đúng lúc, thay vì đợi F5.
+        // Update state immediately so AuthProvider re-renders and
+        // useQuery(auth.me) enables correctly without a page reload.
         setToken(res.access_token);
         // refresh cache
         void queryClient.invalidateQueries({ queryKey: queryKeys.auth.me() });
