@@ -250,7 +250,7 @@ export default function GachaModal({
                   <p className="mt-3 text-sm font-medium text-foreground">
                     {isSpinning
                       ? 'The wheel is spinning, please wait...'
-                      : 'Spin to earn Coins or unlock an attack slot.'}
+                      : 'Spin to earn CS-pts or unlock an attack slot.'}
                   </p>
                 </div>
 
@@ -281,7 +281,7 @@ export default function GachaModal({
                     +{result?.amount} Coin
                   </h3>
                   <p className="mx-auto max-w-[34ch] text-sm text-muted-foreground">
-                    The spin is complete. Claim your Coins and get back to
+                    The spin is complete. Claim your CS-points and get back to
                     practice.
                   </p>
                 </div>
@@ -289,7 +289,7 @@ export default function GachaModal({
                 <div className="rounded-2xl border border-border/70 bg-muted/20 p-4 text-left shadow-sm">
                   <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
                     <Coins className="size-4 text-success" />
-                    Your wallet has been updated
+                    Your CS-points have been updated
                   </div>
                   <p className="mt-1 text-sm text-muted-foreground">
                     You can close this modal or return to the exercise.
@@ -340,7 +340,7 @@ export default function GachaModal({
                               )}
                             </div>
                             <p className="mt-1 text-xs text-muted-foreground">
-                              {user.coins} Coins
+                              {user.coins} CS-points
                             </p>
                           </div>
                         </div>
@@ -376,7 +376,7 @@ export default function GachaModal({
                 </div>
 
                 <p className="text-center text-xs text-muted-foreground">
-                  Choose one student from the board to steal 100 Coins.
+                  Choose one student from the board to steal 100 CS-points.
                 </p>
               </div>
             )}
