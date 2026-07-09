@@ -12,8 +12,8 @@ import { cn } from '@/lib/utils';
 import { useGacha } from './hooks/useGacha';
 import confetti from 'canvas-confetti';
 import {
+  Award,
   ChevronRight,
-  Coins,
   Gem,
   Sparkles,
   Target,
@@ -164,7 +164,7 @@ export default function GachaModal({
                   {isAttackStage ? (
                     <Target className="size-4" />
                   ) : isSuccessStage ? (
-                    <Coins className="size-4" />
+                    <Award className="size-4 " />
                   ) : (
                     <Sparkles className="size-4" />
                   )}
@@ -288,7 +288,7 @@ export default function GachaModal({
 
                 <div className="rounded-2xl border border-border/70 bg-muted/20 p-4 text-left shadow-sm">
                   <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                    <Coins className="size-4 text-success" />
+                    <Award className="size-4 text-success" />
                     Your CS-points have been updated
                   </div>
                   <p className="mt-1 text-sm text-muted-foreground">
