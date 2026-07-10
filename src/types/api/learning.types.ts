@@ -1,7 +1,15 @@
 /**
- * Learning domain API response types.
- * Covers milestones, lessons, blocks, and block content items.
+ * Block / ContentItem / LessonDetailResponse are re-exported from
+ * lesson.schema.ts (Zod-validated). MilestoneResponse / LessonResponse
+ * have no backing schema yet — dashboard.api.ts currently trusts them via
+ * a type cast rather than runtime validation, so they stay hand-declared
+ * here until that gets a schema too.
  */
+export type {
+  Block,
+  ContentItem,
+  LessonDetailResponse,
+} from '@/features/lesson/lesson.schema';
 
 export interface MilestoneResponse {
   _id: string;
@@ -22,39 +30,5 @@ export interface LessonResponse {
     status: 'active' | 'locked' | 'completed';
     isCompleted: boolean;
     completionPercentage: number;
-  };
-}
-
-export interface ContentItem {
-  type: 'theory' | 'code' | 'practice';
-  data: {
-    order: number;
-    text?: string;
-    code?: string;
-    explanation?: string;
-    exerciseId?: string;
-    required?: boolean;
-  };
-}
-
-export interface Block {
-  _id: string;
-  title: string;
-  description?: string;
-  content: ContentItem[];
-  feynmanQuestion: string;
-  status: 'active' | 'locked' | 'completed';
-  isFeynmanPassed: boolean;
-}
-
-export interface LessonDetailResponse {
-  _id: string;
-  title: string;
-  order: number;
-  blocks: Block[];
-  progress: {
-    completionPercentage: number;
-    isCompleted: boolean;
-    lastAccessed?: string;
   };
 }
