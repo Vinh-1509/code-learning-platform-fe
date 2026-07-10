@@ -92,7 +92,7 @@ export const SubmitAnswerResponseSchema = z.object({
   amount: z.number(),
   currentCoin: z.number(),
   hasAttackSlot: z.boolean(),
-  nextRewardAvailableAt: z.string().optional(),
+  nextRewardAvailableAt: z.string().nullable().optional(),
 });
 
 export const HintResponseSchema = z.object({

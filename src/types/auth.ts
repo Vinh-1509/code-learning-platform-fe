@@ -22,4 +22,5 @@ export interface AuthUserResponse {
   selectedLanguage?: string[];
   createdAt: string;
   coins: number;
+  hasSeenTour?: boolean;
 }

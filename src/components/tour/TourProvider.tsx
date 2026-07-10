@@ -18,6 +18,8 @@ import {
 } from 'react-joyride';
 
 import TourTooltip from './TourTooltip';
+import { useAuth } from '@/features/auth/useAuth';
+import { useUpdateProfile } from '@/features/auth/hooks/useUpdateProfile';
 
 // hook to wait until all target elements exist in the DOM
 // uses MutationObserver with a fallback interval
@@ -101,11 +103,6 @@ interface TourContextType {
 
 const TourContext = createContext<TourContextType | undefined>(undefined);
 
-/**
- * Waypoints the tour can resume from after a cross-route pause.
- * Each entry says: "if the URL matches AND the tour is parked at this
- * stepIndex, it's safe to start polling for that step's DOM target again."
- */
 const RESUME_WAYPOINTS: {
   match: (pathname: string) => boolean;
   stepIndex: number;
@@ -123,9 +120,10 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({
   const [stepIndex, setStepIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
 
-  // wantRun indicates intent to start, but actual run state waits for DOM targets
+  // wantRun indicates intent to start, but actual run state waits for DOM targets.
+  // localStorage is the fast local guess — corrected against the server once
+  // /api/auth/me resolves (see sync effect below).
   const [wantRun, setWantRun] = useState(() => {
-    // auto start if first time
     if (typeof window !== 'undefined') {
       return localStorage.getItem('has_completed_tour') !== 'true';
     }
@@ -134,6 +132,37 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
+  const { mutate: updateProfile } = useUpdateProfile();
+
+  // ── Persist tour completion: localStorage (instant) + backend (durable) ───
+  const markTourCompleted = useCallback(() => {
+    localStorage.setItem('has_completed_tour', 'true');
+    updateProfile({ hasSeenTour: true });
+  }, [updateProfile]);
+
+  // ── One-time reconciliation against the backend's hasSeenTour ─────────────
+  // Runs once per mount, as soon as the user profile is available. The
+  // backend is treated as the source of truth; localStorage is just a cache
+  // to avoid a flash-start before the profile loads.
+  const hasSyncedFromServer = useRef(false);
+
+  useEffect(() => {
+    if (hasSyncedFromServer.current || !user) return;
+    hasSyncedFromServer.current = true;
+
+    if (user.hasSeenTour) {
+      localStorage.setItem('has_completed_tour', 'true');
+      // Only correct wantRun if the tour hasn't actually started stepping
+      // through yet — don't yank an in-progress tour out from under the user.
+      if (stepIndex === 0) {
+        const timer = setTimeout(() => setWantRun(false), 0);
+        return () => clearTimeout(timer);
+      }
+    } else {
+      localStorage.removeItem('has_completed_tour');
+    }
+  }, [user, stepIndex]);
 
   // Track mounted state to avoid setting state after unmount
   const mountedRef = useRef(true);
@@ -144,10 +173,9 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({
     };
   }, []);
 
-  // Handle window resizing dynamically to adjust step targets and placements
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 1024); // match Tailwind `lg:` breakpoint
+      setIsMobile(window.innerWidth < 1024);
     };
     handleResize();
     window.addEventListener('resize', handleResize);
@@ -261,26 +289,20 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({
     },
   ];
 
-  // check if current step target exists in DOM
   const currentTargetSelectors = React.useMemo(() => {
     const step = tourSteps[stepIndex];
     return step ? [step.target as string] : [];
   }, [stepIndex, isMobile]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // DOM readiness check: resolves `true` only when current step's target is in the DOM
   const targetsReady = useTargetsReady(currentTargetSelectors, wantRun);
-
-  // actual run state is now fully derived!
   const run = wantRun && targetsReady;
 
-  // resume tour when routing back to a known waypoint for the parked step
   useEffect(() => {
     if (!wantRun) {
       const waypoint = RESUME_WAYPOINTS.find(
         (w) => w.match(location.pathname) && w.stepIndex === stepIndex
       );
       if (waypoint) {
-        // use setTimeout to defer state update and satisfy the strict ESLint rule
         const timer = setTimeout(() => setWantRun(true), 0);
         return () => clearTimeout(timer);
       }
@@ -288,7 +310,6 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [location.pathname, stepIndex, wantRun]);
 
   const startTour = useCallback(() => {
-    // If not on the dashboard, navigate back to start from step 1
     if (location.pathname !== '/dashboard') {
       void navigate({ to: '/dashboard' });
     }
@@ -304,10 +325,9 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({
     (data: EventData) => {
       const { action, index, status, type } = data;
 
-      // stop on finish/skip
       if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {
         setWantRun(false);
-        localStorage.setItem('has_completed_tour', 'true');
+        markTourCompleted();
         setStepIndex(0);
         return;
       }
@@ -322,7 +342,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({
         const isFinalStep = index === tourSteps.length - 1;
         if (isFinalStep) {
           setWantRun(false);
-          localStorage.setItem('has_completed_tour', 'true');
+          markTourCompleted();
           setStepIndex(0);
         }
         return;
@@ -344,14 +364,12 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({
           setStepIndex(5);
           void navigate({ to: '/practice' });
         } else if (index === 6) {
-          // locked-exercise → drive navigation to the Leaderboard page ourselves,
-          // same pattern as the lesson-practice → practice-filters jump.
           setWantRun(false);
           setStepIndex(7);
           void navigate({ to: '/leaderboard' });
         } else if (isFinalStep) {
           setWantRun(false);
-          localStorage.setItem('has_completed_tour', 'true');
+          markTourCompleted();
           setStepIndex(0);
         } else {
           setStepIndex(index + 1);
@@ -366,7 +384,6 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({
           setStepIndex(2);
           void navigate({ to: '/dashboard' });
         } else if (index === 7) {
-          // leaderboard-hero → back to Practice (locked-exercise step)
           setWantRun(false);
           setStepIndex(6);
           void navigate({ to: '/practice' });
@@ -375,7 +392,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({
         }
       }
     },
-    [navigate, tourSteps.length]
+    [navigate, tourSteps.length, markTourCompleted]
   );
 
   useEffect(() => {
@@ -398,14 +415,8 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({
         continuous={true}
         scrollToFirstStep={true}
         tooltipComponent={TourTooltip}
-        options={{
-          scrollOffset: 100,
-        }}
-        styles={{
-          overlay: {
-            backgroundColor: 'rgba(15, 23, 42, 0.65)',
-          },
-        }}
+        options={{ scrollOffset: 100 }}
+        styles={{ overlay: { backgroundColor: 'rgba(15, 23, 42, 0.65)' } }}
         onEvent={handleJoyrideCallback}
       />
     </TourContext.Provider>

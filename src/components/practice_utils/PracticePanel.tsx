@@ -179,6 +179,7 @@ export function PracticePanel({
 
       setShowResult('wrong');
       setCanResubmit(false);
+      setExplanationStatus({ status: 'error' });
     } finally {
       setIsSubmitting(false);
     }
