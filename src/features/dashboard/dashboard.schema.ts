@@ -44,5 +44,8 @@ export const DashboardResponseSchema = z.object({
   }),
 });
 
-// Suy diễn ra type chuẩn để export sang file API
+export type DashboardUser = z.infer<typeof DashboardUserSchema>;
+export type DashboardRoadmap = z.infer<typeof DashboardRoadmapSchema>;
+export type DashboardStats = z.infer<typeof DashboardStatsSchema>;
+export type DashboardMilestone = z.infer<typeof DashboardMilestoneSchema>;
 export type DashboardResponse = z.infer<typeof DashboardResponseSchema>;

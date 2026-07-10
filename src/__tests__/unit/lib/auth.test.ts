@@ -53,6 +53,7 @@ function makeUser(selectedLanguage: string[] = ['C++']): MockUser {
     coins: 100,
     createdAt: '2024-01-01T00:00:00Z',
     selectedLanguage,
+    hasSeenTour: false,
   };
 }
 

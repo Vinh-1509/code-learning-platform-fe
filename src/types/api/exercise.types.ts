@@ -1,141 +1,41 @@
 /**
- * Exercise & practice domain API response types.
- * Covers exercise definitions, submissions, hints, history, and weakness tags.
+ * Exercise & practice domain API types.
+ *
+ * These are re-exported from their Zod schema definitions
+ * (lesson.schema.ts, practice.schema.ts) rather than hand-declared here.
+ * This keeps a single source of truth: when a schema's shape or
+ * nullability changes, every consumer picks it up automatically instead
+ * of silently drifting out of sync with a parallel hand-written interface.
  */
 
-// ── Exercise definitions ────────────────────────────────────────────────────
+export type {
+  ExerciseType,
+  Difficulty,
+  Exercise,
+  ExercisePageResponse,
+  WeaknessTagResponse,
+} from '@/features/practices/practice.schema';
 
-export type ExerciseType = 'drag_drop' | 'fill_blank';
+export type {
+  DragDropBlockResponse,
+  DragDropExerciseResponse,
+  FillBlankExerciseResponse,
+  ExerciseResponse,
+  SubmitAnswerItem,
+  SubmitAnswerResponse,
+  HintResponse,
+  ExerciseAttemptResponse,
+  ExplainAnswerItem,
+  ExplainAnswerResponse,
+} from '@/features/lesson/lesson.schema';
 
-export interface DragDropBlockResponse {
-  id: string;
-  code: string;
-  indent: number;
-}
-
-export interface DragDropExerciseResponse {
-  _id: string;
-  type: 'drag_drop';
-  title: string;
-  instruction: string;
-  language: string;
-  level: string;
-  order: number;
-  data: {
-    expectedSlots?: number;
-    blocks: DragDropBlockResponse[];
-    answer?: (string | null)[];
-  };
-  hints?: Record<string, string>;
-}
-
-export interface FillBlankExerciseResponse {
-  _id: string;
-  type: 'fill_blank';
-  title: string;
-  instruction: string;
-  language: string;
-  level: string;
-  order: number;
-  data: {
-    template: string[];
-    placeholders: Record<string, string>;
-  };
-  hints?: Record<string, string>;
-}
-
-export type ExerciseResponse =
-  | DragDropExerciseResponse
-  | FillBlankExerciseResponse;
-
-// ── Submission & feedback ───────────────────────────────────────────────────
-
-export interface SubmitAnswerItem {
-  field: string;
-  isCorrect: boolean;
-}
-
-export interface SubmitAnswerResponse {
-  correct: boolean;
-  items?: SubmitAnswerItem[];
-  attemptNumber?: number;
-  prizeType: 'coin' | 'attack' | 'no prize';
-  amount: number;
-  currentCoin: number;
-  hasAttackSlot: boolean;
-  nextRewardAvailableAt?: string;
-}
-
-export interface HintResponse {
-  hintLevel: number;
-  hint: string;
-}
-
-export interface ExerciseAttemptResponse {
-  _id: string;
-  exerciseId: string;
-  isPassed: boolean;
-  items: SubmitAnswerItem[];
-  hintLevel: number;
-  userAnswer?: unknown;
-  attemptNumber: number;
-  attemptedAt: string;
-}
-
-export interface ExplainAnswerItem {
-  field: string;
-  isCorrect: boolean;
-  explanation: string;
-}
-
-export interface ExplainAnswerResponse {
-  exerciseId: string;
-  isCorrect: boolean;
-  feedback: string;
-  items: ExplainAnswerItem[];
-  suggestion?: string;
-}
-
-// ── Practice library / filters ──────────────────────────────────────────────
-
-export type Difficulty = 'easy' | 'medium' | 'hard';
-
-export interface Exercise {
-  _id: string;
-  title: string;
-  instruction: string;
-  language: string;
-  tagId: string[];
-  type: ExerciseType;
-  level: Difficulty;
-  order: number;
-  status?: 'completed' | 'active' | 'locked';
-}
-
-export interface ExercisePageResponse {
-  total: number;
-  page: number;
-  limit: number;
-  data: Exercise[];
-}
-
+// ── Request params ───────────────────────────────────────────────────────
+// Not parsed from a server response, so there's no matching Zod schema —
+// this one stays hand-declared.
 export interface FetchExercisesParams {
   q?: string;
   difficulty?: string;
   language?: string;
   page?: number;
   limit?: number;
-}
-
-// ── Weakness tags ───────────────────────────────────────────────────────────
-
-export interface WeaknessTagResponse {
-  _id: string;
-  name: string;
-  description: string;
-  totalAttempts: number;
-  failAttempts: number;
-  failureRate: number;
-  isWeak: boolean;
-  updatedAt: string;
 }

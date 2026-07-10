@@ -35,3 +35,6 @@ export const WeaknessTagResponseSchema = z.object({
 
 export type ExercisePageResponse = z.infer<typeof ExercisePageResponseSchema>;
 export type WeaknessTagResponse = z.infer<typeof WeaknessTagResponseSchema>;
+export type ExerciseType = z.infer<typeof ExerciseTypeSchema>;
+export type Difficulty = z.infer<typeof ExerciseDifficultySchema>;
+export type Exercise = z.infer<typeof ExerciseSchema>;

@@ -35,6 +35,8 @@ export const LessonDetailResponseSchema = z.object({
 });
 
 export type LessonDetailResponse = z.infer<typeof LessonDetailResponseSchema>;
+export type ContentItem = z.infer<typeof ContentItemSchema>;
+export type Block = z.infer<typeof BlockSchema>;
 
 export const DragDropBlockResponseSchema = z.object({
   id: z.string(),
@@ -92,7 +94,7 @@ export const SubmitAnswerResponseSchema = z.object({
   amount: z.number(),
   currentCoin: z.number(),
   hasAttackSlot: z.boolean(),
-  nextRewardAvailableAt: z.string().optional(),
+  nextRewardAvailableAt: z.string().nullable().optional(),
 });
 
 export const HintResponseSchema = z.object({
@@ -132,3 +134,13 @@ export type ExerciseAttemptResponse = z.infer<
   typeof ExerciseAttemptResponseSchema
 >;
 export type ExplainAnswerResponse = z.infer<typeof ExplainAnswerResponseSchema>;
+
+export type DragDropBlockResponse = z.infer<typeof DragDropBlockResponseSchema>;
+export type DragDropExerciseResponse = z.infer<
+  typeof DragDropExerciseResponseSchema
+>;
+export type FillBlankExerciseResponse = z.infer<
+  typeof FillBlankExerciseResponseSchema
+>;
+export type SubmitAnswerItem = z.infer<typeof SubmitAnswerItemSchema>;
+export type ExplainAnswerItem = z.infer<typeof ExplainAnswerItemSchema>;

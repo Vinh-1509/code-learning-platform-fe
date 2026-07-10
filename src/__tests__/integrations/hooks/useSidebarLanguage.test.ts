@@ -21,6 +21,7 @@ describe('useSidebarLanguage', () => {
       coins: 100,
       selectedLanguage: ['Java'],
       createdAt: '2026-01-01T00:00:00.000Z',
+      hasSeenTour: false,
     });
 
     const { wrapper } = createQueryWrapper();
@@ -41,6 +42,7 @@ describe('useSidebarLanguage', () => {
       coins: 100,
       selectedLanguage: ['Java'],
       createdAt: '2026-01-01T00:00:00.000Z',
+      hasSeenTour: false,
     });
 
     const { wrapper } = createQueryWrapper();
@@ -59,6 +61,7 @@ describe('useSidebarLanguage', () => {
       coins: 100,
       selectedLanguage: [],
       createdAt: '2026-01-01T00:00:00.000Z',
+      hasSeenTour: false,
     });
 
     const { wrapper } = createQueryWrapper();

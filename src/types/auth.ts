@@ -1,3 +1,8 @@
+export type {
+  AuthResponse,
+  AuthUserResponse,
+} from '@/features/auth/auth.schema';
+
 export interface User {
   id: string;
   email: string;
@@ -7,19 +12,4 @@ export interface User {
 export interface AuthPayload {
   email: string;
   password: string;
-}
-
-export interface AuthResponse {
-  access_token?: string;
-  message?: string;
-}
-
-export interface AuthUserResponse {
-  _id: string;
-  email: string;
-  username?: string;
-  fullName?: string;
-  selectedLanguage?: string[];
-  createdAt: string;
-  coins: number;
 }

@@ -1,10 +1,9 @@
 import { api } from '@/lib/axios';
-import type { AuthPayload } from '@/types/auth';
+import type { AuthPayload, AuthUserResponse } from '@/types/auth';
 import {
   AuthResponseSchema,
   AuthUserResponseSchema,
   type AuthResponse,
-  type AuthUserResponse,
 } from '../auth.schema';
 /**
  * Authenticates a user and validates the token payload at runtime.
@@ -30,5 +29,19 @@ export async function registerUser(
  */
 export async function getMe(): Promise<AuthUserResponse> {
   const { data } = await api.get<unknown>('/api/auth/me');
+  return AuthUserResponseSchema.parse(data);
+}
+
+/**
+ * Partially update the authenticated user's profile.
+ * Currently used for persisting onboarding-tour completion (`hasSeenTour`),
+ * but supports `username` / `fullName` too per the API contract.
+ */
+export async function updateMe(
+  payload: Partial<
+    Pick<AuthUserResponse, 'username' | 'fullName' | 'hasSeenTour'>
+  >
+): Promise<AuthUserResponse> {
+  const { data } = await api.patch<unknown>('/api/users/me', payload);
   return AuthUserResponseSchema.parse(data);
 }
