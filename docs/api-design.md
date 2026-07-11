@@ -167,7 +167,7 @@ Get current authenticated user info.
 
 ---
 
-### PATCH `/api/users/me`
+### PATCH `/api/auth/me`
 
 Update the authenticated user's profile information.
 

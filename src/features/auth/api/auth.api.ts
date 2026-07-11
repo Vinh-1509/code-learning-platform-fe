@@ -42,6 +42,6 @@ export async function updateMe(
     Pick<AuthUserResponse, 'username' | 'fullName' | 'hasSeenTour'>
   >
 ): Promise<AuthUserResponse> {
-  const { data } = await api.patch<unknown>('/api/users/me', payload);
+  const { data } = await api.patch<unknown>('/api/auth/me', payload);
   return AuthUserResponseSchema.parse(data);
 }
