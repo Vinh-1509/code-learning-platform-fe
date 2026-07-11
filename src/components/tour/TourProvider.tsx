@@ -153,11 +153,9 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({
 
     if (user.hasSeenTour) {
       localStorage.setItem('has_completed_tour', 'true');
-      // Only correct wantRun if the tour hasn't actually started stepping
-      // through yet — don't yank an in-progress tour out from under the user.
       if (stepIndex === 0) {
-        const timer = setTimeout(() => setWantRun(false), 0);
-        return () => clearTimeout(timer);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setWantRun(false);
       }
     } else {
       localStorage.removeItem('has_completed_tour');
