@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { SignUpForm } from './SignUpForm';
+import { SignupForm } from './SignupForm';
 import { useRegister } from './hooks/useRegister';
 import { ShieldCheck, Map, CheckCircle2 } from 'lucide-react';
 
@@ -43,8 +43,8 @@ export default function SignUpPage() {
             </h1>
 
             <p className="text-muted-foreground font-semibold text-sm leading-relaxed">
-              Structured roadmaps, AI-powered explanations, and daily spaced
-              repetition — so what you learn actually sticks.
+              Structured roadmaps, AI-powered explanations, and weakness-based
+              practice — so what you learn actually sticks.
             </p>
           </div>
 
@@ -57,14 +57,14 @@ export default function SignUpPage() {
 
             <FeatureItem
               icon={<CheckCircle2 className="text-green-mint h-4 w-4" />}
-              title="Spaced Repetition Reviews"
-              desc="Daily review sessions timed by science to maximize long-term memory retention."
+              title="Weakness-Based Practice"
+              desc="Personalized exercise recommendations that target the concepts you struggle with most."
             />
 
             <FeatureItem
               icon={<Map className="text-yellow-medium h-4 w-4" />}
               title="Professional Roadmap"
-              desc="Your learning path adjusts to your pace and performance, always keeping you in flow."
+              desc="A structured, step-by-step curriculum that unlocks new lessons as you complete each one."
             />
           </div>
         </div>
@@ -74,7 +74,7 @@ export default function SignUpPage() {
         <div className="w-full flex items-center justify-center">
           <div className="w-full max-w-md bg-transparent p-0 border-none shadow-none">
             {/* The register function conforms completely with the new SignUpFormProps signatures */}
-            <SignUpForm
+            <SignupForm
               onSubmit={register}
               loading={loading}
               error={errorMessage}

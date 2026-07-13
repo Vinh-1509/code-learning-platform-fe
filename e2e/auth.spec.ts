@@ -209,7 +209,7 @@ test.describe('Sign-up page', () => {
     await page.getByLabel(/confirm password/i).fill('DifferentPass999!');
     await page.getByRole('button', { name: /create account/i }).click();
 
-    // SignUpForm guards this with an early return — page should NOT navigate
+    // SignupForm guards this with an early return — page should NOT navigate
     await expect(page).toHaveURL('/signup');
   });
 

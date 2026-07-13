@@ -278,16 +278,9 @@ export function PracticePanel({
         isOpen={isGachaOpen}
         userId={myUserId}
         result={gachaResult}
-        onUpdateBalance={(newCoins) => {
-          console.log('Số coin mới sau khi quay gacha:', newCoins);
-          // Nếu sau này ông có hàm global update tiền trên Header (ví dụ qua queryClient hoặc state) thì nhét vào đây
-        }}
+        onUpdateBalance={() => {}}
         onClose={() => {
-          // 1. Tắt giao diện vòng quay nội bộ của PracticePanel
           setIsGachaOpen(false);
-
-          // 2. NẾU CÓ onGachaClose (tức là đang chạy ở trang LessonPage)
-          // thì kích hoạt để báo cho LessonPage biết đường mà mở màn hình Feynman
           if (onGachaClose) {
             onGachaClose();
           }
