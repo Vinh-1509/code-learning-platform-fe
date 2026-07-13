@@ -224,9 +224,9 @@ export default function GachaModal({
                       }}
                     >
                       <div className="absolute left-6 top-8 rounded-2xl border border-border/60 bg-background/90 px-3 py-2 text-center text-xs font-black uppercase tracking-[0.16em] text-foreground shadow-sm backdrop-blur-sm">
-                        💰
+                        🏅
                         <br />
-                        Coin
+                        CS-Pts
                       </div>
                       <div className="absolute bottom-8 right-6 rounded-2xl border border-border/60 bg-background/90 px-3 py-2 text-center text-xs font-black uppercase tracking-[0.16em] text-foreground shadow-sm backdrop-blur-sm">
                         💥
