@@ -2,16 +2,16 @@ import { describe, it, expect, vi } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { SignUpForm } from '@/features/auth/SignUpForm';
+import { SignupForm } from '@/features/auth/SignupForm';
 
 import { renderWithRouter } from '../../../helpers/renderWithRouter';
 
-describe('SignUpForm', () => {
+describe('SignupForm', () => {
   it('does not call onSubmit when passwords do not match', async () => {
     const user = userEvent.setup();
     const onSubmit = vi.fn();
 
-    await renderWithRouter(<SignUpForm onSubmit={onSubmit} />);
+    await renderWithRouter(<SignupForm onSubmit={onSubmit} />);
 
     await user.type(screen.getByLabelText(/email/i), 'new@hcmut.edu.vn');
     await user.type(
@@ -31,7 +31,7 @@ describe('SignUpForm', () => {
     const user = userEvent.setup();
     const onSubmit = vi.fn().mockResolvedValue(undefined);
 
-    await renderWithRouter(<SignUpForm onSubmit={onSubmit} />);
+    await renderWithRouter(<SignupForm onSubmit={onSubmit} />);
 
     await user.type(screen.getByLabelText(/email/i), 'new@hcmut.edu.vn');
     await user.type(
@@ -54,14 +54,14 @@ describe('SignUpForm', () => {
 
   it('shows an error message when the error prop is set', async () => {
     await renderWithRouter(
-      <SignUpForm onSubmit={vi.fn()} error="Email already exists" />
+      <SignupForm onSubmit={vi.fn()} error="Email already exists" />
     );
 
     expect(screen.getByText('Email already exists')).toBeInTheDocument();
   });
 
   it('shows loading text on the submit button while loading', async () => {
-    await renderWithRouter(<SignUpForm onSubmit={vi.fn()} loading />);
+    await renderWithRouter(<SignupForm onSubmit={vi.fn()} loading />);
 
     expect(
       screen.getByRole('button', { name: /creating account/i })

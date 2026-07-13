@@ -56,7 +56,7 @@ const PASSWORD_RULES = [
   },
 ];
 
-export function SignUpForm({ onSubmit, loading, error }: SignUpFormProps) {
+export function SignupForm({ onSubmit, loading, error }: SignUpFormProps) {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -155,7 +155,7 @@ export function SignUpForm({ onSubmit, loading, error }: SignUpFormProps) {
                 <span className="flex items-center justify-center h-5 w-5 rounded-full bg-[#2563eb] text-white shrink-0">
                   <Check className="h-3 w-3 stroke-[3.5]" />
                 </span>
-                <span>Spaced repetition daily reviews</span>
+                <span>Personalized weakness-based practice</span>
               </div>
               <div className="flex items-center gap-3 text-xs font-bold text-[#2563eb]">
                 <span className="flex items-center justify-center h-5 w-5 rounded-full bg-[#2563eb] text-white shrink-0">
@@ -176,7 +176,7 @@ export function SignUpForm({ onSubmit, loading, error }: SignUpFormProps) {
 
             <div className="hidden lg:flex flex-wrap gap-2">
               <Badge text="AI explanations" />
-              <Badge text="Spaced repetition" />
+              <Badge text="Weakness tracking" />
               <Badge text="Structured roadmap" />
             </div>
 

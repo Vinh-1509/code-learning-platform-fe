@@ -278,7 +278,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({
       target: '[data-tour="leaderboard-hero"]',
       title: 'Global Leaderboard',
       content:
-        "Here's how you stack up against everyone else. Every correct exercise spins the rewards wheel for CS-Points — and sometimes unlocks a chance to raid another student's coins, so climb carefully!",
+        "Here's how you stack up against everyone else. Every correct exercise spins the rewards wheel for CS-Points — and sometimes unlocks a chance to raid another student's CS-Points, so climb carefully!",
       placement: 'bottom',
       blockTargetInteraction: false,
       skipBeacon: true,

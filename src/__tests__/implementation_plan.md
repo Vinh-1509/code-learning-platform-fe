@@ -128,7 +128,7 @@ export default defineConfig({
 | `src/components/practice_utils/utils/exercise.converter.ts`             | 2     | `convertDragDropExercise()`, `convertFillBlankExercise()`, `convertExerciseResponse()`, `prepareAnswerForSubmission()` | ✅ Done                                                                                                                                                              |
 | `src/features/dashboard/useRoadmap.ts`                                  | 2     | `getCurrentLesson()`                                                                                                   | ✅ Done                                                                                                                                                              |
 | `src/features/auth/LoginForm.tsx`                                       | 3     | Form validation, submit handler, loading state                                                                         | ✅ Done (`integrations/features/auth/LoginForm.test.tsx`)                                                                                                            |
-| `src/features/auth/SignUpForm.tsx`                                      | 3     | Password mismatch guard, form validation, error display                                                                | ✅ Done (`integrations/features/auth/SignUpForm.test.tsx`)                                                                                                           |
+| `src/features/auth/SignupForm.tsx`                                      | 3     | Password mismatch guard, form validation, error display                                                                | ✅ Done (`integrations/features/auth/SignupForm.test.tsx`)                                                                                                           |
 | `src/features/auth/AuthContextProvider.tsx`                             | 3     | login/register/logout flows + error handling                                                                           | ✅ Done — written twice (`integration/auth/...` mocked-axios version and `integrations/features/auth/...` MSW version); **dedupe, see Folder Structure Issue below** |
 | `src/components/practice_utils/shared/SubmitBar.tsx`                    | 3     | Button enabled/disabled states, submit callback                                                                        | ✅ Done (`integrations/components/practice_utils/SubmitBar.test.tsx`)                                                                                                |
 | `src/components/practice_utils/shared/ResultBanner.tsx`                 | 3     | Correct/wrong/null states, AI explanation states                                                                       | ✅ Done (`integrations/components/practice_utils/ResultBanner.test.tsx`)                                                                                             |
@@ -204,7 +204,7 @@ src/
         │   └── ExerciseCard.test.tsx             ✅
         ├── features/auth/
         │   ├── LoginForm.test.tsx                ✅
-        │   ├── SignUpForm.test.tsx               ✅
+        │   ├── SignupForm.test.tsx               ✅
         │   └── AuthContextProvider.test.tsx      ✅
         ├── features/dashboard/
         │   ├── LearningRoadmap.test.tsx          ✅

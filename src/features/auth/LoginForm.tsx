@@ -77,7 +77,7 @@ export function LoginForm({ onSubmit, loading, error }: LoginFormProps) {
 
           <div className="hidden lg:flex flex-wrap gap-2">
             <Badge text="AI explanations" />
-            <Badge text="Spaced repetition" />
+            <Badge text="Weakness tracking" />
             <Badge text="Structured roadmap" />
           </div>
 

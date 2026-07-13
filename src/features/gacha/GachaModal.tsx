@@ -278,7 +278,7 @@ export default function GachaModal({
                     Reward credited
                   </p>
                   <h3 className="text-4xl font-black tracking-tight text-foreground">
-                    +{result?.amount} Coin
+                    +{result?.amount} CS-points
                   </h3>
                   <p className="mx-auto max-w-[34ch] text-sm text-muted-foreground">
                     The spin is complete. Claim your CS-points and get back to
@@ -376,7 +376,8 @@ export default function GachaModal({
                 </div>
 
                 <p className="text-center text-xs text-muted-foreground">
-                  Choose one student from the board to steal 100 CS-points.
+                  Choose one student from the board to steal random amount of
+                  CS-points.
                 </p>
               </div>
             )}

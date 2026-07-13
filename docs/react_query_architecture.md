@@ -182,7 +182,7 @@ src/
 │   │   ├── components/
 │   │   │   ├── LoginForm.tsx
 │   │   │   ├── LoginPage.tsx
-│   │   │   ├── SignUpForm.tsx
+│   │   │   ├── SignupForm.tsx
 │   │   │   └── SignupPage.tsx
 │   │   └── index.ts             # Public API barrel
 │   │

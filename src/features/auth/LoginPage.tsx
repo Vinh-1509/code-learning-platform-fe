@@ -49,8 +49,8 @@ export function LoginPage() {
               the <span className="text-bluelight">right way</span>
             </h1>
             <p className="text-muted-foreground font-semibold text-sm leading-relaxed">
-              Structured roadmaps, AI-powered explanations, and daily spaced
-              repetition — so what you learn actually sticks.
+              Structured roadmaps, AI-powered explanations, and weakness-based
+              practice — so what you learn actually sticks.
             </p>
           </div>
 
@@ -62,13 +62,13 @@ export function LoginPage() {
             />
             <FeatureItem
               icon={<CheckCircle2 className="text-green-mint h-4 w-4" />}
-              title="Spaced Repetition Reviews"
-              desc="Daily review sessions timed by science to maximize long-term memory retention."
+              title="Weakness-Based Practice"
+              desc="Personalized exercise recommendations that target the concepts you struggle with most."
             />
             <FeatureItem
               icon={<Map className="text-yellow-medium h-4 w-4" />}
               title="Professional Roadmap"
-              desc="Your learning path adjusts to your pace and performance, always keeping you in flow."
+              desc="A structured, step-by-step curriculum that unlocks new lessons as you complete each one."
             />
           </div>
         </div>
