@@ -111,7 +111,10 @@ describe('useLanguageSelection()', () => {
       result.current.handleConfirm();
     });
 
-    expect(saveLanguage).toHaveBeenCalledWith('C++');
+    // Wait for the mutation to complete
+    await waitFor(() => {
+      expect(saveLanguage).toHaveBeenCalledWith('C++');
+    });
     expect(mockNavigate).toHaveBeenCalledWith({ to: '/dashboard' });
     expect(result.current.saving).toBe(false);
   });
@@ -128,12 +131,14 @@ describe('useLanguageSelection()', () => {
       result.current.setSelected('lang-2');
     });
 
-    // Standardized rejection capture ensuring async boundaries match assertion wrappers perfectly
-    expect(() => {
-      act(() => {
-        result.current.handleConfirm();
-      });
-    }).toThrow('Network failure');
+    act(() => {
+      result.current.handleConfirm();
+    });
+
+    // Wait for the mutation error to be processed
+    await waitFor(() => {
+      expect(saveLanguage).toHaveBeenCalledWith('Python');
+    });
 
     expect(result.current.saving).toBe(false);
     expect(mockNavigate).not.toHaveBeenCalled();

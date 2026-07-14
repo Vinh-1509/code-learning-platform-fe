@@ -141,7 +141,15 @@ describe('useBlockExercises()', () => {
         })
       ),
       http.post('*/api/practice/exercises/:exerciseId/submit', () =>
-        HttpResponse.json({ correct: true, items: [], attemptNumber: 1 })
+        HttpResponse.json({
+          correct: true,
+          items: [],
+          attemptNumber: 1,
+          prizeType: 'coin',
+          amount: 10,
+          currentCoin: 100,
+          hasAttackSlot: false,
+        })
       )
     );
 
@@ -185,7 +193,15 @@ describe('useBlockExercises()', () => {
         })
       ),
       http.post('*/api/practice/exercises/:exerciseId/submit', () =>
-        HttpResponse.json({ correct: true, items: [], attemptNumber: 1 })
+        HttpResponse.json({
+          correct: true,
+          items: [],
+          attemptNumber: 1,
+          prizeType: 'coin',
+          amount: 10,
+          currentCoin: 100,
+          hasAttackSlot: false,
+        })
       )
     );
 
@@ -236,7 +252,15 @@ describe('useBlockExercises()', () => {
         })
       ),
       http.post('*/api/practice/exercises/:exerciseId/submit', () =>
-        HttpResponse.json({ correct: false, items: [], attemptNumber: 1 })
+        HttpResponse.json({
+          correct: false,
+          items: [],
+          attemptNumber: 1,
+          prizeType: 'no prize',
+          amount: 0,
+          currentCoin: 100,
+          hasAttackSlot: false,
+        })
       )
     );
 
@@ -280,7 +304,15 @@ describe('useBlockExercises()', () => {
         })
       ),
       http.post('*/api/practice/exercises/:exerciseId/submit', () =>
-        HttpResponse.json({ correct: true, items: [], attemptNumber: 1 })
+        HttpResponse.json({
+          correct: true,
+          items: [],
+          attemptNumber: 1,
+          prizeType: 'coin',
+          amount: 10,
+          currentCoin: 100,
+          hasAttackSlot: false,
+        })
       )
     );
 

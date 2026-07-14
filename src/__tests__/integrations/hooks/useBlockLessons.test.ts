@@ -28,7 +28,12 @@ describe('useBlockLessons()', () => {
         return HttpResponse.json({
           _id: String(params.lessonId),
           title: 'Introduction to C++',
+          order: 1,
           blocks: [],
+          progress: {
+            completionPercentage: 0,
+            isCompleted: false,
+          },
         });
       })
     );
@@ -48,7 +53,12 @@ describe('useBlockLessons()', () => {
     expect(result.current.currentLesson).toEqual({
       _id: 'lesson-123',
       title: 'Introduction to C++',
+      order: 1,
       blocks: [],
+      progress: {
+        completionPercentage: 0,
+        isCompleted: false,
+      },
     });
   });
 
@@ -81,7 +91,12 @@ describe('useBlockLessons()', () => {
             id === 'lesson-123'
               ? 'Introduction to C++'
               : 'Pointers & References',
+          order: 1,
           blocks: [],
+          progress: {
+            completionPercentage: 0,
+            isCompleted: false,
+          },
         });
       })
     );
@@ -116,7 +131,12 @@ describe('useBlockLessons()', () => {
             callCount === 1
               ? 'Introduction to C++'
               : 'Updated Introduction to C++',
+          order: 1,
           blocks: [],
+          progress: {
+            completionPercentage: 0,
+            isCompleted: false,
+          },
         });
       })
     );

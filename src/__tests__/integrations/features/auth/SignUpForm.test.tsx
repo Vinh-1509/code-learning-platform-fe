@@ -8,7 +8,7 @@ import { renderWithRouter } from '../../../helpers/renderWithRouter';
 
 describe('SignupForm', () => {
   it('does not call onSubmit when passwords do not match', async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     const onSubmit = vi.fn();
 
     await renderWithRouter(<SignupForm onSubmit={onSubmit} />);
@@ -28,7 +28,7 @@ describe('SignupForm', () => {
   });
 
   it('calls onSubmit when passwords match', async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     const onSubmit = vi.fn().mockResolvedValue(undefined);
 
     await renderWithRouter(<SignupForm onSubmit={onSubmit} />);

@@ -136,10 +136,33 @@ export const handlers = [
 
   http.get('*/api/practice/exercises', () => {
     return HttpResponse.json({
-      total: 0,
+      total: 2,
       page: 1,
       limit: 15,
-      data: [],
+      data: [
+        {
+          _id: 'ex-1',
+          title: 'Practice Exercise 1',
+          instruction: 'Complete this exercise.',
+          language: 'C++',
+          tagId: [],
+          type: 'fill_blank',
+          level: 'easy',
+          order: 1,
+          status: 'active',
+        },
+        {
+          _id: 'ex-2',
+          title: 'Practice Exercise 2',
+          instruction: 'Complete this exercise.',
+          language: 'C++',
+          tagId: [],
+          type: 'drag_drop',
+          level: 'medium',
+          order: 2,
+          status: 'active',
+        },
+      ],
     });
   }),
 
@@ -168,6 +191,10 @@ export const handlers = [
       correct: true,
       items: [],
       attemptNumber: 1,
+      prizeType: 'coin',
+      amount: 10,
+      currentCoin: 100,
+      hasAttackSlot: false,
     });
   }),
 
@@ -252,6 +279,8 @@ export const handlers = [
         totalCompletedExercises: 0,
         overallProgress: 0,
         weakTagsCount: 0,
+        totalLessons: 0,
+        totalExercises: 0,
       },
       milestones: [],
       dailyReview: {

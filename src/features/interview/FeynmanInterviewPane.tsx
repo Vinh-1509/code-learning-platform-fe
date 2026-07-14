@@ -196,9 +196,10 @@ export function FeynmanInterviewPane({
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-sm text-rose-700">{errorMessage}</p>
                   <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => void refetch()}
+                    onClick={() => {
+                      setCustomError(null);
+                      void refetch();
+                    }}
                   >
                     <RotateCw className="w-4 h-4 mr-1" /> Retry
                   </Button>

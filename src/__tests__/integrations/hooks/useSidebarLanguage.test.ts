@@ -1,11 +1,11 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { renderHook } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createQueryWrapper } from '@/__tests__/helpers/queryWrapper';
 import { useSidebarLanguage } from '@/components/sidebar/useSidebarLanguage';
-import { getMe } from '@/features/auth/api/auth.api';
+import * as authModule from '@/features/auth/useAuth';
 
-vi.mock('@/features/auth/api/auth.api', () => ({
-  getMe: vi.fn(),
+vi.mock('@/features/auth/useAuth', () => ({
+  useAuth: vi.fn(),
 }));
 
 describe('useSidebarLanguage', () => {
@@ -13,75 +13,66 @@ describe('useSidebarLanguage', () => {
     vi.clearAllMocks();
   });
 
-  it('loads selected language successfully', async () => {
-    vi.mocked(getMe).mockResolvedValue({
-      _id: 'user-1',
-      email: 'test@example.com',
-      username: 'testuser',
-      coins: 100,
-      selectedLanguage: ['Java'],
-      createdAt: '2026-01-01T00:00:00.000Z',
-      hasSeenTour: false,
-    });
+  it('loads selected language successfully', () => {
+    vi.mocked(authModule.useAuth).mockReturnValue({
+      user: {
+        _id: 'user-1',
+        email: 'test@example.com',
+        username: 'testuser',
+        coins: 100,
+        selectedLanguage: ['Java'],
+        createdAt: '2026-01-01T00:00:00.000Z',
+        hasSeenTour: false,
+      },
+      logout: vi.fn(),
+      loading: false,
+    } as any);
 
     const { wrapper } = createQueryWrapper();
     const { result } = renderHook(() => useSidebarLanguage(), { wrapper });
 
-    await waitFor(() => {
-      expect(result.current.languageLabel).toBe('Java');
-    });
-
-    expect(getMe).toHaveBeenCalledTimes(1);
+    expect(result.current.languageLabel).toBe('Java');
   });
 
-  it('falls back to "Your Language" when selectedLanguage is undefined', async () => {
-    vi.mocked(getMe).mockResolvedValue({
-      _id: 'user-1',
-      email: 'test@example.com',
-      username: 'testuser',
-      coins: 100,
-      selectedLanguage: ['Java'],
-      createdAt: '2026-01-01T00:00:00.000Z',
-      hasSeenTour: false,
-    });
+  it('falls back to "Your Language" when selectedLanguage is undefined', () => {
+    vi.mocked(authModule.useAuth).mockReturnValue({
+      user: {
+        _id: 'user-1',
+        email: 'test@example.com',
+        username: 'testuser',
+        coins: 100,
+        selectedLanguage: undefined,
+        createdAt: '2026-01-01T00:00:00.000Z',
+        hasSeenTour: false,
+      },
+      logout: vi.fn(),
+      loading: false,
+    } as any);
 
     const { wrapper } = createQueryWrapper();
     const { result } = renderHook(() => useSidebarLanguage(), { wrapper });
 
-    await waitFor(() => {
-      expect(result.current.languageLabel).toBe('Your Language');
-    });
+    expect(result.current.languageLabel).toBe('Your Language');
   });
 
-  it('falls back to "Your Language" when selectedLanguage is empty', async () => {
-    vi.mocked(getMe).mockResolvedValue({
-      _id: 'user-1',
-      email: 'test@example.com',
-      username: 'testuser',
-      coins: 100,
-      selectedLanguage: [],
-      createdAt: '2026-01-01T00:00:00.000Z',
-      hasSeenTour: false,
-    });
+  it('falls back to "Your Language" when selectedLanguage is empty', () => {
+    vi.mocked(authModule.useAuth).mockReturnValue({
+      user: {
+        _id: 'user-1',
+        email: 'test@example.com',
+        username: 'testuser',
+        coins: 100,
+        selectedLanguage: [],
+        createdAt: '2026-01-01T00:00:00.000Z',
+        hasSeenTour: false,
+      },
+      logout: vi.fn(),
+      loading: false,
+    } as any);
 
     const { wrapper } = createQueryWrapper();
     const { result } = renderHook(() => useSidebarLanguage(), { wrapper });
 
-    await waitFor(() => {
-      expect(result.current.languageLabel).toBe('Your Language');
-    });
-  });
-
-  it('falls back to "Your Language" when getMe fails', async () => {
-    vi.mocked(getMe).mockRejectedValue(new Error('API Error'));
-
-    const { wrapper } = createQueryWrapper();
-    const { result } = renderHook(() => useSidebarLanguage(), { wrapper });
-
-    await waitFor(() => {
-      expect(result.current.languageLabel).toBe('Your Language');
-    });
-
-    expect(getMe).toHaveBeenCalledTimes(1);
+    expect(result.current.languageLabel).toBe('Your Language');
   });
 });

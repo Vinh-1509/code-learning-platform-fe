@@ -159,7 +159,18 @@ describe('axios.ts — practice/exercise wrapper functions', () => {
           total: 1,
           page: 1,
           limit: 10,
-          data: [{ _id: 'ex-9' }],
+          data: [
+            {
+              _id: 'ex-9',
+              title: 'Test Exercise',
+              instruction: 'Do this',
+              language: 'C++',
+              tagId: [],
+              type: 'fill_blank',
+              level: 'easy',
+              order: 1,
+            },
+          ],
         });
       })
     );

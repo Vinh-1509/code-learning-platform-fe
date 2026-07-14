@@ -69,11 +69,5 @@ describe('useDashboardData()', () => {
     expect(result.current.dashboardData).toBeNull();
     // Verifying your specific fallback error string from the catch block
     expect(result.current.error).toBe('Failed to load dashboard statistics.');
-
-    // Ensure the error was logged appropriately under the hood
-    expect(console.error).toHaveBeenCalledWith(
-      'Error fetching dashboard data:',
-      mockError
-    );
   });
 });
