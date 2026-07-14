@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render as rtlRender, screen, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 
@@ -10,6 +11,21 @@ import { server } from '../../../mocks/server';
 // to prevent UI components from crashing during tests.
 window.HTMLElement.prototype.scrollIntoView = vi.fn();
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { retry: false, gcTime: 0 },
+    mutations: { retry: false },
+  },
+});
+
+const render = (ui: React.ReactElement) => {
+  return rtlRender(ui, {
+    wrapper: ({ children }) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    ),
+  });
+};
+
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 // Matches the default MSW handler in handlers.ts
@@ -17,8 +33,8 @@ const DEFAULT_QUESTION = 'Explain this concept in your own words.';
 // Matches the default MSW chat handler
 const DEFAULT_CHAT_REPLY = 'Good explanation! You got it.';
 // Matches the literal string in the component
-const INIT_ERROR_MSG = 'Failed to load Feynman session. Please try again.';
-const CHAT_ERROR_MSG = 'Something went wrong. Please try again.';
+const INIT_ERROR_MSG = 'Failed to process Feynman session. Please try again.';
+const CHAT_ERROR_MSG = 'Failed to process Feynman session. Please try again.';
 const BLOCK_COMPLETE_403_MSG =
   'Feynman is available only after the block is completed.';
 
@@ -49,6 +65,7 @@ async function waitForInit() {
 describe('FeynmanInterviewPane', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    queryClient.clear();
     // Suppress the internal console.error calls the component makes on failures
     vi.spyOn(console, 'error').mockImplementation(() => {});
   });

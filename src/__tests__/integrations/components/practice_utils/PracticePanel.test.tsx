@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { PracticePanel } from '@/components/practice_utils/PracticePanel';
 
@@ -15,13 +16,30 @@ vi.mock('@/features/lesson/api/exercise.api', () => ({
   getExerciseHistory: vi.fn(),
 }));
 
+vi.mock('@/features/auth/useAuth', () => ({
+  useAuth: () => ({ user: { _id: 'user-1' } }),
+}));
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { retry: false, gcTime: 0 },
+  },
+});
+
+function renderWithClient(ui: React.ReactNode) {
+  return render(
+    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>
+  );
+}
+
 describe('PracticePanel', () => {
   beforeEach(() => {
+    queryClient.clear();
     vi.spyOn(console, 'log').mockImplementation(() => {});
   });
 
   it('renders fill-blank UI for fillblank exercises', async () => {
-    render(
+    renderWithClient(
       <PracticePanel
         exercise={fillBlankExerciseFixture}
         onSubmit={vi.fn()}
@@ -36,7 +54,7 @@ describe('PracticePanel', () => {
   });
 
   it('renders drag-and-drop UI for dragdrop exercises', async () => {
-    render(
+    renderWithClient(
       <PracticePanel
         exercise={dragDropExerciseFixture}
         onSubmit={vi.fn()}
@@ -55,7 +73,7 @@ describe('PracticePanel', () => {
     const user = userEvent.setup();
     const onSubmit = vi.fn().mockResolvedValue({ correct: true });
 
-    render(
+    renderWithClient(
       <PracticePanel
         exercise={fillBlankExerciseFixture}
         onSubmit={onSubmit}
@@ -86,7 +104,7 @@ describe('PracticePanel', () => {
       suggestion: 'Pick a descriptive name.',
     });
 
-    render(
+    renderWithClient(
       <PracticePanel
         exercise={fillBlankExerciseFixture}
         onSubmit={onSubmit}
@@ -113,7 +131,7 @@ describe('PracticePanel', () => {
     const user = userEvent.setup();
     const onSubmit = vi.fn().mockResolvedValue({ correct: true });
 
-    render(
+    renderWithClient(
       <PracticePanel
         exercise={dragDropExerciseFixture}
         onSubmit={onSubmit}
@@ -145,7 +163,7 @@ describe('PracticePanel', () => {
       hint: 'Try starting with the loop keyword.',
     });
 
-    render(
+    renderWithClient(
       <PracticePanel
         exercise={fillBlankExerciseFixture}
         onSubmit={vi.fn()}
@@ -178,7 +196,7 @@ describe('PracticePanel', () => {
       },
     ]);
 
-    render(
+    renderWithClient(
       <PracticePanel
         exercise={fillBlankExerciseFixture}
         onSubmit={vi.fn()}

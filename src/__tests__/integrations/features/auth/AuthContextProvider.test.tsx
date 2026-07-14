@@ -29,18 +29,18 @@ const queryClient = new QueryClient({
   },
 });
 
+const { navigateMock } = vi.hoisted(() => ({ navigateMock: vi.fn() }));
+
+vi.mock('@tanstack/react-router', async () => {
+  const actual = await vi.importActual('@tanstack/react-router');
+  return {
+    ...actual,
+    useNavigate: () => navigateMock,
+  };
+});
+
 // Helper render bọc đầy đủ React Query Provider và AuthProvider
 function renderWithAuth(ui: React.ReactNode) {
-  const navigateMock = vi.fn();
-
-  vi.mock('@tanstack/react-router', async () => {
-    const actual = await vi.importActual('@tanstack/react-router');
-    return {
-      ...actual,
-      useNavigate: () => navigateMock,
-    };
-  });
-
   render(
     <QueryClientProvider client={queryClient}>
       <AuthProvider>{ui}</AuthProvider>
@@ -137,7 +137,20 @@ describe('AuthProvider & Auth Hooks', () => {
       localStorage.setItem('token', 'existing-token');
       server.use(
         http.get('*/api/auth/me', () =>
-          HttpResponse.json({ selectedLanguage: ['C++'] })
+          HttpResponse.json({
+            _id: 'user-1',
+            email: 'test@test.com',
+            username: 'testuser',
+            fullName: 'Test User',
+            role: 'learner',
+            isEmailVerified: true,
+            streak: 0,
+            hasSeenTour: true,
+            status: 'active',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            selectedLanguage: ['C++'],
+          })
         )
       );
 
@@ -277,7 +290,9 @@ describe('AuthProvider & Auth Hooks', () => {
       localStorage.setItem('token', 'existing-token');
 
       renderWithAuth(<AuthProbe />);
-      await user.click(screen.getByRole('button', { name: /logout/i }));
+
+      const logoutBtn = await screen.findByRole('button', { name: /logout/i });
+      await user.click(logoutBtn);
 
       await waitFor(() => {
         expect(localStorage.getItem('token')).toBeNull();

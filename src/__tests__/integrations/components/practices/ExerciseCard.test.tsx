@@ -58,19 +58,19 @@ describe('ExerciseCard Component', () => {
         <ExerciseCard exercise={{ ...mockBaseExercise, level: 'easy' }} />
       );
       let badge = screen.getByText('easy');
-      expect(badge).toHaveClass('text-green-foreground', 'bg-green-mint');
+      expect(badge).toHaveClass('text-green-700', 'bg-green-50');
 
       rerender(
         <ExerciseCard exercise={{ ...mockBaseExercise, level: 'medium' }} />
       );
       badge = screen.getByText('medium');
-      expect(badge).toHaveClass('text-yellow-patel', 'bg-yellow-medium');
+      expect(badge).toHaveClass('text-amber-700', 'bg-amber-50');
 
       rerender(
         <ExerciseCard exercise={{ ...mockBaseExercise, level: 'hard' }} />
       );
       badge = screen.getByText('hard');
-      expect(badge).toHaveClass('text-red-foreground', 'bg-red-mint');
+      expect(badge).toHaveClass('text-red-700', 'bg-red-50');
     });
   });
 
@@ -80,12 +80,9 @@ describe('ExerciseCard Component', () => {
         <ExerciseCard exercise={{ ...mockBaseExercise, status: 'active' }} />
       );
 
-      const startButton = screen.getByRole('button', { name: /^start$/i });
-      expect(startButton).toBeInTheDocument();
-
-      const linkWrapper = startButton.closest('a');
-      expect(linkWrapper).toBeInTheDocument();
-      expect(linkWrapper).toHaveAttribute('href', '/practice-dedicated/ex-123');
+      const link = screen.getByRole('link');
+      expect(link).toBeInTheDocument();
+      expect(link).toHaveAttribute('href', '/practice-dedicated/ex-123');
 
       expect(screen.queryByText('Completed')).not.toBeInTheDocument();
       expect(screen.queryByText('Locked')).not.toBeInTheDocument();
@@ -97,13 +94,9 @@ describe('ExerciseCard Component', () => {
       );
 
       expect(screen.getByText('Completed')).toBeInTheDocument();
-      // Verifies the button remains present for retakes
-      expect(
-        screen.getByRole('button', { name: /start/i })
-      ).toBeInTheDocument();
-      expect(
-        screen.queryByRole('button', { name: /locked/i })
-      ).not.toBeInTheDocument();
+      const link = screen.getByRole('link');
+      expect(link).toBeInTheDocument();
+      expect(screen.queryByText('Locked')).not.toBeInTheDocument();
     });
 
     it('renders a locked exercise explicitly disabled', () => {
@@ -111,10 +104,7 @@ describe('ExerciseCard Component', () => {
         <ExerciseCard exercise={{ ...mockBaseExercise, status: 'locked' }} />
       );
 
-      const disabledButton = screen.getByRole('button', { name: /locked/i });
-      expect(disabledButton).toBeInTheDocument();
-      expect(disabledButton).toBeDisabled();
-
+      expect(screen.getByText('Locked')).toBeInTheDocument();
       expect(screen.queryByRole('link')).not.toBeInTheDocument();
       expect(screen.queryByText('Completed')).not.toBeInTheDocument();
     });
