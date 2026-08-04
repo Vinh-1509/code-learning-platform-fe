@@ -211,7 +211,7 @@ Detailed design docs live in [`docs/`](./docs/):
 ## 👥 Team
 
 - **Vinh Luong**
-- **Minh**
+- **Minh Ngo(FE lead)**
 - **An**
 - **Quan**
 - **Vinh Vu**
